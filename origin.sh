@@ -22,3 +22,18 @@ done
 parallel --jobs $(nproc) < gamess_jobs.sh
 sh copy_jobs.sh
 grep UNCONVERGED gamess_logs/*.log | grep -E -o "[A-Z0-9]*_[0-9]*_-?[01]*" > unconverged_combination_id.txt
+
+# Run AIMAll on all outputs
+mkdir aimall
+> aimall_jobs.sh
+for INPATH in gamess_output/*.dat
+do
+    BASENAME=$(basename $INPATH)
+    COMBINATION_ID=${BASENAME%.dat}
+    WFN_PATH=aimall/$COMBINATION_ID.wfn
+    python ~/repos/qtaim-utilities/extract_wfn.py $INPATH --functional B3LYP > $WFN_PATH
+    echo "aimqb.ish -nogui -encomp=2 $COMBINATION_ID.wfn" >> aimall_jobs.sh
+done
+cd aimall
+parallel --jobs $(nproc) < ../aimall_jobs.sh
+cd ..
