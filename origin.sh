@@ -37,3 +37,11 @@ done
 cd aimall
 parallel --jobs $(nproc) < ../aimall_jobs.sh
 cd ..
+
+mkdir aimall_tbl
+for INPATH in aimall/*.sum
+do
+    MOL=$(basename $INPATH .sum)
+    python ~/repos/qtaim-utilities/parse_sum.py $INPATH aimall_tbl/$MOL
+done
+Rscript charge_energy_tables.R

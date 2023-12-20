@@ -49,7 +49,7 @@ for formula, table in coordinates.groupby('formula'):
                 'formula': formula,
                 'field_number': field_number,
                 'field_value': field_value,
-                'charge': charge,
+                'molecule_charge': charge,
                 'gamess_input_file': outpath
             })
 
