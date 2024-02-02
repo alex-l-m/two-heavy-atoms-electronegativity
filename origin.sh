@@ -45,3 +45,6 @@ do
     python ~/repos/qtaim-utilities/parse_sum.py $INPATH aimall_tbl/$MOL
 done
 Rscript charge_energy_tables.R
+
+Rscript smooth_energy.R
+Rscript smoothed_energy_plots.R
