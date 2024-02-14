@@ -40,7 +40,12 @@ write_csv(charge_transfer, "charge_transfer.csv.gz")
 
 # Smooth energies
 energy_charge <- total_atom_energies |>
-    left_join(charge_transfer, by = "combination_id")
+    # Inner join so we filter according to how the charge transfer table has
+    # been filtered
+    inner_join(charge_transfer, by = "combination_id")
+
+write_csv(energy_charge, "energy_charge.csv.gz")
+
 smoothed_energy <- energy_charge |>
     group_by(formula, symbol_donor, symbol_acceptor) |>
     reframe(tibble(new_charge = seq(min(charge_acceptor), max(charge_acceptor),
@@ -53,3 +58,21 @@ smoothed_energy <- energy_charge |>
     mutate(derivative = c(NA, diff(energy) / diff(charge_transfer)))
 
 write_csv(smoothed_energy, "smoothed_energy.csv.gz")
+
+# Assign derivatives to the unsmoothed energies
+energy_derivatives <- smoothed_energy |>
+    select(formula, charge_transfer, derivative) |>
+    group_by(formula) |>
+    nest() |>
+    left_join(energy_charge, by = "formula") |>
+    # Very hard to read. Relies on the fact that "charge_acceptor" has been
+    # renamed "charge_transfer" during smoothing, and I shouldn't be grouping
+    # by a value
+    group_by(combination_id, charge_acceptor) |>
+    summarize(derivative = sapply(data, function(df) {with(df, 
+        approx(charge_transfer, derivative, xout = charge_acceptor)$y)})) |>
+    rename(charge_transfer = charge_acceptor)
+    
+write_csv(energy_derivatives, "energy_derivatives.csv.gz")
+    
+    
