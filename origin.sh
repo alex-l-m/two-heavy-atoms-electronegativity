@@ -32,7 +32,7 @@ do
     COMBINATION_ID=${BASENAME%.dat}
     WFN_PATH=aimall/$COMBINATION_ID.wfn
     python ~/repos/qtaim-utilities/extract_wfn.py $INPATH --functional B3LYP > $WFN_PATH
-    echo "aimqb.ish -nogui -encomp=2 $COMBINATION_ID.wfn" >> aimall_jobs.sh
+    echo "aimqb.ish -nogui -encomp=4 $COMBINATION_ID.wfn" >> aimall_jobs.sh
 done
 cd aimall
 parallel --jobs $(nproc) < ../aimall_jobs.sh
