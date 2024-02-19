@@ -1,0 +1,129 @@
+@article{verstraelen2015can,
+  title={Can the electronegativity equalization method predict spectroscopic properties?},
+  author={Verstraelen, Toon and Bultinck, Patrick},
+  journal={Spectrochimica Acta Part A: Molecular and Biomolecular Spectroscopy},
+  volume={136},
+  pages={76--80},
+  year={2015},
+  publisher={Elsevier},
+  abstract="The electronegativity equalization method is classically used as a method allowing the fast generation of atomic charges using a set of calibrated parameters and provided knowledge of the molecular structure. Recently, it has started being used for the calculation of other reactivity descriptors and for the development of polarizable and reactive force fields. For such applications, it is of interest to know whether the method, through the inclusion of the molecular geometry in the Taylor expansion of the energy, would also allow sufficiently accurate predictions of spectroscopic data. In this work, relevant quantities for IR spectroscopy are considered, namely the dipole derivatives and the Cartesian Hessian. Despite careful calibration of parameters for this specific task, it is shown that the current models yield insufficiently accurate results.",
+  annotate="EEq is based on a expression for energy which includes distance-dependent terms. These seem sufficient for capturing the changes in energy as charge is redistributed around the molecule, which depends on the geometry. However, EEq is not a force field, at most a supplement to a force field. So you wouldn't expect differentiating it to give you accurate forces. In this paper, they differentiate it twice to get a Hessian, and confirm that the results are not close to the actual Hessian. This is 'spectroscopic' because it's related to infrared spectroscopy. There's no attempt at band gaps."
+}
+@article{verstraelen2013acks2,
+  title={ACKS2: Atom-condensed Kohn-Sham DFT approximated to second order},
+  author={Verstraelen, Toon and Ayers, PW and Van Speybroeck, Veronique and Waroquier, Michel},
+  journal={The Journal of chemical physics},
+  volume={138},
+  number={7},
+  year={2013},
+  publisher={AIP Publishing},
+  abstract="A new polarizable force field (PFF), namely atom-condensed Kohn-Sham density functional theory approximated to second order (ACKS2), is proposed for the efficient computation of atomic charges and linear response properties of extended molecular systems. It is derived from Kohn-Sham density functional theory (KS-DFT), making use of two novel ingredients in the context of PFFs: (i) constrained atomic populations and (ii) the Legendre transform of the Kohn-Sham kinetic energy. ACKS2 is essentially an extension of the Electronegativity Equalization Method (EEM) in which two major EEM shortcomings are fixed: ACKS2 predicts a linear size-dependence of the dipole polarizability in the macroscopic limit and correctly describes the charge distribution when a molecule dissociates. All ACKS2 parameters are defined as atoms-in-molecules expectation values. The implementation of ACKS2 is very similar to that of EEM, with only a small increase in computational cost.",
+  annotate="It seems like there's two possible uses of the technique in this paper. One would be to compute the 'actual' energy terms from the wavefunction, so we can see how close the statistical fit is. The other is that it gives some ideas for recognizing transferability. The basic idea sems to be to consider the hardness matrix as usually derived to be complete: that is, it's everything you get from factorizing the density matrix, and becomes the usual Coulomb term. Everything else becomes part of a new term 'T'. 'T' depends on a 'linear response matrix' which includes bonding and conjugation. This is exciting because it makes it seem possible to calculate the 'true' interaction terms of electronegativity equalization, or rather, the 'true' correction to the coulomb terms. It also makes it clear how conjugation shoudl affect the result. What's still confusing to me is how kinetic energy is included. I always thought kinetic energy was part of the diagonal of the hardness matrix. It seems that there's also neighbor-dependent corrections which end up as part of 'T'? It's worth following the derivation more closely to understand this issue. Bader kinetic energies should be transferable properties of the density wtihin an atomic basin, so I don't see why they should be included in a nonlocal term like this."
+}
+@Article{Verstraelen2011,
+author={Verstraelen, T.
+and Bultinck, P.
+and Van Speybroeck, V.
+and Ayers, P. W.
+and Van Neck, D.
+and Waroquier, M.},
+title={The Significance of Parameters in Charge Equilibration Models},
+journal={Journal of Chemical Theory and Computation},
+year={2011},
+month={Jun},
+day={14},
+publisher={American Chemical Society},
+volume={7},
+number={6},
+pages={1750-1764},
+abstract={Charge equilibration models such as the electronegativity equalization method (EEM) and the split charge equilibration (SQE) are extensively used in the literature for the efficient computation of accurate atomic charges in molecules. However, there is no consensus on a generic set of optimal parameters, even when one only considers parameters calibrated against atomic charges in organic molecules. In this work, the origin of the disagreement in the parameters is investigated by comparing and analyzing six sets of parameters based on two sets of molecules and three calibration procedures. The resulting statistical analysis clearly indicates that the conventional least-squares cost function based solely on atomic charges is in general ill-conditioned and not capable of fixing all parameters in a charge-equilibration model. Methodological guidelines are formulated to improve the stability of the parameters. Although in this case a simple interpretation of individual parameters is not possible, charge equilibration models remain of great practical use for the computation of atomic charges.},
+annotate={This paper shows that the minima of EEq loss functions have near-singular subspaces. To me this is unsurprising based on regression theory: there's correlated variables. I feel like I could make the perfect EEq dataset that determines all the parameters, but I'm not sure tha twould be interesting. I've also considered that maybe the reason the parameters are undetermined is simply because multiple classes of atoms are being collapsed to a single one. Verstraelen doesn't seem to think underdetermination of the parameter sis a real issue, since all these paramters make the same predictions anyway. I think it is because we want to extrapolate.},
+issn={1549-9618},
+doi={10.1021/ct200006e},
+url={https://doi.org/10.1021/ct200006e}
+}
+@Article{B604983D,
+author ="Martín Pendás, A. and Francisco, E. and Blanco, M. A.",
+title  ="Charge transfer{,} chemical potentials{,} and the nature of functional groups: answers from quantum chemical topology",
+journal  ="Faraday Discuss.",
+year  ="2007",
+volume  ="135",
+issue  ="0",
+pages  ="423-438",
+publisher  ="The Royal Society of Chemistry",
+doi  ="10.1039/B604983D",
+url  ="http://dx.doi.org/10.1039/B604983D",
+abstract  ="We analyze the response of a quantum group within a molecule to charge transfer by using the interacting quantum atoms approach (IQA){,} an energy partitioning scheme within the quantum theory of atoms in molecules (QTAM). It is shown that this response lies at the core of the concept of the functional group. The manipulation of fractional electron populations is carried out by using distribution functions for the electron number within the quantum basins. Several test systems are studied to show that similar chemical potential groups are characterized by similar energetic behavior upon interaction with other groups. The origin of the empirical additivity rules for group energies in simple hydrocarbons is also investigated. It turns out to rest on the independent saturation of both the self-energies and the interaction energies of the groups as the size of the chain increases. We also show that our results are compatible with the standard group energies of the QTAM.",
+annotate="IQA studies of lithium hydride, and of a series basically identical to mine: fully saturated molecules with two heavy atoms. The lithium hydride simulations are about bond stretching, and demonstrate that lithium's chemical potential is basically constant as the bond stretched, when defined as derivative of IQA energy of lithium as a function of charge of lithium (figure 2). This is an odd result, since I would expect chemical potential to be linear as a function of charge, not constant. I still don't understand what's being shown in the carbon series. All simulations were done at the Hartree-Fock level, which I guess eliminates the ambiguities in partitioning the energy, at the expense of not being trustworthy with the high correlation energy that you get from stretched bonds, which seems to undermine the lithium hydride results."
+}
+@article{boyd1992group,
+  title={Group electronegativities from the bond critical point model},
+  author={Boyd, Russell J and Boyd, Susan L},
+  journal={Journal of the American Chemical Society},
+  volume={114},
+  number={5},
+  pages={1652--1655},
+  year={1992},
+  publisher={ACS Publications},
+  abstract={The bond critical point model is used to calculate the electronegativities of over 100 groups from ab initio wave functions. The data show that the electronegativity of a group is largely determined by the connecting atom: atoms that are one bond or more removed have very little effect on the electronegativity of a group. The small effect of atoms one bond or more removed, however, is consistent with qualitative predictions: the higher the electronegativity of B for a given A, the greater the electronegativity of group -AB. Two other trends of note are, firstly, that increasing unsaturation in the vicinal bond increases electronegativity and, secondly, that protonation increases electronegativity of a group while deprotonation decreases it.},
+  annotate={Tests electronegativity of a group by how it withdraws electrons from hydrogen. So a methyl group will be tested by simulating methane. The bond critical point is the minimum of electron density along the bond path, so for a more electronegative group it should be closer to hydrogen. Formula 3 seems to say the opposite: electronegativity is proportional to the distance between the bond critical point and hydrogen. However, this "electronegativity factor" is raised to a negative power, so it should really be interpreted more as a chemical potential. Comparing a methyl and fluoromethyl group in table 1, the bond length is about the same, but the critical point is closer to hydrogen, resulting in a higher electronegativity for fluoromethyl (which means I read the formula wrong?). Critical point density also makes electronegativity higher (makes electronegativity factor smaller in formula 3), I guess because more electron density is pulled from hydrogen into the bond.}
+}
+@article{doi:10.1021/ja00275a013,
+author = {Mortier, Wilfried J. and Ghosh, Swapan K. and Shankar, S.},
+title = {Electronegativity-equalization method for the calculation of atomic charges in molecules},
+journal = {Journal of the American Chemical Society},
+volume = {108},
+number = {15},
+pages = {4315-4320},
+year = {1986},
+doi = {10.1021/ja00275a013},
+
+URL = {
+
+        https://doi.org/10.1021/ja00275a013
+
+
+
+},
+eprint = {
+
+        https://doi.org/10.1021/ja00275a013
+
+
+
+}
+
+}
+@article{ghanty1991electronegativity,
+  title={Electronegativity and covalent binding in homonuclear diatomic molecules},
+  author={Ghanty, Tapan K and Ghosh, Swapan K},
+  journal={The Journal of Physical Chemistry},
+  volume={95},
+  number={17},
+  pages={6512--6514},
+  year={1991},
+  publisher={ACS Publications},
+  abstract={We propose a new electronegativity-based approach to covalent binding in homonuclear diatomic molecules in terms of the accumulation of electron density at the bond center during molecule formation by invoking the concepts of bond electronegativity and bond hardness. Expressions for thebond energies that are derived here are numerically tested for selected diatomic molecules.}
+}
+@article{rappe1991charge,
+  title={Charge equilibration for molecular dynamics simulations},
+  author={Rappe, Anthony K and Goddard III, William A},
+  journal={The Journal of Physical Chemistry},
+  volume={95},
+  number={8},
+  pages={3358--3363},
+  year={1991},
+  publisher={ACS Publications}
+}
+@article{casals2020electronegativity,
+  title={Electronegativity equalization: taming an old problem with new tools},
+  author={Casals-Sainz, J Luis and Francisco, E and Pend{\'a}s, A Mart{\'\i}n},
+  journal={Physical Chemistry Chemical Physics},
+  volume={22},
+  number={40},
+  pages={22880--22884},
+  year={2020},
+  publisher={Royal Society of Chemistry},
+  abstract={Electronegativity equalization is examined after understanding an atom-in-a-molecule as an open quantum system, characterized by a variable fluctuating number of electrons whose average is set through charge-constrained electronic structure calculations. It is shown that actual results in toy systems can be easily modeled through electron distribution functions, and that by doing so several conflicting interpretations converge onto a common formalism.},
+  annotate={Atom energy as a function of electron count in hydrogen molecules. Uses charge-constrained DFT. Figure 1 compares a pair of free hydrogen atoms vs bonded hydrogen atoms. Free ones have piecewise linear energy. Bonded ones it looks like you could approximate it with a quadratic. Would be interesting to see the derivative, which would be chemical potential.}
+}
