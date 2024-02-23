@@ -21,7 +21,7 @@ do
 done
 parallel --jobs $(nproc) < gamess_jobs.sh
 sh copy_jobs.sh
-grep UNCONVERGED gamess_logs/*.log | grep -E -o "[A-Z0-9]*_[0-9]*_-?[01]*" > unconverged_combination_id.txt
+grep UNCONVERGED gamess_logs/*.log | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > unconverged_combination_id.txt
 
 # Run AIMAll on all outputs
 mkdir aimall
