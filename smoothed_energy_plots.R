@@ -54,11 +54,31 @@ nofield_energies <- energy_charge |>
     select(formula, charge_acceptor, energy) |>
     rename(charge_transfer = charge_acceptor)
 
+# Also make a table of all energies with the same conventions for naming
+# variables, for judging the fit of the smoothed curve
+energies <- energy_charge |>
+    select(combination_id, energy, charge_acceptor) |>
+    inner_join(simulation_table, by = 'combination_id') |>
+    filter(molecule_charge == 0) |>
+    select(formula, charge_acceptor, energy) |>
+    rename(charge_transfer = charge_acceptor)
+
 this_theme <- 
     theme(
         # x axis text is too crowded, rotate it
         axis.text.x = element_text(angle = 90)
     )
+
+# Make a plot judging the quality of fit of the smoothed energy function to the
+# original function
+energy_smoothing_validation_plot <- smoothed_energy |>
+    ggplot(mapping = aes(x = charge_transfer, y = energy)) +
+    facet_wrap(~ formula, scales = 'free', nrow = 2) +
+    geom_line() +
+    geom_point(mapping = aes(x = charge_transfer, y = energy), data = energies) +
+    this_theme
+ggsave('energy_smoothing_validation.png', energy_smoothing_validation_plot,
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
 energy_with_nofield <- smoothed_energy |>
     ggplot(mapping = aes(x = charge_transfer, y = energy)) +
