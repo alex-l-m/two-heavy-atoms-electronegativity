@@ -55,7 +55,7 @@ nna_number <- one_tbl |>
 write_csv(nna_number, 'nna_number.csv.gz')
 
 # Table containing combination id's of simulations without non-nuclear
-# attractors, for filtering with an inner join. Should also exclude simulations
+# attractors, for filtering with a join. Should also exclude simulations
 # without non-nuclear attractors, if the field is more extreme than a
 # simulation with a non-nuclear attractor
 # This filtering technique doesn't work if there's NNA's without a field
@@ -74,8 +74,8 @@ nna_at_field_or_weaker <- directional_field_nna |>
               .groups = 'drop')
 write_csv(nna_at_field_or_weaker, 'nna_at_field_or_weaker.csv.gz')
 
-no_nna <- nna_at_field_or_weaker |>
-    filter(nna_at_field_or_weaker == 0) |>
+too_strong <- nna_at_field_or_weaker |>
+    filter(nna_at_field_or_weaker > 0) |>
     select(combination_id)
 
 # Bader charge of each atom
@@ -89,7 +89,7 @@ write_csv(bader_charge_atom, 'bader_charge_atom.csv.gz')
 
 # Bader charge of each group
 bader_charge_group <- bader_charge_atom |>
-    inner_join(no_nna, by = 'combination_id') |>
+    anti_join(too_strong, by = 'combination_id') |>
     left_join(simulation_table, by = 'combination_id') |>
     left_join(coordinates, by = c('formula', 'atom_id'),
               relationship = 'many-to-one') |>
@@ -108,7 +108,7 @@ write_csv(bader_charge_group, 'bader_charge_group.csv.gz')
 TO_EV <- 27.211386246
 combined_atom_energies <- tibble(path = Sys.glob('aimall_tbl/*_oneatom.csv')) |>
     mutate(combination_id = str_match(path, 'aimall_tbl/(.*)_oneatom.csv')[,2]) |>
-    inner_join(no_nna, by = 'combination_id') |>
+    anti_join(too_strong, by = 'combination_id') |>
     group_by(combination_id) |>
     # Read each table, treating the value column as numeric
     reframe(read_csv(path,
