@@ -4,7 +4,7 @@ library(ggdark)
 library(robustbase)
 theme_set(dark_mode(theme_cowplot()))
 
-smoothed_energy <- read_csv("smoothed_energy.csv.gz", col_types = cols(
+smoothed_energy <- read_csv('smoothed_energy.csv.gz', col_types = cols(
     formula = col_character(),
     symbol_donor = col_character(),
     symbol_acceptor = col_character(),
@@ -33,7 +33,7 @@ simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
 
 nofield_derivatives <- simulation_table |>
     filter(molecule_charge == 0, field_value == 0) |>
-    inner_join(energy_derivatives, by = "combination_id") |>
+    inner_join(energy_derivatives, by = 'combination_id') |>
     select(formula, charge_transfer, derivative)
 
 # Do the same for ordinary energies
@@ -49,7 +49,7 @@ energy_charge <- read_csv('energy_charge.csv.gz', col_types = cols(
 
 nofield_energies <- energy_charge |>
     select(combination_id, energy, charge_acceptor) |>
-    inner_join(simulation_table, by = "combination_id") |>
+    inner_join(simulation_table, by = 'combination_id') |>
     filter(molecule_charge == 0, field_value == 0) |>
     select(formula, charge_acceptor, energy) |>
     rename(charge_transfer = charge_acceptor)
@@ -60,19 +60,19 @@ this_theme <-
         axis.text.x = element_text(angle = 90)
     )
 
-energy_comparison_comparison <- smoothed_energy |>
+energy_with_nofield <- smoothed_energy |>
     ggplot(mapping = aes(x = charge_transfer, y = energy)) +
-    facet_wrap(~ formula, scales = "free", nrow = 2) +
+    facet_wrap(~ formula, scales = 'free', nrow = 2) +
     geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
     geom_line() +
     geom_point(mapping = aes(x = charge_transfer, y = energy), data = nofield_energies) +
     this_theme
-ggsave("energy_comparison_comparison.png", energy_comparison_comparison, width = unit(11.5, "in"), height = unit(4.76, "in"))
+ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
-energy_derivatives_comparison <- smoothed_energy |>
+energy_with_nofield <- smoothed_energy |>
     ggplot(aes(x = charge_transfer, y = derivative)) +
-    facet_wrap(vars(formula), scales = "free", nrow = 2) +
+    facet_wrap(vars(formula), scales = 'free', nrow = 2) +
     geom_line() +
     geom_point(mapping = aes(x = charge_transfer, y = derivative), data = nofield_derivatives) +
     this_theme
-ggsave("energy_derivatives_comparison.png", energy_derivatives_comparison, width = unit(11.5, "in"), height = unit(4.76, "in"))
+ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
