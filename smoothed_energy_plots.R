@@ -69,10 +69,10 @@ energy_with_nofield <- smoothed_energy |>
     this_theme
 ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
-energy_with_nofield <- smoothed_energy |>
+energy_derivatives_with_nofield <- smoothed_energy |>
     ggplot(aes(x = charge_transfer, y = derivative)) +
     facet_wrap(vars(formula), scales = 'free', nrow = 2) +
     geom_line() +
     geom_point(mapping = aes(x = charge_transfer, y = derivative), data = nofield_derivatives) +
     this_theme
-ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
