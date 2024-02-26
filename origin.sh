@@ -44,6 +44,9 @@ do
     MOL=$(basename $INPATH .sum)
     python ~/repos/qtaim-utilities/parse_sum.py $INPATH aimall_tbl/$MOL
 done
+
+Rscript simulation_status.R
+
 Rscript charge_energy_tables.R
 
 Rscript smooth_energy.R
