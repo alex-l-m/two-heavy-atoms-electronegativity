@@ -3,6 +3,22 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 
+# Make a table for filtering based on whether integration was accurate. If I
+# don't filter these out, I get simulations of neutral molecules where the
+# Bader charges don't and up to zero. I could also filter based on convergence
+# of GAMESS, but I don't think that unconverged GAMESS simulations get AIMAll
+# integrations
+simulation_status <- read_csv('simulation_status.csv.gz', col_types = cols(
+    combination_id = col_character(),
+    gamess_complete = col_logical(),
+    converged = col_logical(),
+    integration_complete = col_logical(),
+    accurate_integration = col_logical()
+))
+accurate_integration <- simulation_status |>
+    filter(accurate_integration) |>
+    select(combination_id)
+
 one_tbl <- tibble(path = Sys.glob('aimall_tbl/*_oneatom.csv')) |>
     mutate(combination_id = str_match(path, 'aimall_tbl/(.*)_oneatom.csv')[,2]) |>
     group_by(combination_id) |>
@@ -10,7 +26,9 @@ one_tbl <- tibble(path = Sys.glob('aimall_tbl/*_oneatom.csv')) |>
     # AIMAll seems to maintain atom order but rename them, one-indexed in all
     # caps. To match my own naming scheme I need to capitalize only the first
     # letter
-    mutate(atom_id = str_to_title(atom_id))
+    mutate(atom_id = str_to_title(atom_id)) |>
+    # Filter out simulations with inaccurate integration
+    inner_join(accurate_integration, by = 'combination_id')
 
 write_csv(one_tbl, 'combined_one_tbl.csv.gz')
 

@@ -20,6 +20,10 @@ integration_results_filenames <- basename(integration_results_paths)
 integration_complete_combinations <- 
     str_extract(integration_results_filenames, '^(.*)\\.sum$', 1)
 
+# Combination id of simulations where integration didn't work
+bad_integration_list_filename <- 'bad_integration_combination_id.txt'
+bad_integration_combinations <- read_lines(bad_integration_list_filename)
+
 # Load table of simulations
 simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     combination_id = col_character(),
@@ -36,7 +40,8 @@ simulation_status <- simulation_table |>
     mutate(
         gamess_complete = combination_id %in% gamess_complete_combinations,
         converged = ! ifelse(gamess_complete, combination_id %in% unconverged_combinations, NA),
-        integration_complete = combination_id %in% integration_complete_combinations
+        integration_complete = combination_id %in% integration_complete_combinations,
+        accurate_integration = ! ifelse(integration_complete, combination_id %in% bad_integration_combinations, NA),
     )
 
 write_csv(simulation_status, 'simulation_status.csv.gz')

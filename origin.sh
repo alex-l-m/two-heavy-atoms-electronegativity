@@ -37,6 +37,8 @@ done
 cd aimall
 parallel --jobs $(nproc) < ../aimall_jobs.sh
 cd ..
+# -a Argument is needed because grep incorrectly infers some files are binary
+grep -a -E "Warning! *Significant cumulative integration error." aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > bad_integration_combination_id.txt
 
 mkdir aimall_tbl
 for INPATH in aimall/*.sum
