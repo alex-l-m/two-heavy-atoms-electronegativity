@@ -74,5 +74,3 @@ energy_derivatives <- smoothed_energy |>
     rename(charge_transfer = charge_acceptor)
     
 write_csv(energy_derivatives, 'energy_derivatives.csv.gz')
-    
-    
