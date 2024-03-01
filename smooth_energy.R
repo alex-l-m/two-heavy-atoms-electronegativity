@@ -50,8 +50,8 @@ smoothed_energy <- energy_charge |>
     group_by(formula, symbol_donor, symbol_acceptor) |>
     reframe(tibble(new_charge = seq(min(charge_acceptor), max(charge_acceptor),
                                     length.out = 100),
-                   energy = predict(loess(energy ~ charge_acceptor),
-                                    newdata = tibble(charge_acceptor = new_charge)))) |>
+                   # Simple linear interpolation
+                   energy = approx(charge_acceptor, energy, xout = new_charge)$y)) |>
     ungroup() |>
     rename(charge_transfer = new_charge) |>
     group_by(formula) |>
