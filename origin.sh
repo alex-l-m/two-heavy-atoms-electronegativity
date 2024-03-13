@@ -53,3 +53,4 @@ Rscript charge_energy_tables.R
 
 Rscript smooth_energy.R
 Rscript smoothed_energy_plots.R
+Rscript softness_table.R
