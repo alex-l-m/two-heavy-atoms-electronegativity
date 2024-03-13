@@ -54,3 +54,31 @@ Rscript charge_energy_tables.R
 Rscript smooth_energy.R
 Rscript smoothed_energy_plots.R
 Rscript softness_table.R
+# Evaluate electron density on a grid in a plane
+# Create directory for density results
+mkdir -p densities_plane
+# Run on every wavefunction file that was used for AIMAll
+for INPATH in aimall/*.wfn
+do
+    MOLID=$(basename $INPATH .wfn)
+    Multiwfn_noGUI $INPATH < density_multiwfn_input.txt
+    # Rename and move output file
+    mv plane.txt densities_plane/$MOLID.txt
+done
+# Combine densities and calculate differences
+mkdir -p density_difference_tables
+Rscript combine_compress_densities_plane.R
+# Make animation frames
+mkdir -p density_images
+for INPATH in density_difference_tables/*.csv.gz
+do
+    Rscript density_images.R $INPATH
+done
+# Make a gif animation from each folder of frames
+mkdir -p density_animation
+for FOLDER in density_images/*
+do
+    MOLID=$(basename $FOLDER)
+    convert -delay 5 -loop 0 $FOLDER/*.png density_animation/$MOLID.gif
+done
+
