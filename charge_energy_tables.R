@@ -22,7 +22,9 @@ accurate_integration <- simulation_status |>
 one_tbl <- tibble(path = Sys.glob('aimall_tbl/*_oneatom.csv')) |>
     mutate(combination_id = str_match(path, 'aimall_tbl/(.*)_oneatom.csv')[,2]) |>
     group_by(combination_id) |>
-    reframe(read_csv(path, col_names = c('section', 'atom_id', 'property', 'value'), col_types = cols(.default = col_character(), value = col_double()))) |>
+    reframe(read_csv(path,
+            col_names = c('section', 'atom_id', 'property', 'value'),
+            col_types = cols(.default = col_character(), value = col_double()))) |>
     # AIMAll seems to maintain atom order but rename them, one-indexed in all
     # caps. To match my own naming scheme I need to capitalize only the first
     # letter
@@ -83,7 +85,10 @@ directional_field_nna <- nna_number |>
     mutate(direction = sign(field_value),
            strength = abs(field_value))
 nna_at_field_or_weaker <- directional_field_nna |>
-    left_join(directional_field_nna, by = c('formula', 'direction'), suffix = c('', '_other'), relationship = 'many-to-many') |>
+    left_join(directional_field_nna,
+              by = c('formula', 'direction'),
+              suffix = c('', '_other'),
+              relationship = 'many-to-many') |>
     # What's the strongest field under the constraint that it has no NNA's,
     # and no weaker field has any NNA?
     filter(strength >= strength_other) |>
