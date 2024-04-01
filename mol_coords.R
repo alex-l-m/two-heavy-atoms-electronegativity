@@ -74,7 +74,7 @@ raw_coordinates <- read_csv('srd101_ExpCartesians.csv.gz', col_types = cols(
     rename(atomic_number = atomtype) |>
     # Use the atomic number to join with element properties
     left_join(element_properties, by = 'atomic_number') |>
-    mutate(atom_id = glue('{symbol}{atomnumber}'))
+    mutate(temp_atom_id = glue('{symbol}{atomnumber}'))
 
 # Make chemical formulas for each molecule
 formulas <- raw_coordinates |>
@@ -121,7 +121,7 @@ donor_or_acceptor <- selected_molecules |>
     filter(symbol != 'H') |>
     # Make columns listing the atom IDs of the electron donor (lower
     # electronegativity) and electron acceptor (higher electronegativity)
-    select(unique_id, atom_id, mulliken_electronegativity) |>
+    select(unique_id, temp_atom_id, mulliken_electronegativity) |>
     group_by(unique_id) |>
     # Detecting the minimum and maximum electronegativity atoms requires
     # special care for homonuclear molecules. We need to make sure that the
@@ -130,13 +130,13 @@ donor_or_acceptor <- selected_molecules |>
     # location of the first minimum or maximum. What we want is for one to
     # detect the first, and the other the last, that meets the condition.
     # Therefore, for one of them, reverse the vectors
-    summarize(donor = atom_id[which.min(mulliken_electronegativity)],
-              acceptor = rev(atom_id)[which.max(rev(mulliken_electronegativity))],
+    summarize(donor = temp_atom_id[which.min(mulliken_electronegativity)],
+              acceptor = rev(temp_atom_id)[which.max(rev(mulliken_electronegativity))],
               .groups = 'drop') |>
     # Convert this to a variable which labels each atom as a donor or acceptor
     pivot_longer(cols = c(donor, acceptor),
                  names_to = 'donor_or_acceptor',
-                 values_to = 'atom_id')
+                 values_to = 'temp_atom_id')
 
 # Coordinates of the two heavy atoms for purpose of centering
 # It doesn't matter which atom is which or what order they're in, for centering
@@ -155,7 +155,7 @@ centered <- heavy_coordinates_uncentered |>
     mutate(x = x - (x1 + x2) / 2,
            y = y - (y1 + y2) / 2,
            z = z - (z1 + z2) / 2) |>
-    select(unique_id, formula, atom_id, symbol, atomic_number, x, y, z)
+    select(unique_id, formula, temp_atom_id, symbol, atomic_number, x, y, z)
 
 # Centered coordinates of heavy atoms. This time it matters which one is the
 # donor and which one is the acceptor, since we always want to rotate the
@@ -165,7 +165,7 @@ centered <- heavy_coordinates_uncentered |>
 heavy_coordinates_centered <- centered |>
     # Filter for heavy atoms only
     filter(symbol != 'H') |>
-    left_join(donor_or_acceptor, by = c('unique_id', 'atom_id'),
+    left_join(donor_or_acceptor, by = c('unique_id', 'temp_atom_id'),
               relationship = 'one-to-one') |>
     group_by(unique_id, formula) |>
     # Atom 1 is donor, atom 2 is acceptor
@@ -187,20 +187,20 @@ rotated_unlabeled <- heavy_coordinates_centered |>
               relationship = 'one-to-many') |>
     # Do the rotation
     # Have to give them new names or they'll replace each other
-    group_by(unique_id, formula, atom_id) |>
+    group_by(unique_id, formula, temp_atom_id) |>
     mutate(x_rot = z_rot(c(x2, y2, z2), c(x, y, z))[1],
            y_rot = z_rot(c(x2, y2, z2), c(x, y, z))[2],
            z_rot = z_rot(c(x2, y2, z2), c(x, y, z))[3]) |>
     ungroup() |>
     # Keep unique id for now, for the join with donor and acceptor table
-    select(unique_id, formula, atom_id, symbol, atomic_number, x_rot, y_rot, z_rot) |>
+    select(unique_id, formula, temp_atom_id, symbol, atomic_number, x_rot, y_rot, z_rot) |>
     rename(x = x_rot, y = y_rot, z = z_rot) |>
     # Label top or bottom side, so heavy atom labels can be extended to hydrogen
     mutate(side = ifelse(z > 0, 'top', 'bottom'))
 
 # Label sides as donor or acceptor
 side_labels <- rotated_unlabeled |>
-    inner_join(donor_or_acceptor, by = c('unique_id', 'atom_id'),
+    inner_join(donor_or_acceptor, by = c('unique_id', 'temp_atom_id'),
               relationship = 'one-to-one') |>
     select(unique_id, formula, side, donor_or_acceptor)
 
@@ -209,6 +209,14 @@ rotated_labeled <- rotated_unlabeled |>
     left_join(side_labels, by = c('unique_id', 'formula', 'side'),
               relationship = 'many-to-one') |>
     # Select columns, now no longer requiring unique id
-    select(formula, atom_id, symbol, atomic_number, x, y, z, donor_or_acceptor)
+    select(formula, temp_atom_id, symbol, atomic_number, x, y, z, donor_or_acceptor) |>
+    # Re-order atoms so all donors come before all acceptors
+    # This is necessary for Q-Chem's CDFT functionality
+    arrange(formula, factor(donor_or_acceptor, levels  = c('donor', 'acceptor')),
+            symbol, temp_atom_id) |>
+    group_by(formula) |>
+    mutate(atom_id = glue('{symbol}{1:length(formula)}')) |>
+    select(-temp_atom_id)
+    
 
 write_csv(rotated_labeled, 'coordinates.csv.gz')
