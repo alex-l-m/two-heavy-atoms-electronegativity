@@ -6,6 +6,12 @@ mkdir gamess_input
 mkdir gamess_logs
 mkdir gamess_output
 python make_gamess_input.py
+
+mkdir qchem_input
+mkdir qchem_logs
+mkdir qchem_output
+python make_qchem_input.py
+
 # Run GAMESS on all input files and save logs
 > gamess_jobs.sh
 > copy_jobs.sh
