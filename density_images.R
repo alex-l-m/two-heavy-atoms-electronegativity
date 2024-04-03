@@ -38,12 +38,15 @@ for (this_density_difference_tbl in density_difference_list)
         geom_raster() +
         geom_contour(color = 'white', breaks = seq(-.1, .1, by = 0.01)) +
         coord_equal() +
-        scale_fill_viridis_c(rescaler = function(x, ...) (pmin(pmax(x, -.1), .1)*10 + 1)/2) +
+        scale_fill_viridis_c(rescaler = function(x, ...)
+                (pmin(pmax(x, -.1), .1)*10 + 1)/2
+        ) +
         theme_nothing() +
         # Following these instructions to remove margins:
         # https://stackoverflow.com/questions/31254533/when-using-ggplot-in-r-how-do-i-remove-margins-surrounding-the-plot-area
         scale_x_continuous(expand=c(0,0)) +
         scale_y_continuous(expand=c(0,0)) +
         labs(x = NULL, y = NULL)
-    ggsave(sprintf('density_images/%s/%s.png', formula, this_combination_id), width = unit(5, 'in'), height = unit(5, 'in'), dpi = 100)
+    ggsave(sprintf('density_images/%s/%s.png', formula, this_combination_id),
+           width = unit(5, 'in'), height = unit(5, 'in'), dpi = 100)
 }

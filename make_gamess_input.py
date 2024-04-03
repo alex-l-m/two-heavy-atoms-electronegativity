@@ -55,4 +55,4 @@ for formula, table in coordinates.groupby('formula'):
                 'gamess_input_file': outpath
             })
 
-pd.DataFrame(outrows).to_csv('simulations.csv.gz', index=False)
+pd.DataFrame(outrows).to_csv('gamess_simulations.csv.gz', index=False)

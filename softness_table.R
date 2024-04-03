@@ -47,7 +47,13 @@ nofield_charge_energy <- simulation_table |>
     left_join(charge_transfer, by = c('combination_id', 'formula')) |>
     select(formula, molecule_charge, energy,
            charge_acceptor, charge_donor) |>
-    mutate(ion = ifelse(molecule_charge == -1, 'negative', ifelse(molecule_charge == 1, 'positive', ifelse(molecule_charge == 0, 'neutral', NA)))) |>
+    mutate(ion = ifelse(molecule_charge == -1,
+                        'negative',
+                        ifelse(molecule_charge == 1,
+                               'positive',
+                               ifelse(molecule_charge == 0,
+                                      'neutral',
+                                      NA)))) |>
     arrange(formula, molecule_charge)
 
 # Ionization potentials and electron affinities
@@ -61,7 +67,9 @@ ipea <- nofield_charge_energy |>
                               
 # Upper and lower fukui function
 fukui <- nofield_charge_energy |>
-    pivot_wider(id_cols = formula, names_from = ion, values_from = c(charge_acceptor, charge_donor)) |>
+    pivot_wider(id_cols = formula,
+                names_from = ion,
+                values_from = c(charge_acceptor, charge_donor)) |>
     group_by(formula) |>
     transmute(
             lower_fukui_acceptor = charge_acceptor_positive - charge_acceptor_neutral,

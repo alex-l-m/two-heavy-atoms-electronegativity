@@ -76,7 +76,8 @@ energy_smoothing_validation_plot <- smoothed_energy |>
     ggplot(mapping = aes(x = charge_transfer, y = energy)) +
     facet_wrap(~ formula, scales = 'free', nrow = 2) +
     geom_line() +
-    geom_point(mapping = aes(x = charge_transfer, y = energy), data = energies) +
+    geom_point(mapping = aes(x = charge_transfer, y = energy),
+               data = energies) +
     this_theme
 ggsave('energy_smoothing_validation.png', energy_smoothing_validation_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
@@ -86,7 +87,8 @@ energy_with_nofield <- smoothed_energy |>
     facet_wrap(~ formula, scales = 'free', nrow = 2) +
     geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
     geom_line() +
-    geom_point(mapping = aes(x = charge_transfer, y = energy), data = nofield_energies) +
+    geom_point(mapping = aes(x = charge_transfer, y = energy),
+               data = nofield_energies) +
     this_theme
 ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
@@ -94,7 +96,8 @@ energy_derivatives_with_nofield <- smoothed_energy |>
     ggplot(aes(x = charge_transfer, y = derivative)) +
     facet_wrap(vars(formula), scales = 'free', nrow = 2) +
     geom_line() +
-    geom_point(mapping = aes(x = charge_transfer, y = derivative), data = nofield_derivatives) +
+    geom_point(mapping = aes(x = charge_transfer, y = derivative),
+               data = nofield_derivatives) +
     this_theme
 ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 

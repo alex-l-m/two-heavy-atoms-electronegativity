@@ -39,9 +39,13 @@ simulation_status <- simulation_table |>
     select(combination_id) |>
     mutate(
         gamess_complete = combination_id %in% gamess_complete_combinations,
-        converged = ! ifelse(gamess_complete, combination_id %in% unconverged_combinations, NA),
+        converged = ! ifelse(gamess_complete,
+                             combination_id %in% unconverged_combinations,
+                             NA),
         integration_complete = combination_id %in% integration_complete_combinations,
-        accurate_integration = ! ifelse(integration_complete, combination_id %in% bad_integration_combinations, NA),
+        accurate_integration = ! ifelse(integration_complete,
+                                        combination_id %in% bad_integration_combinations,
+                                        NA),
     )
 
 write_csv(simulation_status, 'simulation_status.csv.gz')
