@@ -142,3 +142,26 @@ total_atom_energies <- combined_atom_energies |>
     summarize(energy = TO_EV * sum(energy), .groups = 'drop')
 
 write_csv(total_atom_energies, 'total_atom_energies.csv.gz')
+
+# IQA energy of each atom
+# Repetitive, same as previous bader charge code, should probably be combined
+atom_iqa <- one_tbl |>
+    filter(section == "IQA Intraatomic (\"Self\") Energy Components" &
+                 property == "E_IQA_Intra(A)") |>
+    group_by(combination_id, atom_id) |>
+    transmute(iqa_energy = value * TO_EV) |>
+    ungroup()
+write_csv(atom_iqa, "atom_iqa.csv.gz")
+
+group_iqa <- atom_iqa |>
+    left_join(simulation_table, by = 'combination_id') |>
+    left_join(coordinates, by = c('formula', 'atom_id'),
+              relationship = 'many-to-one') |>
+    group_by(combination_id, formula, donor_or_acceptor) |>
+    summarize(
+        heavy_atom_symbol = symbol[symbol != 'H'][1],
+        total_iqa_energy = sum(iqa_energy),
+        .groups = 'drop'
+    ) |>
+    rename(symbol = heavy_atom_symbol)
+write_csv(group_iqa, "group_iqa.csv.gz")

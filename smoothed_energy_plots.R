@@ -10,7 +10,8 @@ smoothed_energy <- read_csv('smoothed_energy.csv.gz', col_types = cols(
     symbol_acceptor = col_character(),
     charge_transfer = col_double(),
     energy = col_double(),
-    derivative = col_double()
+    derivative = col_double(),
+    .default = col_double()
 ))
 
 energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
@@ -96,3 +97,20 @@ energy_derivatives_with_nofield <- smoothed_energy |>
     geom_point(mapping = aes(x = charge_transfer, y = derivative), data = nofield_derivatives) +
     this_theme
 ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+# Zoom in to look for linearity near neutral molecule
+energy_derivatives_zoomed <- smoothed_energy |>
+    ggplot(aes(x = charge_transfer, y = derivative)) +
+    facet_wrap(vars(formula), nrow = 2) +
+    # Add a horizontal line so we can see how far the no-field condition is
+    # from zero
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    # Mark equalized charge with a vertical line
+    geom_vline(xintercept = 0, linetype = 'dashed') +
+    # Add a linear fit to check how close to linear they are
+    geom_smooth(method = lmrob, formula = y ~ x, se = FALSE) +
+    geom_line() +
+    geom_point(mapping = aes(x = charge_transfer, y = derivative), data = nofield_derivatives) +
+    ylim(c(-5,5)) +
+    this_theme
+ggsave('energy_derivatives_zoomed.png', energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
