@@ -116,3 +116,51 @@ energy_derivatives_zoomed <- smoothed_energy |>
     ylim(c(-5,5)) +
     this_theme
 ggsave('energy_derivatives_zoomed.png', energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+
+# Read the 'Lam' values
+lam <- read_csv('lam_values.csv.gz', col_types = cols(
+    combination_id = col_character(),
+    lam = col_double()
+))
+# Doesn't have the formula column, or the charge transfer. Join with the table
+# containing energies and charges, just for the charges
+lam_charges <- lam |>
+    inner_join(energy_charge, by = 'combination_id') |>
+    select(formula, combination_id, lam, charge_donor, charge_acceptor)
+
+# Considering it as estimates of the derivative
+lam_derivs <- lam_charges |>
+    mutate(charge_transfer = charge_acceptor) |>
+    select(formula, lam, charge_transfer) |>
+    # Just putting the negative sign because that makes it match, I don't get
+    # why. Factor of two is because my linear combination has total weight two,
+    # though I thought that means I need to divide by two, but multiplying
+    # makes it match
+    mutate(derivative = - 2 * lam)
+
+# Table containing both the lambda values and the energy derivatives, for
+# comparison
+smoothed_energy_deriv_only <- smoothed_energy |>
+    select(formula, charge_transfer, derivative)
+lam_comparison <- bind_rows(`2 * Lam` = lam_derivs, `dE/dq` = smoothed_energy_deriv_only, .id = 'computation') |>
+    # Put Lam first, so it's the same color if I plot just that in another plot
+    mutate(computation = factor(computation, levels = c('2 * Lam', 'dE/dq')))
+
+lam_plot <- lam_comparison |>
+    ggplot(aes(x = charge_transfer, y = derivative, color = computation)) +
+    facet_wrap(~ formula, scales = 'free', nrow = 2) +
+    geom_line() +
+    xlim(-1, 1) +
+    theme(legend.position = 'bottom') +
+    # Put a vertical line to indicate 0
+    geom_vline(xintercept = 0, linetype = 'dashed') +
+    # Put a horizontal line to indicate zero
+    geom_hline(yintercept = 0, linetype = 'dashed')+
+    xlab('charge of electron acceptor') +
+    ylab('electronegativity') +
+    # Remove the title from the legend
+    guides(color = guide_legend(title = NULL))
+ggsave('lam_comparison.png', lam_plot,
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
