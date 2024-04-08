@@ -5,13 +5,9 @@ library(stringr)
 
 # Make a table for filtering based on whether integration was accurate. If I
 # don't filter these out, I get simulations of neutral molecules where the
-# Bader charges don't and up to zero. I could also filter based on convergence
-# of GAMESS, but I don't think that unconverged GAMESS simulations get AIMAll
-# integrations
+# Bader charges don't and up to zero.
 simulation_status <- read_csv('simulation_status.csv.gz', col_types = cols(
     combination_id = col_character(),
-    gamess_complete = col_logical(),
-    converged = col_logical(),
     integration_complete = col_logical(),
     accurate_integration = col_logical()
 ))
@@ -51,8 +47,7 @@ simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     formula = col_character(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    gamess_input_file = col_character()
+    molecule_charge = col_integer()
 ))
 
 # Detect combination id's for simulations where integration with AIMAll found

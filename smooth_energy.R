@@ -1,34 +1,11 @@
 library(tidyverse)
 
-bad_combinations <- c(
-  'C1Cl1H3_00_0',
-  'C1Cl1H3_01_0',
-  'C1Cl1H3_02_0',
-  'C1Cl1H3_04_0',
-  'C1Cl1H3_05_0',
- 'C1Cl1H3_45_0',
- 'C1Cl1H3_46_0',
- 'C1Cl1H3_47_0',
- 'C1Cl1H3_48_0',
- 'C1Cl1H3_49_0',
- 'C1Cl1H3_54_0',
- 'C1Cl1H3_55_0',
- 'C1Cl1H3_56_0',
- 'C1Cl1H3_58_0',
- 'C1Cl1H3_59_0',
- 'C1Cl1H3_60_0',
- 'C1H4S1_51_0',
- 'Cl1F1_00_0')
-
-bad_formulas <- c('C1F1H3', 'F1H1O1')
-
 simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     combination_id = col_character(),
     formula = col_character(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    gamess_input_file = col_character()
+    molecule_charge = col_integer()
 ))
 
 neutral_combinations <- simulation_table |>
@@ -42,15 +19,13 @@ bader_charge <- read_csv('bader_charge_group.csv.gz', col_types = cols(
     donor_or_acceptor = col_character(),
     symbol = col_character(),
     total_bader_charge = col_double()
-)) |>
-    filter(!combination_id %in% bad_combinations, !formula %in% bad_formulas)
+))
 
 total_atom_energies <- read_csv('total_atom_energies.csv.gz', col_types = cols(
     combination_id = col_character(),
     energy = col_double()
 )) |>
     left_join(select(simulation_table, combination_id, formula), by = 'combination_id') |>
-    filter(!combination_id %in% bad_combinations, !formula %in% bad_formulas) |>
     select(-formula)
 
 charge_transfer <- bader_charge |>

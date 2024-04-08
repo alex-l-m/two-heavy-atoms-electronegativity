@@ -2,16 +2,12 @@
 
 library(tidyverse)
 
-# Combination id of simulations where GAMESS completed, as indicated by
-# existence of an output file
-gamess_output_paths <- Sys.glob('gamess_output/*.dat')
-gamess_output_filenames <- basename(gamess_output_paths)
-gamess_complete_combinations <-
-    str_extract(gamess_output_filenames, '^(.*)\\.dat$', 1)
-
-# Load premade list of combination ids of unconverged simulations
-unconverged_list_filename <- 'unconverged_combination_id.txt'
-unconverged_combinations <- read_lines(unconverged_list_filename)
+# Combination id of simulations where Q-Chem completed, as indicated by
+# existence of the .wfn file produced
+qchem_output_paths <- Sys.glob('aimall/*.wfn')
+qchem_output_filenames <- basename(qchem_output_paths)
+qchem_complete_combinations <-
+    str_extract(qchem_output_filenames, '^(.*)\\.wfn$', 1)
 
 # Combination id of simulations where integration of atomic regions with AIMAll
 # has completed, as indicated by existence of an output file
@@ -30,18 +26,14 @@ simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     formula = col_character(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    gamess_input_file = col_character()
+    molecule_charge = col_integer()
 ))
 
 # Table of simulation status
 simulation_status <- simulation_table |>
     select(combination_id) |>
     mutate(
-        gamess_complete = combination_id %in% gamess_complete_combinations,
-        converged = ! ifelse(gamess_complete,
-                             combination_id %in% unconverged_combinations,
-                             NA),
+        qchem_complete = combination_id %in% qchem_complete_combinations,
         integration_complete = combination_id %in% integration_complete_combinations,
         accurate_integration = ! ifelse(integration_complete,
                                         combination_id %in% bad_integration_combinations,

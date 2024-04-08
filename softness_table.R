@@ -7,8 +7,7 @@ simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     formula = col_character(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    gamess_input_file = col_character()
+    molecule_charge = col_integer()
 ))
 
 total_atom_energies <- read_csv('total_atom_energies.csv.gz', col_types = cols(
@@ -42,7 +41,7 @@ charge_transfer <- bader_charge |>
 # Make a table of energies and charges of the no-field simulations, including
 # ions
 nofield_charge_energy <- simulation_table |>
-    filter(abs(field_value) < 1e-6) |>
+    filter(is.na(field_value)) |>
     left_join(total_atom_energies, by = 'combination_id') |>
     left_join(charge_transfer, by = c('combination_id', 'formula')) |>
     select(formula, molecule_charge, energy,

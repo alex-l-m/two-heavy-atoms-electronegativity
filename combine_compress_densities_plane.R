@@ -8,8 +8,7 @@ simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     formula = col_character(),
     field_number = col_integer(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    gamess_input_file = col_character()
+    molecule_charge = col_integer()
 ))
 
 # Load and save each file separately in a loop, because if I combine them all

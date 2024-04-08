@@ -10,16 +10,15 @@ from ase.calculators.qchem import QChem
 parameters = {'method': 'B3LYP',
               'basis': 'TZV',
               'unrestricted': 'TRUE',
-              'cdft': 'TRUE',
               'scf_guess': 'GWH',
               'scf_guess_mix': 'TRUE'}
 
 # Format template for the CDFT section of the input file, which doesn't seem
 # writable with ASE's calculator interface and has to be added separately
-cdft_section_template = '$cdft\n{target_becke_population}\n  1 1 {n_donor_atoms}\n$end\n'
+cdft_section_template = '$cdft\n{target_becke_population}\n  1 1 {n_donor_atoms}\n -1 {n_donor_atoms_plus_one} {n_atoms}\n$end\n'
 
 def write_qchem_input(combination_id, ase_atoms,
-                      field_value = None, n_donor_atoms = None,
+                      field_value = None, n_donor_atoms = None, n_atoms = None,
                       charge = None, multiplicity = None):
     # Write Q-Chem input file
     # Path to Q-Chem input file. ASE will add ".inp" as an extension
@@ -29,12 +28,14 @@ def write_qchem_input(combination_id, ase_atoms,
     calc = QChem(label = outpath_noext)
     calc.parameters.update(parameters)
     # The "write_wfn" parameter contains the prefix of the wavefunction. This
-    # will end up converted to all caps, which is not currently an issue as
-    # combination ids have no lowercase letters. I don't include a directory,
-    # because I'm not sure if it can handle a directory, because I don't want
-    # the directory to be all caps, and because I can easily just move the
-    # resulting wavefunction files to a new directory
+    # will end up converted to all caps, and will have to be converted back to
+    # title case later. I don't include a directory, because I'm not sure if it
+    # can handle a directory, because I don't want the directory to be all
+    # caps, and because I can easily just move the resulting wavefunction files
+    # to a new directory
     calc.parameters['write_wfn'] = combination_id
+    if field_value is not None:
+        calc.parameters['cdft'] = 'TRUE'
     # Set charge
     if charge is not None:
         assert multiplicity is not None
@@ -51,7 +52,9 @@ def write_qchem_input(combination_id, ase_atoms,
         assert n_donor_atoms is not None
         cdft_section = cdft_section_template.format(
                 target_becke_population = field_value,
-                n_donor_atoms = n_donor_atoms)
+                n_donor_atoms = n_donor_atoms,
+                n_donor_atoms_plus_one = n_donor_atoms + 1,
+                n_atoms = n_atoms)
         open(outpath, 'a').write(cdft_section)
 
 field_numbers = list(range(61))
@@ -69,12 +72,14 @@ for formula, table in coordinates.groupby('formula'):
     atomic_numbers = []
     symbols = []
     n_donor_atoms = 0
+    n_atoms = 0
     for row in table.itertuples():
         this_coordinates.append([row.x, row.y, row.z])
         atomic_numbers.append(row.atomic_number)
         symbols.append(row.symbol)
         if row.donor_or_acceptor == 'donor':
             n_donor_atoms += 1
+        n_atoms += 1
     ase_atoms = Atoms(symbols, this_coordinates)
 
     # Write XYZ file containing the structure
@@ -90,7 +95,8 @@ for formula, table in coordinates.groupby('formula'):
         combination_id = f'{formula}_F{field_number:02}_{charge}'
 
         write_qchem_input(combination_id, ase_atoms,
-                field_value = field_value, n_donor_atoms = n_donor_atoms)
+                field_value = field_value,
+                n_donor_atoms = n_donor_atoms, n_atoms = n_atoms)
 
         # Add record of simulation attempt to table
         outrows.append({
