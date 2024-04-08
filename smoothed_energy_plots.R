@@ -100,6 +100,39 @@ energy_derivatives_with_nofield <- smoothed_energy |>
     this_theme
 ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
+# Make a version of the plot with the theoretical lines overlaid
+ipea_fukui <- read_csv('ipea_fukui.csv.gz', col_types = cols(
+  formula = col_character(),
+  ip = col_double(),
+  ea = col_double(),
+  electronegativity = col_double(),
+  hardness = col_double(),
+  lower_fukui_acceptor = col_double(),
+  lower_fukui_donor = col_double(),
+  upper_fukui_acceptor = col_double(),
+  upper_fukui_donor = col_double()
+))
+slopes <- ipea_fukui |>
+    group_by(formula) |>
+    transmute(
+        slope_1 = hardness * (1/lower_fukui_acceptor + 1/upper_fukui_donor),
+        slope_2 = hardness * (1/upper_fukui_acceptor + 1/lower_fukui_donor)
+    ) |>
+    ungroup()
+
+theoretical_lines <- slopes |>
+    inner_join(nofield_derivatives, by = 'formula') |>
+    mutate(
+        intercept_1 = derivative - slope_1 * charge_transfer,
+        intercept_2 = derivative - slope_2 * charge_transfer
+    )
+
+energy_derivatives_with_nofield_lines <- energy_derivatives_with_nofield +
+    geom_abline(aes(slope = slope_1, intercept = intercept_1), data = theoretical_lines) +
+    geom_abline(aes(slope = slope_2, intercept = intercept_2), data = theoretical_lines)
+
+ggsave('energy_derivatives_with_nofield_lines.png', energy_derivatives_with_nofield_lines, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
 # Zoom in to look for linearity near neutral molecule
 energy_derivatives_zoomed <- smoothed_energy |>
     ggplot(aes(x = charge_transfer, y = derivative)) +

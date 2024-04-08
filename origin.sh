@@ -114,8 +114,8 @@ Rscript simulation_status.R
 Rscript charge_energy_tables.R
 
 Rscript smooth_energy.R
-Rscript smoothed_energy_plots.R
 Rscript softness_table.R
+Rscript smoothed_energy_plots.R
 # Evaluate electron density on a grid in a plane
 # Create directory for density results
 mkdir -p densities_plane
