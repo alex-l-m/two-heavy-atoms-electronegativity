@@ -31,8 +31,10 @@ simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     molecule_charge = col_integer()
 ))
 
-nofield_derivatives <- simulation_table |>
-    filter(molecule_charge == 0, field_value == 0) |>
+nofield_simulation_table <- simulation_table |>
+    filter(molecule_charge == 0, is.na(field_value))
+
+nofield_derivatives <- nofield_simulation_table |>
     inner_join(energy_derivatives, by = 'combination_id') |>
     select(combination_id, formula, charge_transfer, derivative)
 
@@ -49,8 +51,7 @@ energy_charge <- read_csv('energy_charge.csv.gz', col_types = cols(
 
 nofield_energies <- energy_charge |>
     select(combination_id, energy, charge_acceptor) |>
-    inner_join(simulation_table, by = 'combination_id') |>
-    filter(molecule_charge == 0, field_value == 0) |>
+    inner_join(nofield_simulation_table, by = 'combination_id') |>
     select(combination_id, formula, charge_acceptor, energy) |>
     rename(charge_transfer = charge_acceptor)
 
