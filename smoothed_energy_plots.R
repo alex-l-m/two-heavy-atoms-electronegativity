@@ -76,8 +76,7 @@ energy_smoothing_validation_plot <- smoothed_energy |>
     ggplot(mapping = aes(x = charge_transfer, y = energy)) +
     facet_wrap(~ formula, scales = 'free', nrow = 2) +
     geom_line() +
-    geom_point(mapping = aes(x = charge_transfer, y = energy),
-               data = energies) +
+    geom_point(data = energies) +
     this_theme
 ggsave('energy_smoothing_validation.png', energy_smoothing_validation_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
@@ -87,8 +86,7 @@ energy_with_nofield <- smoothed_energy |>
     facet_wrap(~ formula, scales = 'free', nrow = 2) +
     geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
     geom_line() +
-    geom_point(mapping = aes(x = charge_transfer, y = energy),
-               data = nofield_energies) +
+    geom_point(data = nofield_energies) +
     this_theme
 ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
@@ -146,7 +144,7 @@ energy_derivatives_zoomed <- smoothed_energy |>
     # Add a linear fit to check how close to linear they are
     geom_smooth(method = lmrob, formula = y ~ x, se = FALSE) +
     geom_line() +
-    geom_point(mapping = aes(x = charge_transfer, y = derivative), data = nofield_derivatives) +
+    geom_point(data = nofield_derivatives) +
     ylim(c(-5,5)) +
     this_theme
 ggsave('energy_derivatives_zoomed.png', energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
@@ -166,7 +164,7 @@ lam_charges <- lam |>
 # Considering it as estimates of the derivative
 lam_derivs <- lam_charges |>
     mutate(charge_transfer = charge_acceptor) |>
-    select(formula, lam, charge_transfer) |>
+    select(formula, combination_id, lam, charge_transfer) |>
     # Just putting the negative sign because that makes it match, I don't get
     # why. Factor of two is because my linear combination has total weight two,
     # though I thought that means I need to divide by two, but multiplying
@@ -177,14 +175,39 @@ lam_derivs <- lam_charges |>
 # comparison
 smoothed_energy_deriv_only <- smoothed_energy |>
     select(formula, charge_transfer, derivative)
-lam_comparison <- bind_rows(`2 * Lam` = lam_derivs, `dE/dq` = smoothed_energy_deriv_only, .id = 'computation') |>
+# Each Lam value comes from a specific simulation, but each energy derivative
+# comes from a smoothing process. So only Lam has a combination id, but this
+# won't be relevant in the comparison
+lam_comparison <- bind_rows(
+        `2 * Lam` = select(lam_derivs, -combination_id),
+        `dE/dq` = smoothed_energy_deriv_only, .id = 'computation') |>
     # Put Lam first, so it's the same color if I plot just that in another plot
+    mutate(computation = factor(computation, levels = c('2 * Lam', 'dE/dq')))
+
+# Add the Lam estimates of derivative, from the simulations where no field was
+# applied, to the table of no field derivatives for comparison
+# Start with the table of no field simulations, and add the Lam estimates of
+# derivatives
+# These aren't in the Lam values table because CDFT was not done, so there is
+# no "Lam" value reported in the log. However, assuming it's a Lagrange
+# multiplier, it can be assumed to be zero
+nofield_charges <- energy_charge |>
+    inner_join(nofield_simulation_table, by = c('combination_id', 'formula')) |>
+    select(combination_id, formula, charge_acceptor, energy) |>
+    rename(charge_transfer = charge_acceptor)
+lam_derivs_nofield <- nofield_charges |>
+    mutate(derivative = 0) |>
+    select(formula, charge_transfer, derivative)
+# Bind rows to make the comparison table
+nofield_deriv_comparison <- bind_rows(
+        `2 * Lam` = lam_derivs_nofield,
+        `dE/dq` = nofield_derivatives, .id = 'computation') |>
+    # Factor with same levels as the table with all field values
     mutate(computation = factor(computation, levels = c('2 * Lam', 'dE/dq')))
 
 lam_plot <- lam_comparison |>
     ggplot(aes(x = charge_transfer, y = derivative, color = computation)) +
     facet_wrap(~ formula, scales = 'free', nrow = 2) +
-    geom_line() +
     xlim(-1, 1) +
     theme(legend.position = 'bottom') +
     # Put a vertical line to indicate 0
@@ -194,7 +217,33 @@ lam_plot <- lam_comparison |>
     xlab('charge of electron acceptor') +
     ylab('electronegativity') +
     # Remove the title from the legend
-    guides(color = guide_legend(title = NULL))
+    guides(color = guide_legend(title = NULL)) +
+    geom_line() +
+    # Dots for the no-field values
+    geom_point(data = nofield_deriv_comparison)
 ggsave('lam_comparison.png', lam_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
+# Maybe I should reduce duplication by saving a lot of the settings to a
+# variable?
+lam_plot_zoomed <- lam_comparison |>
+    # Only positive values of electronegativity, only negative values of charge
+    # transfer
+    filter(derivative > 0, charge_transfer < 0) |>
+    ggplot(aes(x = charge_transfer, y = derivative, color = computation)) +
+    # Scales shouldn't be free
+    facet_wrap(~ formula, nrow = 2) +
+    theme(legend.position = 'bottom') +
+    # Put a vertical line to indicate 0
+    geom_vline(xintercept = 0, linetype = 'dashed') +
+    # Put a horizontal line to indicate zero
+    geom_hline(yintercept = 0, linetype = 'dashed')+
+    xlab('charge of electron acceptor') +
+    ylab('electronegativity') +
+    # Remove the title from the legend
+    guides(color = guide_legend(title = NULL)) +
+    geom_line() +
+    # Dots for the no-field values
+    geom_point(data = nofield_deriv_comparison)
+ggsave('lam_comparison_zoomed.png', lam_plot_zoomed,
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
