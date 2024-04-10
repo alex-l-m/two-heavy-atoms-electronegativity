@@ -36,7 +36,7 @@ for (this_simulation_table in simulation_list) {
                            col_names = header,
                            col_types = cols(.default = col_double())))
     density_plane_nofield <- density_plane |>
-        filter(field_value == 0) |>
+        filter(is.na(field_value)) |>
         select(x, y, z, density)
     density_difference <- density_plane |>
         left_join(density_plane_nofield, by = c('x', 'y', 'z'), suffix = c('', '_nofield')) |>
