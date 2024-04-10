@@ -130,17 +130,9 @@ done
 # Combine densities and calculate differences
 mkdir -p density_difference_tables
 Rscript combine_compress_densities_plane.R
-# Make animation frames
-mkdir -p density_images
+# Make gif animations
+mkdir -p density_animation
 for INPATH in density_difference_tables/*.csv.gz
 do
     Rscript density_images.R $INPATH
 done
-# Make a gif animation from each folder of frames
-mkdir -p density_animation
-for FOLDER in density_images/*
-do
-    MOLID=$(basename $FOLDER)
-    convert -delay 5 -loop 0 $FOLDER/*.png density_animation/$MOLID.gif
-done
-
