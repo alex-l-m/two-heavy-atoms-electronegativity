@@ -215,12 +215,13 @@ lam_plot <- lam_comparison |>
     # Put a horizontal line to indicate zero
     geom_hline(yintercept = 0, linetype = 'dashed')+
     xlab('charge of electron acceptor') +
-    ylab('electronegativity') +
+    ylab('electronegativity difference') +
     # Remove the title from the legend
     guides(color = guide_legend(title = NULL)) +
     geom_line() +
     # Dots for the no-field values
-    geom_point(data = nofield_deriv_comparison)
+    geom_point(data = nofield_deriv_comparison) +
+    ylim(-10, 10)
 ggsave('lam_comparison.png', lam_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
@@ -239,7 +240,7 @@ lam_plot_zoomed <- lam_comparison |>
     # Put a horizontal line to indicate zero
     geom_hline(yintercept = 0, linetype = 'dashed')+
     xlab('charge of electron acceptor') +
-    ylab('electronegativity') +
+    ylab('electronegativity difference') +
     # Remove the title from the legend
     guides(color = guide_legend(title = NULL)) +
     geom_line() +
