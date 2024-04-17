@@ -9,7 +9,12 @@ python make_gamess_input.py
 
 mkdir -p qchem_input
 mkdir -p qchem_logs
+mkdir -p qchem_wfn
 python make_qchem_input.py
+
+# AIMAll directory has to be made now, not later, because the Q-Chem loop moves wavefunction files there immediately after output
+mkdir -p gamess_aimall
+mkdir -p aimall
 
 # Divide number of processors by two
 # Using all processors for AIMAll seems to freeze my computer
@@ -52,13 +57,14 @@ do
     INWFN=$COMBINATION_ID_UPPERCASE.wfn
     OUTWFN=aimall/$COMBINATION_ID.wfn
     echo "python modify_wfn.py $INWFN $OUTWFN" >> copy_qchem_wfn_jobs.sh
-    echo "rm $INWFN" >> copy_qchem_wfn_jobs.sh
+    # Moving, not deleting, because once the modification failed and I ended up
+    # with nothing, and also it would be good to have the raw ones
+    echo "mv $INWFN qchem_wfn" >> copy_qchem_wfn_jobs.sh
 done
 parallel --jobs $NPROC < qchem_jobs.sh
 sh copy_qchem_wfn_jobs.sh
 
 # Run AIMAll on all outputs
-mkdir -p gamess_aimall
 > gamess_aimall_jobs.sh
 for INPATH in gamess_output/*.dat
 do
@@ -74,7 +80,6 @@ cd ..
 # -a Argument is needed because grep incorrectly infers some files are binary
 grep -a -E "Warning! *Significant cumulative integration error." gamess_aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > gamess_bad_integration_combination_id.txt
 
-mkdir -p aimall
 > aimall_jobs.sh
 for INPATH in aimall/*.wfn
 do
