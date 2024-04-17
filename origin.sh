@@ -1,14 +1,14 @@
 Rscript element_properties.R
 python cccbdb_coords_to_csv.py
 Rscript mol_coords.R
-mkdir xyz
-mkdir gamess_input
-mkdir gamess_logs
-mkdir gamess_output
+mkdir -p xyz
+mkdir -p gamess_input
+mkdir -p gamess_logs
+mkdir -p gamess_output
 python make_gamess_input.py
 
-mkdir qchem_input
-mkdir qchem_logs
+mkdir -p qchem_input
+mkdir -p qchem_logs
 python make_qchem_input.py
 
 # Divide number of processors by two
@@ -58,7 +58,7 @@ parallel --jobs $NPROC < qchem_jobs.sh
 sh copy_qchem_wfn_jobs.sh
 
 # Run AIMAll on all outputs
-mkdir gamess_aimall
+mkdir -p gamess_aimall
 > gamess_aimall_jobs.sh
 for INPATH in gamess_output/*.dat
 do
@@ -74,7 +74,7 @@ cd ..
 # -a Argument is needed because grep incorrectly infers some files are binary
 grep -a -E "Warning! *Significant cumulative integration error." gamess_aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > gamess_bad_integration_combination_id.txt
 
-mkdir aimall
+mkdir -p aimall
 > aimall_jobs.sh
 for INPATH in aimall/*.wfn
 do
@@ -92,14 +92,14 @@ cd ..
 # -a Argument is needed because grep incorrectly infers some files are binary
 grep -a -E "Warning! *Significant cumulative integration error." aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > bad_integration_combination_id.txt
 
-mkdir gamess_aimall_tbl
+mkdir -p gamess_aimall_tbl
 for INPATH in gamess_aimall/*.sum
 do
     MOL=$(basename $INPATH .sum)
     python ~/repos/qtaim-utilities/parse_sum.py $INPATH gamess_aimall_tbl/$MOL
 done
 
-mkdir aimall_tbl
+mkdir -p aimall_tbl
 for INPATH in aimall/*.sum
 do
     MOL=$(basename $INPATH .sum)
