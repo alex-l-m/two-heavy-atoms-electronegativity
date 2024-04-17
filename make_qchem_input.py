@@ -8,7 +8,7 @@ from ase.calculators.qchem import QChem
 # However, parameter names are converted to uppercase when writing the input file
 # Using lowercase parameter names to overwrite defaults and stay consistent
 parameters = {'method': 'B3LYP',
-              'basis': 'TZV',
+              'basis': 'TZV(3d,3p)',
               'unrestricted': 'TRUE',
               'scf_guess': 'GWH',
               'scf_guess_mix': 'TRUE'}
