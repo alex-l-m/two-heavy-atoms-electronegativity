@@ -30,6 +30,19 @@ one_tbl <- tibble(path = Sys.glob('aimall_tbl/*_oneatom.csv')) |>
 
 write_csv(one_tbl, 'combined_one_tbl.csv.gz')
 
+# For IQA interaction energy I also need the two atom tables
+two_tbl <- tibble(path = Sys.glob('aimall_tbl/*_twoatom.csv')) |>
+    mutate(combination_id = str_match(path, 'aimall_tbl/(.*)_twoatom.csv')[,2]) |>
+    group_by(combination_id) |>
+    reframe(read_csv(path,
+            col_names = c('section', 'atom_a', 'atom_b', 'property', 'value'),
+            col_types = cols(.default = col_character(), value = col_double()))) |>
+    mutate(atom_a = str_to_title(atom_a),
+           atom_b = str_to_title(atom_b))
+#    inner_join(accurate_integration, by = 'combination_id')
+
+write_csv(two_tbl, 'combined_two_tbl.csv.gz')
+
 # Coordinates of each atom
 coordinates <- read_csv('coordinates.csv.gz', col_types = cols(
     formula = col_character(),
@@ -165,3 +178,30 @@ group_iqa <- atom_iqa |>
     ) |>
     rename(symbol = heavy_atom_symbol)
 write_csv(group_iqa, "group_iqa.csv.gz")
+
+# IQA interaction energy
+atom_interaction <- two_tbl |>
+    filter(section == 'IQA Diatomic "Interaction" Energy Components' &
+           property == 'E_IQA_Inter(A,B)') |>
+    group_by(combination_id, atom_a, atom_b) |>
+    transmute(iqa_energy = value * TO_EV) |>
+    ungroup()
+write_csv(atom_interaction, 'atom_interaction.csv.gz')
+
+group_interaction <- atom_interaction |>
+    left_join(simulation_table, by = 'combination_id') |>
+    left_join(coordinates, by = c('formula', 'atom_a' = 'atom_id'),
+              relationship = 'many-to-one') |>
+    left_join(coordinates, by = c('formula', 'atom_b' = 'atom_id'),
+              relationship = 'many-to-one', suffix = c('_a', '_b')) |>
+    filter(donor_or_acceptor_a != donor_or_acceptor_b) |>
+    group_by(combination_id, formula, donor_or_acceptor_a, donor_or_acceptor_b) |>
+    summarize(
+        heavy_atom_symbol_a = symbol_a[symbol_a != 'H'][1],
+        heavy_atom_symbol_b = symbol_b[symbol_b != 'H'][1],
+        total_iqa_energy = sum(iqa_energy),
+        .groups = 'drop'
+    ) |>
+    rename(symbol_a = heavy_atom_symbol_a,
+           symbol_b = heavy_atom_symbol_b)
+write_csv(group_interaction, 'group_interaction.csv.gz')
