@@ -5,7 +5,7 @@ library(stringr)
 
 # Make a table for filtering based on whether integration was accurate. If I
 # don't filter these out, I get simulations of neutral molecules where the
-# Bader charges don't and up to zero.
+# Bader charges don't add up to zero.
 simulation_status <- read_csv('simulation_status.csv.gz', col_types = cols(
     combination_id = col_character(),
     integration_complete = col_logical(),
@@ -199,9 +199,49 @@ group_interaction <- atom_interaction |>
     summarize(
         heavy_atom_symbol_a = symbol_a[symbol_a != 'H'][1],
         heavy_atom_symbol_b = symbol_b[symbol_b != 'H'][1],
-        total_iqa_energy = sum(iqa_energy),
+        total_interaction_energy = sum(iqa_energy),
         .groups = 'drop'
     ) |>
     rename(symbol_a = heavy_atom_symbol_a,
            symbol_b = heavy_atom_symbol_b)
 write_csv(group_interaction, 'group_interaction.csv.gz')
+
+# Combine charge and energy into a single table mapping charge to energy
+charge_energy <- coordinates |>
+    # Heavy atoms only
+    filter(symbol != 'H') |>
+    select(formula, symbol, donor_or_acceptor) |>
+    # Populate with the combination id of each simulation
+    # Every simulation should match two rows in this table corresponding to the
+    # two heavy atoms
+    # And every atom should match multiple simulations corresponding to each
+    # field strength
+    left_join(simulation_table, by = 'formula',
+              relationship = 'many-to-many') |>
+    # Join with the charge of the donor and acceptor groups (as separate rows)
+    left_join(bader_charge_group,
+              by = c('formula', 'combination_id', 'symbol',
+                     'donor_or_acceptor'),
+              relationship = 'one-to-one') |>
+    # Join with the total energy of the combination
+    # This will produce some redundancy, since it will be the same for both
+    # donor and acceptor
+    left_join(total_atom_energies,
+              by = 'combination_id',
+              relationship = 'many-to-one') |>
+    rename(total_energy = energy) |>
+    # Join with the IQA energy of each individual group
+    left_join(group_iqa,
+              by = c('formula', 'combination_id', 'symbol',
+                     'donor_or_acceptor')) |>
+    rename(iqa_group_energy = total_iqa_energy) |>
+    # Join with the IQA interaction energy between the groups
+    # Again, this will be redundant. The interaction energy is the same on both
+    # "sides"
+    left_join(select(group_interaction, formula, combination_id,
+                     total_interaction_energy),
+              by = c('formula', 'combination_id'),
+              relationship = 'many-to-one') |>
+    rename(iqa_interaction_energy = total_interaction_energy)
+
+write_csv(charge_energy, 'charge_energy.csv.gz')

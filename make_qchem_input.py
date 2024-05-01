@@ -11,7 +11,9 @@ parameters = {'method': 'B3LYP',
               'basis': 'TZV(3d,3p)',
               'unrestricted': 'TRUE',
               'scf_guess': 'GWH',
-              'scf_guess_mix': 'TRUE'}
+              'scf_guess_mix': 'TRUE',
+              'xc_grid': '3',
+              'nl_grid': '3'}
 
 # Format template for the CDFT section of the input file, which doesn't seem
 # writable with ASE's calculator interface and has to be added separately
