@@ -63,6 +63,8 @@ do
 done
 parallel --jobs $NPROC < qchem_jobs.sh
 sh copy_qchem_wfn_jobs.sh
+grep "Convergence criterion met" qchem_logs/*.log > qchem_converged.txt
+grep "SCF failed to converge" qchem_logs/*.log > qchem_unconverged.txt
 
 # Run AIMAll on all outputs
 > gamess_aimall_jobs.sh
