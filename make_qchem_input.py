@@ -10,10 +10,23 @@ from ase.calculators.qchem import QChem
 parameters = {'method': 'B3LYP',
               'basis': 'TZV(3d,3p)',
               'unrestricted': 'TRUE',
-              'scf_guess': 'GWH',
-              'scf_guess_mix': 'TRUE',
+              # Was using GWH, but fluoromethane and chloromethane weren't
+              # converging with MOM
+              'scf_guess': 'SAD',
+              # This is supposed to be set to TRUE for UHF, but then I can't
+              # use SAD. So I need to verify I'm not getting stuck in local
+              # minima with balanced spin
+              'scf_guess_mix': 'FALSE',
               'xc_grid': '3',
-              'nl_grid': '3'}
+              'nl_grid': '3',
+              # Helps convergence for Cl-F
+              'mom_start': '1',
+              # With MOM, some converge very slowly, even nofield neutral
+              # molecules, which can take up to 300 iterations. Set to 1000 to
+              # be generous
+              'max_scf_cycles': '1000',
+              # This is default, just being explicit
+              'scf_algorithm': 'DIIS'}
 
 # Format template for the CDFT section of the input file, which doesn't seem
 # writable with ASE's calculator interface and has to be added separately
