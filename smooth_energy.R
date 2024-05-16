@@ -1,77 +1,108 @@
+# Load energy as a function of charge, and then smooth it in order to take a
+# derivative and obtain electronegativity
 library(tidyverse)
 
-simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
-    combination_id = col_character(),
+charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     formula = col_character(),
+    symbol = col_character(),
+    donor_or_acceptor = col_character(),
+    combination_id = col_character(),
+    cdft = col_logical(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer()
+    molecule_charge = col_integer(),
+    group_bader_charge = col_double(),
+    total_energy = col_double(),
+    iqa_group_energy = col_double(),
+    iqa_interaction_energy = col_double(),
+    other_symbol = col_character(),
+    group_id = col_character()
 ))
 
-neutral_combinations <- simulation_table |>
-    filter(molecule_charge == 0) |>
-    select(combination_id) |>
-    distinct()
+# Make a table for smoothing energy
+# It should have all the energies in the same column, so that I can smooth that
+# column
+# It should also be just the ones where I did constrained DFT
+charge_energy_long <- charge_energy |>
+    pivot_longer(c(total_energy, iqa_group_energy, iqa_interaction_energy),
+                 names_to = 'energy_type', values_to = 'energy')
+energy_for_smoothing <- charge_energy_long |>
+    filter(cdft)
+# Table of smoothed energies, sampled on a grid, and derivative
+smoothed_energy_derivatives_long <- energy_for_smoothing |>
+    group_by(
+            # Identification of the system
+            formula, molecule_charge,
+            # Identification of the atom
+            symbol, other_symbol, donor_or_acceptor, group_id,
+            # Which energy calculation is being smoothed
+            energy_type) |>
+    reframe(tibble(
+            new_charge = seq(min(group_bader_charge), max(group_bader_charge),
+                             length.out = 100),
+            # Simple linear interpolation
+            energy = approx(group_bader_charge, energy, xout = new_charge)$y)
+    ) |>
+    rename(group_bader_charge = new_charge) |>
+    # Reframe loses the groups, but I need those exact same groups to calculate
+    # the derivative
+    group_by(formula, molecule_charge,
+             symbol, other_symbol, donor_or_acceptor, group_id,
+             energy_type) |>
+    # Calculate the derivative as discrete differences
+    arrange(group_bader_charge) |>
+    mutate(derivative = c(NA, diff(energy) / diff(group_bader_charge))) |>
+    ungroup()
 
-bader_charge <- read_csv('bader_charge_group.csv.gz', col_types = cols(
-    combination_id = col_character(),
-    formula = col_character(),
-    donor_or_acceptor = col_character(),
-    symbol = col_character(),
-    total_bader_charge = col_double()
-))
-
-total_atom_energies <- read_csv('total_atom_energies.csv.gz', col_types = cols(
-    combination_id = col_character(),
-    energy = col_double()
-)) |>
-    left_join(select(simulation_table, combination_id, formula), by = 'combination_id') |>
-    select(-formula)
-
-charge_transfer <- bader_charge |>
-    inner_join(neutral_combinations, by = 'combination_id') |>
-    rename(charge = total_bader_charge) |>
-    # Column 'donor_or_acceptor' has values 'donor' and 'acceptor'
-    # Pivot the 'charge' and 'symbol' columns so we have columns
-    # 'charge_donor', 'charge_acceptor', 'symbol_donor', 'symbol_acceptor'
-    pivot_wider(names_from = donor_or_acceptor,
-                values_from = c(charge, symbol))
-
-write_csv(charge_transfer, 'charge_transfer.csv.gz')
-
-# Smooth energies
-energy_charge <- total_atom_energies |>
-    # Inner join so we filter according to how the charge transfer table has
-    # been filtered
-    inner_join(charge_transfer, by = 'combination_id')
-
-write_csv(energy_charge, 'energy_charge.csv.gz')
-
-smoothed_energy <- energy_charge |>
-    group_by(formula, symbol_donor, symbol_acceptor) |>
-    reframe(tibble(new_charge = seq(min(charge_acceptor), max(charge_acceptor),
-                                    length.out = 100),
-                   # Simple linear interpolation
-                   energy = approx(charge_acceptor, energy, xout = new_charge)$y)) |>
-    ungroup() |>
-    rename(charge_transfer = new_charge) |>
-    group_by(formula) |>
-    mutate(derivative = c(NA, diff(energy) / diff(charge_transfer)))
-
+# I never have any need to plot both the energy and the derivative, I don't
+# think. Therefore, it may make more sense to have separate tables of energy
+# and derivative, with a column for each energy type. I don't need these in the
+# same plot either, but then I can specify what energy type I'm plotting
+# with the aesthetic. This requires separate plotting code for each energy
+# type, but that's appropriate anyway because the data will be grouped
+# differently
+smoothed_energy <- smoothed_energy_derivatives_long |>
+    select(-derivative) |>
+    pivot_wider(names_from = energy_type, values_from = energy)
 write_csv(smoothed_energy, 'smoothed_energy.csv.gz')
+smoothed_energy_derivatives <- smoothed_energy_derivatives_long |>
+    select(-energy) |>
+    pivot_wider(names_from = energy_type, values_from = derivative)
+write_csv(smoothed_energy_derivatives, 'smoothed_energy_derivatives.csv.gz')
 
 # Assign derivatives to the unsmoothed energies
-energy_derivatives <- smoothed_energy |>
-    select(formula, charge_transfer, derivative) |>
-    group_by(formula) |>
+energy_derivatives <- smoothed_energy_derivatives_long |>
+    # I'm going to join a table that also has a charge column, so I need a
+    # separate name for the smoothed charges
+    rename(smoothed_charge = group_bader_charge) |>
+    # Nesting is necessary because I want a single row, containing the single
+    # Bader charge of this combination. It's the only way to handle the
+    # different sizes of the smoothed data I'm interpolating, and the piont I'm
+    # interpolating on
+    group_by(formula, molecule_charge,
+             symbol, other_symbol, donor_or_acceptor, group_id,
+             energy_type) |>
     nest() |>
-    left_join(energy_charge, by = 'formula') |>
-    # Very hard to read. Relies on the fact that 'charge_acceptor' has been
-    # renamed 'charge_transfer' during smoothing, and I shouldn't be grouping
-    # by a value
-    group_by(combination_id, charge_acceptor) |>
+    ungroup() |>
+    left_join(charge_energy_long,
+              by = c('formula', 'molecule_charge', 'symbol', 'other_symbol',
+                     'donor_or_acceptor', 'group_id', 'energy_type')) |>
+    group_by(
+        # Have to map charge to derivative for each atom individually
+        combination_id, symbol, other_symbol, donor_or_acceptor, group_id,
+        group_bader_charge, energy_type,
+        # But I also want to keep all of the simulation metadata so I don't
+        # have to join with it later
+        formula, molecule_charge, cdft, field_number, field_value
+    ) |>
+    # Using summarize rather than mutate just to get rid of the nested "data"
+    # column
     summarize(derivative = sapply(data, function(df) {with(df, 
-        approx(charge_transfer, derivative, xout = charge_acceptor)$y)})) |>
-    rename(charge_transfer = charge_acceptor)
-    
+        approx(smoothed_charge, derivative, xout = group_bader_charge)$y)
+    }), .groups = 'drop') |>
+    # Pivot wider like the energy table
+    pivot_wider(
+        names_from = energy_type,
+        values_from = derivative
+    )
 write_csv(energy_derivatives, 'energy_derivatives.csv.gz')

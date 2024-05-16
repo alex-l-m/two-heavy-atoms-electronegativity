@@ -2,6 +2,7 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(stringr)
+library(glue)
 
 # Make a table for filtering based on whether integration was accurate. If I
 # don't filter these out, I get simulations of neutral molecules where the
@@ -223,6 +224,7 @@ charge_energy <- coordinates |>
               by = c('formula', 'combination_id', 'symbol',
                      'donor_or_acceptor'),
               relationship = 'one-to-one') |>
+    rename(group_bader_charge = total_bader_charge) |>
     # Join with the total energy of the combination
     # This will produce some redundancy, since it will be the same for both
     # donor and acceptor
@@ -244,4 +246,26 @@ charge_energy <- coordinates |>
               relationship = 'many-to-one') |>
     rename(iqa_interaction_energy = total_interaction_energy)
 
-write_csv(charge_energy, 'charge_energy.csv.gz')
+
+# Probably I could have made a table labeling donor and acceptor by heavy atom
+# symbol earlier and then used that information for the Bader charge table,
+# but instead I did it as part of generating the Bader charge table, so
+# I'll just re-use that information. Could refactor later
+heavy_atom_element <- bader_charge_group |>
+    select(formula, symbol, donor_or_acceptor) |>
+    distinct()
+# I want a table that you can join with, and based on the atom and the
+# formula, it will fill in the symbol of the other heavy atom in the molecule
+other_atom_symbol <- heavy_atom_element |>
+    rename(other_symbol = symbol) |>
+    mutate(donor_or_acceptor = ifelse(donor_or_acceptor == 'donor',
+                                      'acceptor', 'donor'))
+
+charge_energy_morelabels <- charge_energy |>
+    # Add it into the charge and energy table, it's a useful thing to have
+    left_join(other_atom_symbol, by = c('formula', 'donor_or_acceptor')) |>
+    # Also a combined "group_id" column since I use it for grouping in some of
+    # the plots
+    mutate(group_id = glue('{formula}:{symbol}:{donor_or_acceptor}'))
+
+write_csv(charge_energy_morelabels, 'charge_energy.csv.gz')

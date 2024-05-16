@@ -98,6 +98,3 @@ for INPATH in density_difference_tables/*.csv.gz
 do
     Rscript density_images.R $INPATH
 done
-
-Rscript smooth_iqa_energy.R
-Rscript iqa_energy_vs_bader_charge_plots.R
