@@ -2,42 +2,20 @@ Rscript element_properties.R
 python cccbdb_coords_to_csv.py
 Rscript mol_coords.R
 mkdir -p xyz
-mkdir -p gamess_input
-mkdir -p gamess_logs
-mkdir -p gamess_output
-python make_gamess_input.py
-
 mkdir -p qchem_input
 mkdir -p qchem_logs
 mkdir -p qchem_wfn
 python make_qchem_input.py
 
-# AIMAll directory has to be made now, not later, because the Q-Chem loop moves wavefunction files there immediately after output
-mkdir -p gamess_aimall
+# AIMAll directory has to be made now, not later, because the Q-Chem loop moves
+# wavefunction files there immediately after output
 mkdir -p aimall
 
-# Divide number of processors by two
-# Using all processors for AIMAll seems to freeze my computer
 NPROC=$(nproc)
-HALF_NPROC=$(($NPROC / 2))
-
-# Run GAMESS on all input files and save logs
-# Clear jobs written on previous runs
-> gamess_jobs.sh
-> copy_jobs.sh
-for INPATH in gamess_input/*.inp
-do
-    BASENAME=$(basename $INPATH)
-    COMBINATION_ID=${BASENAME%.inp}
-    OUTPATH=~/gamess/restart/$COMBINATION_ID.dat
-    OUTPUT_DIR=gamess_output
-    LOGPATH=gamess_logs/$COMBINATION_ID.log
-    echo "rungms $INPATH > $LOGPATH" >> gamess_jobs.sh
-    echo "cp $OUTPATH $OUTPUT_DIR" >> copy_jobs.sh
-done
-parallel --jobs $NPROC < gamess_jobs.sh
-sh copy_jobs.sh
-grep UNCONVERGED gamess_logs/*.log | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > gamess_unconverged_combination_id.txt
+# Leave a few processors open for AIMAll
+# Using all processors for AIMAll seems to freeze my computer
+# Subtract 4 from the total
+AIMALL_NPROC=$(($NPROC - 4))
 
 # Run Q-Chem on all inputs and save logs
 # Clear jobs written on previous runs
@@ -66,22 +44,6 @@ sh copy_qchem_wfn_jobs.sh
 grep "Convergence criterion met" qchem_logs/*.log > qchem_converged.txt
 grep "SCF failed to converge" qchem_logs/*.log > qchem_unconverged.txt
 
-# Run AIMAll on all outputs
-> gamess_aimall_jobs.sh
-for INPATH in gamess_output/*.dat
-do
-    BASENAME=$(basename $INPATH)
-    COMBINATION_ID=${BASENAME%.dat}
-    WFN_PATH=gamess_aimall/$COMBINATION_ID.wfn
-    python ~/repos/qtaim-utilities/extract_wfn.py $INPATH --functional B3LYP > $WFN_PATH
-    echo "aimqb.ish -nogui -encomp=4 $COMBINATION_ID.wfn" >> gamess_aimall_jobs.sh
-done
-cd gamess_aimall
-parallel --jobs $HALF_NPROC < ../gamess_aimall_jobs.sh
-cd ..
-# -a Argument is needed because grep incorrectly infers some files are binary
-grep -a -E "Warning! *Significant cumulative integration error." gamess_aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > gamess_bad_integration_combination_id.txt
-
 > aimall_jobs.sh
 for INPATH in aimall/*.wfn
 do
@@ -94,17 +56,10 @@ do
      echo "aimqb.ish -nogui -encomp=4 $RELATIVE_INPATH" >> aimall_jobs.sh
 done
 cd aimall
-parallel --jobs $HALF_NPROC < ../aimall_jobs.sh
+parallel --jobs $AIMALL_NPROC < ../aimall_jobs.sh
 cd ..
 # -a Argument is needed because grep incorrectly infers some files are binary
 grep -a -E "Warning! *Significant cumulative integration error." aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > bad_integration_combination_id.txt
-
-mkdir -p gamess_aimall_tbl
-for INPATH in gamess_aimall/*.sum
-do
-    MOL=$(basename $INPATH .sum)
-    python ~/repos/qtaim-utilities/parse_sum.py $INPATH gamess_aimall_tbl/$MOL
-done
 
 mkdir -p aimall_tbl
 for INPATH in aimall/*.sum
