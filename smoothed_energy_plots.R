@@ -81,6 +81,9 @@ this_theme <-
         axis.text.x = element_text(angle = 90)
     )
 
+# Axis label for charge of the acceptor group, which I use in multiple plots
+acceptor_charge_label <- xlab('Bader charge of electron acceptor group')
+
 # Make a plot judging the quality of fit of the smoothed energy function to the
 # original function
 energy_smoothing_validation_plot <- smoothed_energy |>
@@ -91,6 +94,7 @@ energy_smoothing_validation_plot <- smoothed_energy |>
     geom_point(data =
                filter(charge_energy, cdft, donor_or_acceptor == 'acceptor'),
                size = 0, color = 'red') +
+    acceptor_charge_label +
     this_theme
 ggsave('energy_smoothing_validation.png', energy_smoothing_validation_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
@@ -106,6 +110,7 @@ energy_with_nofield <- smoothed_energy |>
     geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
     geom_line() +
     geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor')) +
+    acceptor_charge_label +
     this_theme
 ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
@@ -115,6 +120,7 @@ energy_derivatives_with_nofield <- smoothed_energy_derivative |>
     facet_wrap(vars(formula), scales = 'free', nrow = 3) +
     geom_line() +
 #    geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor')) +
+    acceptor_charge_label +
     this_theme
 ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
@@ -167,6 +173,7 @@ energy_derivatives_zoomed <- smoothed_energy_derivative |>
     geom_line() +
     geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor')) +
     ylim(c(-5,5)) +
+    acceptor_charge_label +
     this_theme
 ggsave('energy_derivatives_zoomed.png', energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
@@ -217,7 +224,9 @@ lam_plot <- lam_comparison |>
     ylab('electronegativity difference') +
     # Remove the title from the legend
     guides(color = guide_legend(title = NULL)) +
-    geom_line()
+    geom_line() +
+    acceptor_charge_label +
+    this_theme
 ggsave('lam_comparison.png', lam_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
