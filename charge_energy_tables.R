@@ -39,8 +39,8 @@ two_tbl <- tibble(path = Sys.glob('aimall_tbl/*_twoatom.csv')) |>
             col_names = c('section', 'atom_a', 'atom_b', 'property', 'value'),
             col_types = cols(.default = col_character(), value = col_double()))) |>
     mutate(atom_a = str_to_title(atom_a),
-           atom_b = str_to_title(atom_b))
-#    inner_join(accurate_integration, by = 'combination_id')
+           atom_b = str_to_title(atom_b)) |>
+    inner_join(accurate_integration, by = 'combination_id')
 
 write_csv(two_tbl, 'combined_two_tbl.csv.gz')
 
