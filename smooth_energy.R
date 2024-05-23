@@ -12,6 +12,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     field_value = col_double(),
     molecule_charge = col_integer(),
     group_bader_charge = col_double(),
+    group_becke_charge = col_double(),
     total_energy = col_double(),
     iqa_group_energy = col_double(),
     iqa_interaction_energy = col_double(),

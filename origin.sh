@@ -43,8 +43,14 @@ done
 python filter_qchem_jobs.py
 parallel --jobs $NPROC < qchem_jobs_filtered.sh
 sh copy_qchem_wfn_jobs.sh
+# Parsing information from the Q-Chem logs
 grep "Convergence criterion met" qchem_logs/*.log > qchem_converged.txt
 grep "SCF failed to converge" qchem_logs/*.log > qchem_unconverged.txt
+python extract_becke_population.py
+Rscript parse_lam.R
+# Extract "Lam" values from Q-Chem simulation, which is presumably the
+# potential
+grep -E "Lam *-?[0-9.]+" qchem_logs/*.log > lamvals.txt
 
 > aimall_jobs.sh
 for INPATH in aimall/*.wfn
@@ -69,9 +75,6 @@ do
     MOL=$(basename $INPATH .sum)
     python ~/repos/qtaim-utilities/parse_sum.py $INPATH aimall_tbl/$MOL
 done
-
-# Extract "Lam" values from Q-Chem simulation, which is presumably the potential
-grep -E "Lam *-?[0-9.]+" qchem_logs/*.log > lamvals.txt
 
 Rscript simulation_status.R
 

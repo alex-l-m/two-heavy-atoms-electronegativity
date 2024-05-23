@@ -114,24 +114,50 @@ too_strong <- nna_at_field_or_weaker |>
 bader_charge_atom <- one_tbl |>
     filter(section == 'Some Atomic Properties' & property == 'q(A)') |>
     group_by(combination_id, atom_id) |>
-    transmute(bader_charge = value) |>
+    transmute(charge = value) |>
     ungroup()
 
-write_csv(bader_charge_atom, 'bader_charge_atom.csv.gz')
+# Becke charge of each atom
+becke_charge_atom <- read_csv('raw_becke_populations.csv.gz', col_types = cols(
+    combination_id = col_character(),
+    atom_number = col_double(),
+    symbol = col_character(),
+    excess_electrons = col_double(),
+    population = col_double(),
+    net_spin = col_double()
+)) |>
+    # Concatenate element symbol and number to obtain atom id
+    # Numbers are one-indexed just like in AIMAll output so it should match
+    # Element symbols are already in title case so there's no need to convert
+    mutate(atom_id = glue('{symbol}{atom_number}')) |>
+    # Convert excess electron populations to charge (negative excess population)
+    mutate(charge = -excess_electrons) |>
+    # Select down to three columns like in the Bader charge table
+    select(combination_id, atom_id, charge)
+
+# Make a combined table with each kind of partial charge
+charge_atom <- bind_rows(bader = bader_charge_atom, becke = becke_charge_atom,
+                         .id = 'charge_type')
+write_csv(charge_atom, 'charge_atom.csv.gz')
 
 # Bader charge of each group
-bader_charge_group <- bader_charge_atom |>
+bader_charge_group <- charge_atom |>
     anti_join(too_strong, by = 'combination_id') |>
     left_join(simulation_table, by = 'combination_id') |>
     left_join(coordinates, by = c('formula', 'atom_id'),
               relationship = 'many-to-one') |>
-    group_by(combination_id, formula, donor_or_acceptor) |>
+    group_by(combination_id, formula, charge_type, donor_or_acceptor) |>
     summarize(
         heavy_atom_symbol = symbol[symbol != 'H'][1],
-        total_bader_charge = sum(bader_charge),
+        total_charge = sum(charge),
         .groups = 'drop'
     ) |>
-    rename(symbol = heavy_atom_symbol)
+    rename(symbol = heavy_atom_symbol) |>
+    # I previously used the column name "group_bader_charge"
+    # To minimize changes, I'm going to continue using that column name
+    mutate(column_name = glue('group_{charge_type}_charge')) |>
+    select(-charge_type) |>
+    pivot_wider(names_from = column_name, values_from = total_charge)
 
 write_csv(bader_charge_group, 'bader_charge_group.csv.gz')
 
@@ -224,7 +250,6 @@ charge_energy <- coordinates |>
               by = c('formula', 'combination_id', 'symbol',
                      'donor_or_acceptor'),
               relationship = 'one-to-one') |>
-    rename(group_bader_charge = total_bader_charge) |>
     # Join with the total energy of the combination
     # This will produce some redundancy, since it will be the same for both
     # donor and acceptor
