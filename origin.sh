@@ -39,7 +39,9 @@ do
     # with nothing, and also it would be good to have the raw ones
     echo "mv $INWFN qchem_wfn" >> copy_qchem_wfn_jobs.sh
 done
-parallel --jobs $NPROC < qchem_jobs.sh
+# Filter jobs based on whether there's already a wfn file saved
+python filter_qchem_jobs.py
+parallel --jobs $NPROC < qchem_jobs_filtered.sh
 sh copy_qchem_wfn_jobs.sh
 grep "Convergence criterion met" qchem_logs/*.log > qchem_converged.txt
 grep "SCF failed to converge" qchem_logs/*.log > qchem_unconverged.txt
