@@ -19,8 +19,6 @@ parameters = {'method': 'B3LYP',
               'scf_guess_mix': 'FALSE',
               'xc_grid': '3',
               'nl_grid': '3',
-              # Helps convergence for Cl-F
-              'mom_start': '1',
               # With MOM, some converge very slowly, even nofield neutral
               # molecules, which can take up to 300 iterations. Set to 1000 to
               # be generous
@@ -51,6 +49,11 @@ def write_qchem_input(combination_id, ase_atoms,
     calc.parameters['write_wfn'] = combination_id
     if field_value is not None:
         calc.parameters['cdft'] = 'TRUE'
+        # MOM convergence for Cl-F
+        # But in the nofield condition, I don't get convergence for F2, even
+        # neutral, and all of the nofield ones take a long time to converge
+        # So, only using MOM for constrained DFT
+        calc.parameters['mom_start'] = '1'
     # Set charge
     if charge is not None:
         assert multiplicity is not None
