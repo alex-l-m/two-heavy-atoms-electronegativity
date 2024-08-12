@@ -43,14 +43,6 @@ done
 python filter_qchem_jobs.py
 parallel --jobs $NPROC < qchem_jobs_filtered.sh
 sh copy_qchem_wfn_jobs.sh
-# Parsing information from the Q-Chem logs
-grep "Convergence criterion met" qchem_logs/*.log > qchem_converged.txt
-grep "SCF failed to converge" qchem_logs/*.log > qchem_unconverged.txt
-python extract_becke_population.py
-Rscript parse_lam.R
-# Extract "Lam" values from Q-Chem simulation, which is presumably the
-# potential
-grep -E "Lam *-?[0-9.]+" qchem_logs/*.log > lamvals.txt
 
 > aimall_jobs.sh
 for INPATH in aimall/*.wfn
@@ -61,10 +53,11 @@ do
      # Currently I'm putting them directly into the AIMAll folder
      # This is because AIMAll outputs to the input dir, not the working dir
      RELATIVE_INPATH=$BASENAME
-     echo "aimqb.ish -nogui -encomp=4 $RELATIVE_INPATH" >> aimall_jobs.sh
+     echo "aimqb.ish -nogui -encomp=2 $RELATIVE_INPATH" >> aimall_jobs.sh
 done
+python filter_jobs.py aimall_jobs.sh > filtered_aimall_jobs.sh
 cd aimall
-parallel --jobs $AIMALL_NPROC < ../aimall_jobs.sh
+parallel --jobs $AIMALL_NPROC < ../filtered_aimall_jobs.sh
 cd ..
 # -a Argument is needed because grep incorrectly infers some files are binary
 grep -a -E "Warning! *Significant cumulative integration error." aimall/*.sum | grep -E -o "[A-Za-z0-9]*_[0-9]*_-?[01]*" > bad_integration_combination_id.txt
@@ -76,6 +69,14 @@ do
     python ~/repos/qtaim-utilities/parse_sum.py $INPATH aimall_tbl/$MOL
 done
 
+# Parsing information from the Q-Chem logs
+grep "Convergence criterion met" qchem_logs/*.log > qchem_converged.txt
+grep "SCF failed to converge" qchem_logs/*.log > qchem_unconverged.txt
+python extract_becke_population.py
+Rscript parse_lam.R
+# Extract "Lam" values from Q-Chem simulation, which is presumably the
+# potential
+grep -E "Lam *-?[0-9.]+" qchem_logs/*.log > lamvals.txt
 Rscript simulation_status.R
 
 Rscript charge_energy_tables.R
@@ -83,6 +84,7 @@ Rscript charge_energy_tables.R
 Rscript smooth_energy.R
 Rscript softness_table.R
 Rscript smoothed_energy_plots.R
+
 # Evaluate electron density on a grid in a plane
 # Create directory for density results
 mkdir -p densities_plane

@@ -131,7 +131,8 @@ becke_charge_atom <- read_csv('raw_becke_populations.csv.gz', col_types = cols(
     # Element symbols are already in title case so there's no need to convert
     mutate(atom_id = glue('{symbol}{atom_number}')) |>
     # Convert excess electron populations to charge (negative excess population)
-    mutate(charge = -excess_electrons) |>
+    # Actually that leads to a reversal relative to Bader charge
+    mutate(charge = excess_electrons) |>
     # Select down to three columns like in the Bader charge table
     select(combination_id, atom_id, charge)
 

@@ -140,6 +140,8 @@ nofield_derivatives_elementlabeled <- nofield_derivatives |>
 
 derivatives_plot <- smoothed_iqa_energy_elementlabeled |>
     filter(-1 < charge & charge < 1) |>
+    # I don't see why this should be necessary
+    filter(! is.na(other_group_symbol)) |>
     ggplot(aes(x = charge, y = `dEnergy/dCharge`,
                group = source, color = other_group_symbol)) +
     facet_wrap(vars(symbol), ncol = 4) +
@@ -147,5 +149,8 @@ derivatives_plot <- smoothed_iqa_energy_elementlabeled |>
     theme(axis.text.x = element_text(angle = 90)) +
     # Vertical line to indicate the location of zero charge
     geom_vline(xintercept = 0, linetype = 'dashed') +
-    geom_point(data = nofield_derivatives_elementlabeled)
+    geom_point(data = nofield_derivatives_elementlabeled) +
+    # No variable name label on the legend
+    guides(color = guide_legend(title = NULL))
+
 ggsave('iqa_energy_derivatives.png', derivatives_plot, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
