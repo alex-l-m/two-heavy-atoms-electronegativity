@@ -25,7 +25,9 @@ charge_energy_long <- charge_energy |>
     pivot_longer(c(total_energy),
                  names_to = 'energy_type', values_to = 'energy')
 energy_for_smoothing <- charge_energy_long |>
-    filter(cdft)
+    add_count(formula) |>
+    filter(n > 3) |>
+    select(-n)
 # Table of smoothed energies, sampled on a grid, and derivative
 smoothed_energy_derivatives_long <- energy_for_smoothing |>
     group_by(
