@@ -3,20 +3,16 @@
 library(tidyverse)
 
 charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
-    formula = col_character(),
-    symbol = col_character(),
-    donor_or_acceptor = col_character(),
     combination_id = col_character(),
-    cdft = col_logical(),
+    symbol = col_character(),
+    other_symbol = col_character(),
+    donor_or_acceptor = col_character(),
+    charge = col_double(),
+    formula = col_character(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    group_bader_charge = col_double(),
-    group_becke_charge = col_double(),
     total_energy = col_double(),
-    iqa_group_energy = col_double(),
-    iqa_interaction_energy = col_double(),
-    other_symbol = col_character(),
+    cdft = col_logical(),
     group_id = col_character()
 ))
 
@@ -25,7 +21,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
 # column
 # It should also be just the ones where I did constrained DFT
 charge_energy_long <- charge_energy |>
-    pivot_longer(c(total_energy, iqa_group_energy, iqa_interaction_energy),
+    # I used to have IQA energies, those would be the other energy types
+    pivot_longer(c(total_energy),
                  names_to = 'energy_type', values_to = 'energy')
 energy_for_smoothing <- charge_energy_long |>
     filter(cdft)
@@ -33,26 +30,26 @@ energy_for_smoothing <- charge_energy_long |>
 smoothed_energy_derivatives_long <- energy_for_smoothing |>
     group_by(
             # Identification of the system
-            formula, molecule_charge,
+            formula,
             # Identification of the atom
             symbol, other_symbol, donor_or_acceptor, group_id,
             # Which energy calculation is being smoothed
             energy_type) |>
     reframe(tibble(
-            new_charge = seq(min(group_becke_charge), max(group_becke_charge),
+            new_charge = seq(min(charge), max(charge),
                              length.out = 100),
             # Simple linear interpolation
-            energy = approx(group_becke_charge, energy, xout = new_charge)$y)
+            energy = approx(charge, energy, xout = new_charge)$y)
     ) |>
-    rename(group_becke_charge = new_charge) |>
+    rename(charge = new_charge) |>
     # Reframe loses the groups, but I need those exact same groups to calculate
     # the derivative
-    group_by(formula, molecule_charge,
+    group_by(formula,
              symbol, other_symbol, donor_or_acceptor, group_id,
              energy_type) |>
     # Calculate the derivative as discrete differences
-    arrange(group_becke_charge) |>
-    mutate(derivative = c(NA, diff(energy) / diff(group_becke_charge))) |>
+    arrange(charge) |>
+    mutate(derivative = c(NA, diff(energy) / diff(charge))) |>
     ungroup()
 
 # I never have any need to plot both the energy and the derivative, I don't
@@ -75,31 +72,31 @@ write_csv(smoothed_energy_derivatives, 'smoothed_energy_derivatives.csv.gz')
 energy_derivatives <- smoothed_energy_derivatives_long |>
     # I'm going to join a table that also has a charge column, so I need a
     # separate name for the smoothed charges
-    rename(smoothed_charge = group_becke_charge) |>
+    rename(smoothed_charge = charge) |>
     # Nesting is necessary because I want a single row, containing the single
     # Bader charge of this combination. It's the only way to handle the
     # different sizes of the smoothed data I'm interpolating, and the piont I'm
     # interpolating on
-    group_by(formula, molecule_charge,
+    group_by(formula,
              symbol, other_symbol, donor_or_acceptor, group_id,
              energy_type) |>
     nest() |>
     ungroup() |>
     left_join(charge_energy_long,
-              by = c('formula', 'molecule_charge', 'symbol', 'other_symbol',
+              by = c('formula', 'symbol', 'other_symbol',
                      'donor_or_acceptor', 'group_id', 'energy_type')) |>
     group_by(
         # Have to map charge to derivative for each atom individually
         combination_id, symbol, other_symbol, donor_or_acceptor, group_id,
-        group_becke_charge, energy_type,
+        charge, energy_type,
         # But I also want to keep all of the simulation metadata so I don't
         # have to join with it later
-        formula, molecule_charge, cdft, field_number, field_value
+        formula, cdft, field_number, field_value
     ) |>
     # Using summarize rather than mutate just to get rid of the nested "data"
     # column
     summarize(derivative = sapply(data, function(df) {with(df, 
-        approx(smoothed_charge, derivative, xout = group_becke_charge)$y)
+        approx(smoothed_charge, derivative, xout = charge)$y)
     }), .groups = 'drop') |>
     # Pivot wider like the energy table
     pivot_wider(

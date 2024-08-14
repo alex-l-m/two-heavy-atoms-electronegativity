@@ -2,8 +2,7 @@ library(tidyverse)
 library(cowplot)
 library(ggdark)
 library(robustbase)
-#theme_set(dark_mode(theme_cowplot()))
-theme_set(theme_cowplot())
+theme_set(dark_mode(theme_cowplot()))
 library(glue)
 library(ggrepel)
 library(broom)
@@ -11,72 +10,61 @@ library(broom)
 # Smoothed energies and derivatives
 smoothed_energy <- read_csv('smoothed_energy.csv.gz', col_types = cols(
     formula = col_character(),
-    molecule_charge = col_double(),
     symbol = col_character(),
-    donor_or_acceptor = col_character(),
-    group_becke_charge = col_double(),
-    iqa_group_energy = col_double(),
-    iqa_interaction_energy = col_double(),
-    total_energy = col_double(),
     other_symbol = col_character(),
-    group_id = col_character()
+    donor_or_acceptor = col_character(),
+    group_id = col_character(),
+    charge = col_double(),
+    total_energy = col_double()
 ))
 
 smoothed_energy_derivative <- read_csv('smoothed_energy_derivatives.csv.gz',
                                        col_types = cols(
     formula = col_character(),
-    molecule_charge = col_double(),
     symbol = col_character(),
-    donor_or_acceptor = col_character(),
-    group_becke_charge = col_double(),
-    iqa_group_energy = col_double(),
-    iqa_interaction_energy = col_double(),
-    total_energy = col_double(),
     other_symbol = col_character(),
-    group_id = col_character()
+    donor_or_acceptor = col_character(),
+    group_id = col_character(),
+    charge = col_double(),
+    total_energy = col_double()
 ))
 
 # Raw energies and derivatives
 charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
-    formula = col_character(),
-    symbol = col_character(),
-    donor_or_acceptor = col_character(),
     combination_id = col_character(),
-    cdft = col_logical(),
+    symbol = col_character(),
+    other_symbol = col_character(),
+    donor_or_acceptor = col_character(),
+    charge = col_double(),
+    formula = col_character(),
     field_number = col_double(),
     field_value = col_double(),
-    molecule_charge = col_integer(),
-    group_bader_charge = col_double(),
-    group_becke_charge = col_double(),
     total_energy = col_double(),
-    iqa_group_energy = col_double(),
-    iqa_interaction_energy = col_double(),
-    other_symbol = col_character(),
+    cdft = col_logical(),
     group_id = col_character()
 ))
 
 energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
-    formula = col_character(),
-    molecule_charge = col_double(),
-    symbol = col_character(),
-    donor_or_acceptor = col_character(),
-    combination_id = col_character(),
-    cdft = col_logical(),
-    field_number = col_double(),
-    field_value = col_double(),
-    group_becke_charge = col_double(),
-    iqa_group_energy = col_double(),
-    iqa_interaction_energy = col_double(),
-    total_energy = col_double()
+  combination_id = col_character(),
+  symbol = col_character(),
+  other_symbol = col_character(),
+  donor_or_acceptor = col_character(),
+  group_id = col_character(),
+  charge = col_double(),
+  formula = col_character(),
+  cdft = col_logical(),
+  field_number = col_double(),
+  field_value = col_double(),
+  total_energy = col_double()
 ))
 
 # Energies for the simulations where no field was applied, so I can add them as
 # a dot on the plots. I expect them to be at the minimum of the parabola
 nofield_energies <- charge_energy |>
-    filter(! cdft & molecule_charge == 0)
+    filter(! cdft)
 # Energy derivatives where no field was applied. I expect these to be zero
 nofield_derivatives <- energy_derivatives |>
-    filter(! cdft & molecule_charge == 0)
+    filter(! cdft)
 
 this_theme <- 
     theme(
@@ -86,13 +74,13 @@ this_theme <-
     )
 
 # Axis label for charge of the acceptor group, which I use in multiple plots
-acceptor_charge_label <- xlab('Becke charge of electron acceptor group')
+acceptor_charge_label <- xlab('Charge of electron acceptor group')
 
 # Make a plot judging the quality of fit of the smoothed energy function to the
 # original function
 energy_smoothing_validation_plot <- smoothed_energy |>
     filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(mapping = aes(x = group_becke_charge, y = total_energy)) +
+    ggplot(mapping = aes(x = charge, y = total_energy)) +
     facet_wrap(~ formula, scales = 'free', nrow = 3) +
     geom_line() +
     geom_point(data =
@@ -109,7 +97,7 @@ energy_with_nofield <- smoothed_energy |>
               suffix = c('', '_nofield'), relationship = 'many-to-one') |>
     mutate(energy_above_nofield = total_energy - total_energy_nofield) |>
     filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(mapping = aes(x = group_becke_charge, y = energy_above_nofield)) +
+    ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
     facet_wrap(~ formula, scales = 'free', nrow = 3) +
     geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
     geom_line() +
@@ -119,30 +107,12 @@ energy_with_nofield <- smoothed_energy |>
     ylab('Energy above no field (eV)')
 
 ggsave('energy_with_nofield.png', energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-
-# The same plot but for just fluoromethane
-fluoromethane_energy_with_nofield <- smoothed_energy |>
-    filter(formula == 'C1F1H3') |>
-    left_join(nofield_energies, by = c('formula', 'donor_or_acceptor'),
-              suffix = c('', '_nofield'), relationship = 'many-to-one') |>
-    mutate(energy_above_nofield = total_energy - total_energy_nofield) |>
-    filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(mapping = aes(x = group_becke_charge, y = energy_above_nofield)) +
-    geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
-    geom_line() +
-    geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor')) +
-    this_theme +
-    xlab('Becke charge of fluorine') +
-    ylab('Energy above no field (eV)') +
-    ggtitle('Fluoromethane')
-ggsave('fluoromethane_energy_with_nofield.png', fluoromethane_energy_with_nofield, width = unit(5.67, 'in'), height = unit(4.76, 'in'))
-
 computation_levels <- c('dE/dq', '2 * Lam')
 
 energy_derivatives_with_nofield <- smoothed_energy_derivative |>
     filter(donor_or_acceptor == 'acceptor') |>
     mutate(computation = factor('dE/dq', levels = computation_levels)) |>
-    ggplot(aes(x = group_becke_charge, y = total_energy, color = computation)) +
+    ggplot(aes(x = charge, y = total_energy, color = computation)) +
     facet_wrap(vars(formula), scales = 'free', nrow = 3) +
     geom_line() +
 #    geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor')) +
@@ -156,65 +126,10 @@ energy_derivatives_with_nofield <- smoothed_energy_derivative |>
     guides(color = guide_legend(title = NULL))
 ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
-# The same plot but for just fluoromethane
-fluoromethane_energy_derivatives_with_nofield <- smoothed_energy_derivative |>
-    filter(formula == 'C1F1H3') |>
-    filter(donor_or_acceptor == 'acceptor') |>
-    mutate(computation = factor('dE/dq', levels = computation_levels)) |>
-    ggplot(aes(x = group_becke_charge, y = total_energy, color = computation)) +
-    geom_line() +
-#    geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor')) +
-    xlab('Becke charge of fluorine') +
-    ylab('electronegativity difference (V)') +
-    # Put a vertical line to indicate 0
-    geom_vline(xintercept = 0, linetype = 'dashed') +
-    # Put a horizontal line to indicate zero
-    geom_hline(yintercept = 0, linetype = 'dashed')+
-    this_theme +
-    guides(color = guide_legend(title = NULL)) +
-    coord_cartesian(ylim = c(-10, 10)) +
-    ggtitle('Fluoromethane')
-ggsave('fluoromethane_energy_derivatives_with_nofield.png', fluoromethane_energy_derivatives_with_nofield, width = unit(5.67, 'in'), height = unit(4.76, 'in'))
-
-
-# Make a version of the plot with the theoretical lines overlaid
-ipea_fukui <- read_csv('ipea_fukui.csv.gz', col_types = cols(
-    formula = col_character(),
-    ip = col_double(),
-    ea = col_double(),
-    electronegativity = col_double(),
-    hardness = col_double(),
-    lower_fukui_acceptor = col_double(),
-    lower_fukui_donor = col_double(),
-    upper_fukui_acceptor = col_double(),
-    upper_fukui_donor = col_double()
-))
-slopes <- ipea_fukui |>
-    group_by(formula) |>
-    transmute(
-        slope_1 = hardness * (1/lower_fukui_acceptor + 1/upper_fukui_donor),
-        slope_2 = hardness * (1/upper_fukui_acceptor + 1/lower_fukui_donor)
-    ) |>
-    ungroup()
-
-theoretical_lines <- slopes |>
-    inner_join(nofield_derivatives, by = 'formula') |>
-    filter(donor_or_acceptor == 'acceptor') |>
-    mutate(
-        intercept_1 = total_energy - slope_1 * group_becke_charge,
-        intercept_2 = total_energy - slope_2 * group_becke_charge
-    )
-
-energy_derivatives_with_nofield_lines <- energy_derivatives_with_nofield +
-    geom_abline(aes(slope = slope_1, intercept = intercept_1), data = theoretical_lines, color = 'orange') +
-    geom_abline(aes(slope = slope_2, intercept = intercept_2), data = theoretical_lines, color = 'orange')
-
-ggsave('energy_derivatives_with_nofield_lines.png', energy_derivatives_with_nofield_lines, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-
 # Zoom in to look for linearity near neutral molecule
 energy_derivatives_zoomed <- smoothed_energy_derivative |>
     filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(aes(x = group_becke_charge, y = total_energy)) +
+    ggplot(aes(x = charge, y = total_energy)) +
     facet_wrap(vars(formula), nrow = 3) +
     # Add a horizontal line so we can see how far the no-field condition is
     # from zero
@@ -230,44 +145,14 @@ energy_derivatives_zoomed <- smoothed_energy_derivative |>
     this_theme
 ggsave('energy_derivatives_zoomed.png', energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
-# Read the 'Lam' values
-lam <- read_csv('lam_values.csv.gz', col_types = cols(
-    combination_id = col_character(),
-    lam = col_double()
-))
-# Doesn't have the formula column, or the charge transfer. Join with the table
-# containing energies and charges, just for the charges
-# This is a messy table, an ugly hack. Really lam should be added during
-# smoothing... or something, I dont' know
-lam_charges <- lam |>
-    inner_join(charge_energy,
-               by = 'combination_id')
-
-# Considering it as estimates of the derivative
-lam_derivs <- lam_charges |>
-    # Just putting the negative sign because that makes it match, I don't get
-    # why. Factor of two is because my linear combination has total weight two,
-    # though I thought that means I need to divide by two, but multiplying
-    # makes it match
-    mutate(total_energy = ifelse(donor_or_acceptor == 'acceptor', 1, -1) * 2 * lam)
-
-# Table containing both the lambda values and the energy derivatives, for
-# comparison
-# Each Lam value comes from a specific simulation, but each energy derivative
-# comes from a smoothing process. So only Lam has a combination id, but this
-# won't be relevant in the comparison
-lam_comparison <- bind_rows(
-        `2 * Lam` = select(lam_derivs, -combination_id),
-        `dE/dq` = energy_derivatives,
-        .id = 'computation') |>
-    # Choose order
-    mutate(computation = factor(computation, levels = computation_levels))
-
-lam_plot <- lam_comparison |>
+lam_values <- energy_derivatives |>
     filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(aes(x = group_becke_charge, y = total_energy, color = computation)) +
+    mutate(`2 * Lam` = 2 * field_value,
+           `dE/dq` = total_energy) |>
+    pivot_longer(c(`2 * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
+lam_plot <- lam_values |>
+    ggplot(aes(x = charge, y = electronegativity, color = computation)) +
     facet_wrap(~ formula, scales = 'free', nrow = 3) +
-    xlim(-0.5, 0.5) +
     # Put a vertical line to indicate 0
     geom_vline(xintercept = 0, linetype = 'dashed') +
     # Put a horizontal line to indicate zero
@@ -281,92 +166,3 @@ lam_plot <- lam_comparison |>
     this_theme
 ggsave('lam_comparison.png', lam_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-
-# The same plot but for just fluoromethane
-fluoromethane_lam_plot <- lam_comparison |>
-    filter(formula == 'C1F1H3') |>
-    filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(aes(x = group_becke_charge, y = total_energy, color = computation)) +
-    xlim(-0.5, 0.5) +
-    # Put a vertical line to indicate 0
-    geom_vline(xintercept = 0, linetype = 'dashed') +
-    # Put a horizontal line to indicate zero
-    geom_hline(yintercept = 0, linetype = 'dashed')+
-    xlab('charge of electron acceptor') +
-    ylab('electronegativity difference (V)') +
-    # Remove the title from the legend
-    guides(color = guide_legend(title = NULL)) +
-    geom_line() +
-    xlab('Becke charge of fluorine') +
-    this_theme +
-    coord_cartesian(ylim = c(-10, 10)) +
-    ggtitle('Fluoromethane')
-ggsave('fluoromethane_lam_comparison.png', fluoromethane_lam_plot,
-       width = unit(5.67, 'in'), height = unit(4.76, 'in'))
-
-
-# Plot of the IQA group energies
-iqa_energy_plot <- smoothed_energy |>
-    # Charges between -1 and 1
-    filter(-1 < group_becke_charge & group_becke_charge < 1) |>
-    # I don't see why this should be necessary
-    filter(! is.na(other_symbol)) |>
-    ggplot(aes(x = group_becke_charge, y = iqa_group_energy,
-               group = group_id, color = other_symbol)) +
-    facet_wrap(vars(symbol), scales = 'free_y', ncol = 4) +
-    geom_line() +
-#    geom_point(data = nofield_energies) +
-    theme(axis.text.x = element_text(angle = 90))
-ggsave('iqa_energy.png', iqa_energy_plot, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-
-# Plot of the IQA group energy derivatives
-iqa_energy_derivative_plot <- smoothed_energy_derivative |>
-    filter(-.9 < group_becke_charge & group_becke_charge < .9) |>
-    # I don't see why this should be necessary
-    filter(! is.na(other_symbol)) |>
-    ggplot(aes(x = group_becke_charge,
-               y = iqa_group_energy,
-               group = group_id, color = other_symbol)) +
-    facet_wrap(vars(symbol), ncol = 3) +
-    geom_line() +
-    theme(axis.text.x = element_text(angle = 90)) +
-    # Vertical line to indicate the location of zero charge
-    geom_vline(xintercept = 0, linetype = 'dashed') +
-    geom_point(data = nofield_derivatives) +
-    # No variable name label on the legend
-    guides(color = guide_legend(title = NULL)) +
-    ylab('electronegativity') + xlab('Becke charge of group')
-ggsave('iqa_energy_derivative.png', iqa_energy_derivative_plot, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-
-model_table <- smoothed_energy_derivative |>
-    filter(-.5 < group_becke_charge & group_becke_charge < .5) |>
-    # I don't see why this should be necessary
-    filter(! is.na(other_symbol)) |>
-    filter(symbol != 'P' & other_symbol != 'P',
-           symbol != 'Si' & other_symbol != 'Si') |>
-    # Restrict range so that we're only moving electrons back onto the donor
-    # and eliminating extreme stuff
-    filter(0 <= total_energy & total_energy <= 10)
-
-iqa_model <- lm(iqa_group_energy ~ symbol + symbol * group_becke_charge, data = model_table)
-
-iqa_model_coef <- tidy(iqa_model)
-
-write_csv(iqa_model_coef, 'iqa_model_coef.csv')
-
-# Plot of the IQA interaction energies
-interaction_plot <- smoothed_energy |>
-    left_join(nofield_energies, by = c('formula', 'donor_or_acceptor'),
-              suffix = c('', '_nofield'), relationship = 'many-to-one') |>
-    group_by(symbol, other_symbol) |>
-    mutate(energy_above_nofield =
-           iqa_interaction_energy - iqa_interaction_energy_nofield) |>
-    ungroup() |>
-    filter(-1 < group_becke_charge & group_becke_charge < 1) |>
-    ggplot(aes(x = group_becke_charge, y = energy_above_nofield)) +
-    facet_grid(symbol ~ other_symbol) +
-    geom_point(data = mutate(nofield_energies, energy_above_nofield = 0)) +
-    geom_line()
-ggsave('interaction_plot.png', interaction_plot, 
-       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-

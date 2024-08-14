@@ -1,0 +1,10 @@
+ $CONTRL SCFTYP=UHF RUNTYP=ENERGY DFTTYP=B3LYP AIMPAC=.TRUE.
+         MAXIT=200 MULT={multiplicity} ICHARG={charge} $END
+ $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=3 NPFUNC=3 NFFUNC=1
+        DIFFSP=.TRUE. DIFFS=.TRUE. $END
+ $DATA
+atom
+Dnh 2
+
+{symbol}     {atomic_number}     0.000000     0.000000     0.000000
+ $END
