@@ -81,10 +81,10 @@ acceptor_charge_label <- xlab('Charge of electron acceptor group')
 energy_smoothing_validation_plot <- smoothed_energy |>
     filter(donor_or_acceptor == 'acceptor') |>
     ggplot(mapping = aes(x = charge, y = total_energy)) +
-    facet_wrap(~ formula, scales = 'free', nrow = 3) +
+    facet_wrap(~ formula, scales = 'free', ncol = 3) +
     geom_line() +
     geom_point(data =
-               filter(charge_energy, cdft, donor_or_acceptor == 'acceptor'),
+               filter(charge_energy, donor_or_acceptor == 'acceptor'),
                size = 0, color = 'red') +
     acceptor_charge_label +
     this_theme
@@ -98,7 +98,7 @@ energy_with_nofield <- smoothed_energy |>
     mutate(energy_above_nofield = total_energy - total_energy_nofield) |>
     filter(donor_or_acceptor == 'acceptor') |>
     ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
-    facet_wrap(~ formula, scales = 'free', nrow = 3) +
+    facet_wrap(~ formula, scales = 'free', ncol = 3) +
     geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
     geom_line() +
     geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor')) +
@@ -113,7 +113,7 @@ energy_derivatives_with_nofield <- smoothed_energy_derivative |>
     filter(donor_or_acceptor == 'acceptor') |>
     mutate(computation = factor('dE/dq', levels = computation_levels)) |>
     ggplot(aes(x = charge, y = total_energy, color = computation)) +
-    facet_wrap(vars(formula), scales = 'free', nrow = 3) +
+    facet_wrap(vars(formula), scales = 'free', ncol = 3) +
     geom_line() +
 #    geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor')) +
     acceptor_charge_label +
@@ -130,7 +130,7 @@ ggsave('energy_derivatives_with_nofield.png', energy_derivatives_with_nofield, w
 energy_derivatives_zoomed <- smoothed_energy_derivative |>
     filter(donor_or_acceptor == 'acceptor') |>
     ggplot(aes(x = charge, y = total_energy)) +
-    facet_wrap(vars(formula), nrow = 3) +
+    facet_wrap(vars(formula), ncol = 3) +
     # Add a horizontal line so we can see how far the no-field condition is
     # from zero
     geom_hline(yintercept = 0, linetype = 'dashed') +
@@ -152,7 +152,7 @@ lam_values <- energy_derivatives |>
     pivot_longer(c(`2 * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
 lam_plot <- lam_values |>
     ggplot(aes(x = charge, y = electronegativity, color = computation)) +
-    facet_wrap(~ formula, scales = 'free', nrow = 3) +
+    facet_wrap(~ formula, ncol = 3) +
     # Put a vertical line to indicate 0
     geom_vline(xintercept = 0, linetype = 'dashed') +
     # Put a horizontal line to indicate zero
