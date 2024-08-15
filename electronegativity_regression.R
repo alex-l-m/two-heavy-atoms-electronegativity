@@ -130,24 +130,6 @@ regression_plot_table <- hardness_terms |>
                      electronegativity_difference = variable_contribution),
               by = 'combination_id', relationship = 'many-to-one')
 
-# Table of values for no field simulations, to show as dots on plot
-# nofield_lam <- charge_energy |>
-#     filter(!cdft & molecule_charge == 0) |>
-#     # Add the columns used as x and y values in the plot
-#     mutate(electronegativity_difference = 0, this_charge = charge)
-# # Hack to be removed later, when I get Becke charges for the non-CDFT
-# # simulations
-# # Get Becke charges from interpolation
-# nofield_lam <- hardness_terms |>
-#     filter(!cdft & molecule_charge == 0) |>
-#     group_by(combination_id) |>
-#     summarize(
-#         new_this_charge = approx(
-#                               this_charge, xout = 0)$y) |>
-#      # Add the columns used as x and y values in the plot
-#      mutate(electronegativity_difference = 0, this_charge = new_this_charge)
-
-
 # Make plots showing the data underlying the regression
 # I don't like having to rename here, needs refactoring upstream
 hardness_regression_plot <- regression_plot_table |>
