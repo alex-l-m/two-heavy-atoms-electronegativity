@@ -238,7 +238,7 @@ current_charge = -1.0
 current_field_number = 0
 first = True
 n_iterations_completed = 0
-max_iter = 30
+max_iter = None
 while current_charge < 0:
     # Do the simulation
     current_charge = simulate(structure, current_field_number, field_strength,
@@ -254,7 +254,7 @@ while current_charge < 0:
 
     first = False
     n_iterations_completed += 1
-    if n_iterations_completed >= max_iter:
+    if max_iter is not None and n_iterations_completed >= max_iter:
         break
 
 print(f'Finished formula {cation}{anion} after {n_iterations_completed} iterations')
