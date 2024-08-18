@@ -1,4 +1,5 @@
 cd single_atoms
+wolframscript atomic_numbers.wls
 Rscript single_atom_simulation_table.R
 python make_input_files.py
 
@@ -27,3 +28,6 @@ Rscript charge_energy_cp2k.R
 
 Rscript smooth_energy.R
 Rscript smoothed_energy_plots.R
+
+wolframscript retrieve_electronegativity.wls
+Rscript electronegativity_regression.R
