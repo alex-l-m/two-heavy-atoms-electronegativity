@@ -37,6 +37,11 @@
 
     {potential_section}
 
+    &KPOINTS
+      VERBOSE T
+      SYMMETRY OFF
+      SCHEME MONKHORST-PACK 3 3 3
+    &END KPOINTS
     &MGRID
       NGRIDS 5
       &RS_GRID
@@ -112,9 +117,6 @@
     &SCF
       SCF_GUESS  {guess} 
       EPS_SCF 1e-6
-      &OT ON
-        PRECONDITIONER FULL_SINGLE_INVERSE
-      &END OT
 	  
       &OUTER_SCF ON
            MAX_SCF {max_outer_scf}
