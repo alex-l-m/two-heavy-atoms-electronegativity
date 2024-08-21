@@ -20,7 +20,8 @@ charges_from_integration <- read_csv('charges_from_integration.csv.gz', col_type
 ))
 
 # Function for extracting the first-iteration energy from a log file
-energy_line_regex <- ' *1 +OT +CG +[0-9.E+-]+ +[0-9.E+-]+ +[0-9.E+-]+ +([0-9.E+-]+) +[0-9.E+-]+'
+# I don't like that I have to change this whenever I change the update method
+energy_line_regex <- ' *1 +P_Mix/Diag. +[0-9.E+-]+ +[0-9.E+-]+ +[0-9.E+-]+ +([0-9.E+-]+) +[0-9.E+-]+'
 extract_first_energy <- function(inpath)
 {
     # Check if the file exists
