@@ -145,10 +145,10 @@ def simulate(structure : ase.Atoms,
 
     # Make the single atom density tables to use
     run(['python', 'cube2multiwfn.py', cube_file_name,
-        f'single_atoms/{donor_element}.wfn'])
+        f'single_atoms/{donor_element}_0.wfn'])
     run(['Rscript', 'overlay_density.R', f'{donor_element}_density_pbc.csv'])
     run(['python', 'cube2multiwfn.py', cube_file_name,
-        f'single_atoms/{acceptor_element}.wfn'])
+        f'single_atoms/{acceptor_element}_0.wfn'])
     run(['Rscript', 'overlay_density.R', f'{acceptor_element}_density_pbc.csv'])
 
     # Compute charges by integration, and generate a potential to apply
