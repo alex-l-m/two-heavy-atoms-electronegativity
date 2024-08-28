@@ -166,3 +166,47 @@ lam_plot <- lam_values |>
     this_theme
 ggsave('lam_comparison.png', lam_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+# Fit lines to the lambda values, from the x axis and y axis
+lam_line_data <- lam_values |>
+    filter(computation == '2 * Lam') |>
+    # Compute rankings, so I can select the bottom and top charges from each
+    # material
+    group_by(formula) |>
+    mutate(bottom_charge_rank = rank(charge, ties.method = 'min'),
+           top_charge_rank = rank(-charge, ties.method = 'min')) |>
+    ungroup() |>
+    # Label as belonging to the line from the ground state or the line from the
+    # neutral state
+    mutate(line = if_else(bottom_charge_rank <= 5, 'ground',
+                          if_else(top_charge_rank <= 5, 'neutral',
+                                  'neither'))) |>
+    # Filter out observations belonging to neither
+    filter(line != 'neither') |>
+    # Compute slope and intercept of the lines
+    group_by(formula, line) |>
+    summarize(slope = coef(lm(electronegativity ~ charge))['charge'],
+              intercept = coef(lm(electronegativity ~ charge))['(Intercept)'],
+              .groups = 'drop')
+
+lam_lines_plot <- lam_values |>
+    filter(computation == '2 * Lam') |>
+    ggplot(aes(x = charge, y = electronegativity, color = computation)) +
+    facet_wrap(~ formula, ncol = 3) +
+    # Put a vertical line to indicate 0
+    geom_vline(xintercept = 0, linetype = 'dashed') +
+    # Put a horizontal line to indicate zero
+    geom_hline(yintercept = 0, linetype = 'dashed')+
+    xlab('charge of electron acceptor') +
+    ylab('electronegativity difference (V)') +
+    # Remove the title from the legend
+    guides(color = guide_legend(title = NULL)) +
+    geom_line() +
+    geom_abline(data = lam_line_data,
+                aes(intercept = intercept, slope = slope, color = line)) +
+    acceptor_charge_label +
+    this_theme +
+    theme(legend.position = 'bottom')
+
+ggsave('lam_lines_comparison.png', lam_lines_plot,
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
