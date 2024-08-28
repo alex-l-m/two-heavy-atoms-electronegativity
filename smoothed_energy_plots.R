@@ -78,8 +78,11 @@ acceptor_charge_label <- xlab('Charge of electron acceptor group')
 
 # Make a plot judging the quality of fit of the smoothed energy function to the
 # original function
+formula_order <- c('AlAs', 'AlN', 'AlP', 'BAs', 'BP', 'GaAs', 'GaN', 'GaP')
 energy_smoothing_validation_plot <- smoothed_energy |>
     filter(donor_or_acceptor == 'acceptor') |>
+    mutate(formula = factor(formula, levels = formula_order)) |>
+    bind_rows(tibble(formula = factor(formula_order, levels = formula_order))) |>
     ggplot(mapping = aes(x = charge, y = total_energy)) +
     facet_wrap(~ formula, scales = 'free', ncol = 3) +
     geom_line() +
@@ -150,7 +153,10 @@ lam_values <- energy_derivatives |>
     mutate(`2 * Lam` = 2 * field_value,
            `dE/dq` = total_energy) |>
     pivot_longer(c(`2 * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
+formula_order <- c('AlAs', 'AlN', 'AlP', 'GaAs', 'GaN', 'GaP')
 lam_plot <- lam_values |>
+    mutate(formula = factor(formula, levels = formula_order)) |>
+    bind_rows(tibble(formula = factor(formula_order, levels = formula_order))) |>
     ggplot(aes(x = charge, y = electronegativity, color = computation)) +
     facet_wrap(~ formula, ncol = 3) +
     # Put a vertical line to indicate 0
