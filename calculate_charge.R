@@ -19,6 +19,12 @@ density_with_weights_path <- commandArgs(trailingOnly = TRUE)[9]
 elements <- tibble(symbol = c(donor_element, acceptor_element),
                    donor_or_acceptor = c('donor', 'acceptor'))
 
+
+charge_ref <- read_csv('n_valence_electrons.csv', col_types = cols(
+    symbol = col_character(),
+    valence_electrons = col_integer()
+))
+
 # Table of nuclear positions for each atom
 atoms <- read_csv(atoms_path, col_types = cols(
     atom_id = col_double(),
@@ -89,73 +95,135 @@ unit_cell <- read_csv(unit_cell_path, col_types = cols(
 unit_cell_basis <- unit_cell |>
     pivot_wider(names_from = vector, values_from = c(x, y, z))
 
-# Load unnormalized weight functions from files
-donor_weight_function <- read_csv(glue('{donor_element}_density_pbc.csv'), col_types = cols(
+# Load unnormalized integer charge weight functions from files
+reference_charges <- tibble(
+    reference_charge = -2:2
+)
+donor_weight_functions <- reference_charges |>
+    group_by(reference_charge) |>
+    reframe(read_csv(glue('{donor_element}_{reference_charge}_density_pbc.csv'), col_types = cols(
     i = col_double(),
     j = col_double(),
     k = col_double(),
     density = col_double()
-)) |>
+))) |>
     rename(unnormalized_weight = density)
 
-acceptor_weight_function <- read_csv(glue('{acceptor_element}_density_pbc.csv'), col_types = cols(
+acceptor_weight_functions <- reference_charges |>
+    group_by(reference_charge) |>
+    reframe(read_csv(glue('{acceptor_element}_{reference_charge}_density_pbc.csv'), col_types = cols(
     i = col_double(),
     j = col_double(),
     k = col_double(),
     density = col_double()
-)) |>
+))) |>
     rename(unnormalized_weight = density)
 
-weight_functions <-
-    bind_rows(acceptor = acceptor_weight_function,
-              donor = donor_weight_function,
-              .id = 'donor_or_acceptor') |>
-    # Join the element symbols
-    left_join(elements, by = 'donor_or_acceptor') |>
-    # Join the information required for centering
-    left_join(atoms_with_voxel_index, by = 'symbol',
-              relationship = 'many-to-one') |>
-    cross_join(n_voxels) |>
-    rename(untranslated_i = i,
-           untranslated_j = j,
-           untranslated_k = k) |>
-    # Translate the weight function ends to be centered at the nucleus, by
-    # calculating a new index
-    mutate(i = (untranslated_i + nucleus_i) %% n_i,
-           j = (untranslated_j + nucleus_j) %% n_j,
-           k = (untranslated_k + nucleus_k) %% n_k) |>
-    # Normalize the weight, so that the weight at each voxel sums to one
-    group_by(i, j, k) |>
-    mutate(weight = unnormalized_weight / sum(unnormalized_weight))
 
-density_with_weights <- density |>
-    left_join(weight_functions, by = c('i', 'j', 'k'))
+# Make an initial charge table, initialized at neutral atoms
+charges <- charge_ref |>
+    filter(symbol %in% c(donor_element, acceptor_element)) |>
+    mutate(donor_or_acceptor = ifelse(symbol == donor_element, 'donor', 'acceptor'),
+           population = valence_electrons,
+           charge = 0)
+finished <- FALSE
+while (!finished) {
+    # Decide the fraction contributions for the donor and acceptor weight
+    # functions of each charge
+    fraction_contributions <- charges |>
+        group_by(donor_or_acceptor) |>
+        # Decide the fraction contribution of the weight function with each
+        # reference charge based on the integer and fractional parts of the
+        # charge
+        reframe({
+            integer_part <- floor(charge)
+            fractional_part <- charge - integer_part
+            tibble(
+                reference_charge = c(integer_part, integer_part + 1),
+                reference_contribution = c(1 - fractional_part, fractional_part)
+            )
+        })
+    # Average the integer charge weight functions to get matched charge weight
+    # functions
+    donor_weight_function <- fraction_contributions |>
+        filter(donor_or_acceptor == 'donor') |>
+        left_join(donor_weight_functions, by = 'reference_charge') |>
+        mutate(contribution_at_point =
+               reference_contribution * unnormalized_weight) |>
+        group_by(i, j, k) |>
+        summarize(unnormalized_weight = sum(contribution_at_point),
+                  .groups = 'drop')
 
-# Integrate the total density and print it
-total_density <- density |>
-    summarize(total_density = sum(density * dv)) |>
-    pull(total_density)
-print(glue('Total density: {total_density}'))
+    acceptor_weight_function <- fraction_contributions |>
+        filter(donor_or_acceptor == 'acceptor') |>
+        left_join(donor_weight_functions, by = 'reference_charge') |>
+        mutate(contribution_at_point =
+               reference_contribution * unnormalized_weight) |>
+        group_by(i, j, k) |>
+        summarize(unnormalized_weight = sum(contribution_at_point),
+                  .groups = 'drop')
+    
+    weight_functions <-
+        bind_rows(acceptor = acceptor_weight_function,
+                  donor = donor_weight_function,
+                  .id = 'donor_or_acceptor') |>
+        # Join the element symbols
+        left_join(elements, by = 'donor_or_acceptor') |>
+        # Join the information required for centering
+        left_join(atoms_with_voxel_index, by = 'symbol',
+                  relationship = 'many-to-one') |>
+        cross_join(n_voxels) |>
+        rename(untranslated_i = i,
+               untranslated_j = j,
+               untranslated_k = k) |>
+        # Translate the weight function ends to be centered at the nucleus, by
+        # calculating a new index
+        mutate(i = (untranslated_i + nucleus_i) %% n_i,
+               j = (untranslated_j + nucleus_j) %% n_j,
+               k = (untranslated_k + nucleus_k) %% n_k) |>
+        # Normalize the weight, so that the weight at each voxel sums to one
+        group_by(i, j, k) |>
+        mutate(weight = unnormalized_weight / sum(unnormalized_weight))
+    
+    density_with_weights <- density |>
+        left_join(weight_functions, by = c('i', 'j', 'k'))
+    
+    # Integrate the total density and print it
+    total_density <- density |>
+        summarize(total_density = sum(density * dv)) |>
+        pull(total_density)
+    print(glue('Total density: {total_density}'))
+    
+    old_charges <- charges
 
-# Calculate the electron populations by integrating the weights against the
-# density
-charge_ref <- read_csv('n_valence_electrons.csv', col_types = cols(
-    symbol = col_character(),
-    valence_electrons = col_double()
-))
-charges <- density_with_weights |>
-    # The information that determines a charge really this should be a atom id,
-    # but since I'm not currently considering unit cells with multiple
-    # atoms the same element, I can just use the element symbol
-    group_by(symbol, donor_or_acceptor) |>
-    summarize(population = sum(weight * density * dv),
-              .groups = 'drop') |>
-    # Compute the charges by subtracting the electron population from the
-    # charge after screening from the core (that is, the number of valence
-    # electrons)
-    left_join(charge_ref, by = 'symbol') |>
-    mutate(charge = valence_electrons - population)
+    # Calculate the electron populations by integrating the weights against the
+    # density
+    charges <- density_with_weights |>
+        # The information that determines a charge really this should be a atom id,
+        # but since I'm not currently considering unit cells with multiple
+        # atoms the same element, I can just use the element symbol
+        group_by(symbol, donor_or_acceptor) |>
+        summarize(population = sum(weight * density * dv),
+                  .groups = 'drop') |>
+        # Compute the charges by subtracting the electron population from the
+        # charge after screening from the core (that is, the number of valence
+        # electrons)
+        left_join(charge_ref, by = 'symbol') |>
+        mutate(charge = valence_electrons - population)
+    
+    print(charges)
 
+    # Decide if we're finished
+    charge_comparison <- charges |>
+        left_join(old_charges, by = c('symbol', 'donor_or_acceptor')) |>
+        mutate(charge_difference = abs(charge.x - charge.y)) |>
+        summarize(max_charge_difference = max(charge_difference)) |>
+        pull(max_charge_difference)
+    finished <- charge_comparison < 0.01
+
+    print(charge_comparison)
+}
+    
 write_csv(charges, charges_path)
 
 # Write the weights as a csv so I can convert it to a cube file and use it as a
