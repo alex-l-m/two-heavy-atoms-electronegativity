@@ -1,3 +1,4 @@
+csvcut target_elements.csv -c symbol | tail +2 > single_atoms/selected_elements.txt
 cd single_atoms
 wolframscript atomic_numbers.wls
 Rscript single_atom_simulation_table.R
@@ -6,13 +7,13 @@ python make_input_files.py
 # Simulate a single atom, for each selected element
 > gamess_jobs.sh
 > wavefunction_jobs.sh
-INPATH=selected_elements.txt
-while read ELEMENT
+csvcut single_atom_simulations.csv -c job_id | tail +2 > job_ids.txt
+while read JOBID
 do
-    echo "rungms ${ELEMENT}.inp > ${ELEMENT}.log" >> gamess_jobs.sh
-    GAMESS_OUT=~/gamess/restart/${ELEMENT}.dat
-    echo "python ~/repos/qtaim-utilities/extract_wfn.py ${GAMESS_OUT} > ${ELEMENT}.wfn" >> wavefunction_jobs.sh
-done < $INPATH
+    echo "rungms ${JOBID}.inp > ${JOBID}.log" >> gamess_jobs.sh
+    GAMESS_OUT=~/gamess/restart/${JOBID}.dat
+    echo "python ~/repos/qtaim-utilities/extract_wfn.py ${GAMESS_OUT} > ${JOBID}.wfn" >> wavefunction_jobs.sh
+done < job_ids.txt
 NPROC=$(nproc)
 parallel --jobs $NPROC < gamess_jobs.sh
 sh wavefunction_jobs.sh
