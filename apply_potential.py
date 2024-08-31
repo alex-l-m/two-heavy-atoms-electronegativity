@@ -55,6 +55,8 @@ sim_tbl_path = 'simulations.csv.gz'
 
 cation = sys.argv[1]
 anion = sys.argv[2]
+apply_potential = bool(sys.argv[3])
+
 
 print(f'Simulating {cation}{anion}')
 
@@ -256,6 +258,10 @@ while current_charge < 0:
     first = False
     n_iterations_completed += 1
     if max_iter is not None and n_iterations_completed >= max_iter:
+        break
+
+    # Exit the loop if I don't want to apply potentials to this material
+    if not apply_potential:
         break
 
 print(f'Finished formula {cation}{anion} after {n_iterations_completed} iterations')

@@ -58,5 +58,5 @@ with open('cp2k_jobs.sh', 'w') as f:
         if not exists(structure_path):
             continue
         else:
-            job_command = f'python apply_potential.py {cation} {anion}\n'
+            job_command = f'python apply_potential.py {cation} {anion} True\n'
             f.write(job_command)
