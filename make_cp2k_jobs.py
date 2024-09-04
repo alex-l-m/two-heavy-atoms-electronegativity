@@ -39,21 +39,10 @@ with gzip.open(charges_from_integration_path, 'wt') as f:
     writer = csv.writer(f)
     writer.writerow(['simulation_id', 'symbol', 'charge'])
 
-target_element_paths = 'target_elements.csv'
-# Example
-# symbol,role
-# B,cation
-# ...
-anion_symbols = []
-cation_symbols = []
-for row in pd.read_csv(target_element_paths).itertuples():
-    if row.role == 'anion':
-        anion_symbols.append(row.symbol)
-    elif row.role == 'cation':
-        cation_symbols.append(row.symbol)
-
 with open('cp2k_jobs.sh', 'w') as f:
-    for anion, cation in product(anion_symbols, cation_symbols):
+    for row in pd.read_csv('element_pairs.csv').itertuples():
+        cation = row.symbol_cation
+        anion = row.symbol_anion
         structure_path = f'CP2Kset/{cation}{anion}.CONTCAR'
         if not exists(structure_path):
             continue
