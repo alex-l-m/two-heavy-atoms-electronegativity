@@ -1,4 +1,4 @@
-csvcut target_elements.csv -c symbol | tail +2 > single_atoms/selected_elements.txt
+cp selected_elements.txt single_atoms
 cd single_atoms
 wolframscript atomic_numbers.wls
 Rscript single_atom_simulation_table.R
@@ -22,7 +22,12 @@ cd ..
 # Parse CP2K pseudopotentials, required for assigning charges from CP2K
 python parse_pseudopotentials.py
 
+# Element data required for generating CP2K jobs
+wolframscript group_numbers.wls
+Rscript element_roles.R
+
 # Run CP2K and extract charges and energies
+Rscript make_element_pairs.R
 python make_cp2k_jobs.py
 sh cp2k_jobs.sh
 Rscript charge_energy_cp2k.R
