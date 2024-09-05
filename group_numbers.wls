@@ -4,6 +4,6 @@
 SetDirectory[Directory[]]
 symbols=ReadList[File["selected_elements.txt"],String]
 elements=Map[Entity["Element",#1]&,symbols]
-groupNumbers=Map[#1[EntityProperty["Element","Group"]]&,elements]
+groupNumbers=Map[#1[EntityProperty["Element","ValenceElectronCount"]]&,elements]
 outTable=Transpose[{Prepend[symbols,"symbol"],Prepend[groupNumbers,"group"]}]
 Export["group_numbers.csv",outTable]
