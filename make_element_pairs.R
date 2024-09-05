@@ -6,7 +6,10 @@ element_roles <- read_csv('element_roles.csv', col_types = cols(
     category = col_character()))
 
 element_roles |>
-    left_join(element_roles, by = 'category', suffix = c('_cation', 'anion')) |>
+    left_join(element_roles,
+              by = 'category',
+              suffix = c('_cation', '_anion'),
+              relationship = 'many-to-many') |>
     # This table has "switched" rows, where the cation symbol is in
     # "symbol_anion", etc. This shouldn't matter because in make_cp2k_jobs.py,
     # they will be skipped when there's no corresponding CONTCAR file. In fact,
