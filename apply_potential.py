@@ -55,7 +55,7 @@ sim_tbl_path = 'simulations.csv.gz'
 
 cation = sys.argv[1]
 anion = sys.argv[2]
-apply_potential = bool(sys.argv[3])
+apply_potential = bool(int(sys.argv[3]))
 
 
 print(f'Simulating {cation}{anion}')
