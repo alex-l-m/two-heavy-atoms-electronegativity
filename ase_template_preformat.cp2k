@@ -40,8 +40,9 @@
     &KPOINTS
       VERBOSE T
       SYMMETRY OFF
-      SCHEME MONKHORST-PACK 3 3 3
+      SCHEME {kpoint_scheme}
     &END KPOINTS
+
     &MGRID
       NGRIDS 5
       &RS_GRID

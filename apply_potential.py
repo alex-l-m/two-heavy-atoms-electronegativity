@@ -73,7 +73,7 @@ args = parser.parse_args()
 cation = args.cation
 anion = args.anion
 apply_potential = args.potential
-kpoint_grid_size = args.kpoint
+kpoint_grid_size = args.kpoints
 max_iter = args.maxiter
 
 print(f'Simulating {cation}{anion}')
@@ -95,6 +95,13 @@ potential_section_template = '''&EXTERNAL_POTENTIAL
       READ_FROM_CUBE .TRUE.
       SCALING_FACTOR {field_strength}
     &END EXTERNAL_POTENTIAL'''
+
+if kpoint_grid_size == 1:
+    kpoint_scheme = 'GAMMA'
+elif kpoint_grid_size > 1:
+    kpoint_scheme = f'MONKHORST-PACK {kpoint_grid_size} {kpoint_grid_size} {kpoint_grid_size}'
+else:
+    raise ValueError('kpoint grid size must be at least 1')
 
 guess_options = {'fresh_start': 'ATOMIC', 'restart': 'RESTART'}
 
@@ -152,7 +159,8 @@ def simulate(structure : ase.Atoms,
     text = template_text.format(potential_section = potential_section,
             guess = guess,
             restart_file = 'potrestart',
-            max_outer_scf = 20)
+            max_outer_scf = 20,
+            kpoint_scheme = kpoint_scheme)
     calc = CP2K(label=simulation_id,
             inp=text,
             # Copying Zhibo's settings
@@ -235,7 +243,8 @@ def simulate(structure : ase.Atoms,
     nofield_text = template_text.format(potential_section = '',
                                         guess = guess_options['restart'],
                                         restart_file = 'energyrestart',
-                                        max_outer_scf = 1)
+                                        max_outer_scf = 1,
+                                        kpoint_scheme = kpoint_scheme)
     calc = CP2K(label=simulation_id,
                 inp=nofield_text, max_scf = 1)
     structure.calc = calc
