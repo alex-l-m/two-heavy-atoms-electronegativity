@@ -1,4 +1,5 @@
 '''Run CP2K without a field, and then with increasing field strengths'''
+import argparse
 import sys
 import re
 import gzip
@@ -53,10 +54,27 @@ df.to_csv(outfile, index=False)
 # Path to simulation table to append to
 sim_tbl_path = 'simulations.csv.gz'
 
-cation = sys.argv[1]
-anion = sys.argv[2]
-apply_potential = bool(int(sys.argv[3]))
+# cation = sys.argv[1]
+# anion = sys.argv[2]
+# apply_potential = bool(int(sys.argv[3]))
+# 
+# # Size of the k-point grid
+# # "1" means just the gamma point, n>1 means nxnxn grid
+# kpoint_grid_size = sys.argv[4]
 
+# Read arguments with argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('cation', help='Cation element symbol')
+parser.add_argument('anion', help='Anion element symbol')
+parser.add_argument('--potential', help='Whether to apply potential (0 for no, 1 for yes)', type=int, choices=[0,1], default=1)
+parser.add_argument('--kpoints', help='Size of the k-point grid', type=int, default=1)
+parser.add_argument('--maxiter', help='Maximum number of iterations to run', type=int, default=None)
+args = parser.parse_args()
+cation = args.cation
+anion = args.anion
+apply_potential = args.potential
+kpoint_grid_size = args.kpoint
+max_iter = args.maxiter
 
 print(f'Simulating {cation}{anion}')
 
@@ -241,7 +259,6 @@ current_charge = -1.0
 current_field_number = 0
 first = True
 n_iterations_completed = 0
-max_iter = None
 while current_charge < 0:
     # Do the simulation
     current_charge = simulate(structure, current_field_number, field_strength,
