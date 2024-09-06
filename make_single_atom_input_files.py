@@ -5,7 +5,7 @@ import pandas as pd
 
 simulation_table = pd.read_csv('single_atom_simulations.csv')
 
-template_text = open('template.inp', 'r').read()
+template_text = open('single_atom_simulation_template.inp', 'r').read()
 
 for row in simulation_table.itertuples():
     symbol = row.symbol
@@ -18,5 +18,5 @@ for row in simulation_table.itertuples():
                                       atomic_number=atomic_number,
                                       charge=charge, multiplicity=multiplicity)
 
-    with open(f'{job_id}.inp', 'w') as f:
+    with open(f'single_atoms/{job_id}.inp', 'w') as f:
         f.write(input_text)
