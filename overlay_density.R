@@ -1,6 +1,9 @@
-# Make a csv file of a density with periodic boundary conditions, give in the
+# Make a csv file of a density with periodic boundary conditions, given the
 # density sampled on a grid without periodic boundary conditions
 library(tidyverse)
+
+# One Bohr, in units of angstroms
+bohr <- 0.529177211
 
 # Output density path
 output_path <- commandArgs(trailingOnly = TRUE)[1]
@@ -14,7 +17,11 @@ density <- read_table(density_path, skip = 1,
                           y = col_double(),
                           z = col_double(),
                           density = col_double()
-                      ))
+                      )) |>
+    # I assume that this density came from MultiWFN, so everything is measured
+    # in Bohrs. Converting to Angstroms for consistency
+    mutate(x = x * bohr, y = y * bohr, z = z * bohr,
+           density = density / bohr^3)
 
 # Indices of grid points (non-unique, since they represent indices in the unit
 # cell)
