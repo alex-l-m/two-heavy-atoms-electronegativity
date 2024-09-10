@@ -40,12 +40,11 @@ with gzip.open(charges_from_integration_path, 'wt') as f:
     writer.writerow(['simulation_id', 'symbol', 'charge'])
 
 with open('cp2k_jobs.sh', 'w') as f:
-    for row in pd.read_csv('element_pairs.csv').itertuples():
+    for row in pd.read_csv('selected_structure_files.csv').itertuples():
         cation = row.symbol_cation
         anion = row.symbol_anion
-        structure_path = f'CP2Kset/{cation}{anion}.CONTCAR'
-        if not exists(structure_path):
-            continue
-        else:
-            job_command = f'python apply_potential.py {cation} {anion}\n'
-            f.write(job_command)
+        structure_path = row.structure_file_path
+        assert exists(structure_path)
+        structure_id = row.structure_id
+        job_command = f'python apply_potential.py {structure_id} {structure_path} {cation} {anion}\n'
+        f.write(job_command)
