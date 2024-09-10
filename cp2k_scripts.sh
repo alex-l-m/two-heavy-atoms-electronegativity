@@ -21,10 +21,16 @@ while read JOBID
 do
     echo "rungms single_atoms/${JOBID}.inp > single_atoms/${JOBID}.log" >> gamess_jobs.sh
     GAMESS_OUT=~/gamess/restart/${JOBID}.dat
+    # Command to convert to a wavefunction file
     echo "python ~/repos/qtaim-utilities/extract_wfn.py ${GAMESS_OUT} > single_atoms/${JOBID}.wfn" >> wavefunction_jobs.sh
+    # Command to delete that wavefunction file if it's empty
+    echo "if [ ! -s single_atoms/${JOBID}.wfn ]; then rm single_atoms/${JOBID}.wfn; fi" >> wavefunction_jobs.sh
 done < job_ids.txt
 NPROC=$(nproc)
 parallel --jobs $NPROC < gamess_jobs.sh
+# Wavefunction jobs are fast and don't need to be parallelized. Also now that I
+# include two commands per wavefunction, they can't be parallelized, I would
+# have to separate into two shell scripts
 sh wavefunction_jobs.sh
 
 # Run CP2K
