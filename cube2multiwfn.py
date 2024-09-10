@@ -17,6 +17,7 @@ cube = read_cube(open(cube_path))
 # Read the origin and basis vectors of the coordinate system
 # ASE converts these to Angstroms, but I need to convert them back to Bohr for
 # Multiwfn
+# Section 3.6 of the manual: "The coordinates must be given in Bohr."
 origin = cube['origin'] / Bohr
 v1 = cube['spacing'][0] / Bohr
 v2 = cube['spacing'][1] / Bohr
