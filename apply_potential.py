@@ -54,14 +54,6 @@ df.to_csv(outfile, index=False)
 # Path to simulation table to append to
 sim_tbl_path = 'simulations.csv.gz'
 
-# cation = sys.argv[1]
-# anion = sys.argv[2]
-# apply_potential = bool(int(sys.argv[3]))
-# 
-# # Size of the k-point grid
-# # "1" means just the gamma point, n>1 means nxnxn grid
-# kpoint_grid_size = sys.argv[4]
-
 # Read arguments with argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('cation', help='Cation element symbol')
