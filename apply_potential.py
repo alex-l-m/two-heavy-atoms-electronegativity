@@ -157,10 +157,13 @@ charges_from_integration_path = f'charges_from_integration.csv.gz'
 def simulate(structure : ase.Atoms,
         current_field_number : int,
         field_strength : float,
-        restart : bool,
+        first : bool,
         donor_element : str, acceptor_element : str) -> float:
     '''Run DFT and iterate SCF to convergence, with a certain field strength,
     recording whatever information I'm going to need later'''
+
+    # Whether to run from a restart file
+    restart = not first
 
     formula = f'{donor_element}{acceptor_element}'
 
@@ -215,15 +218,15 @@ def simulate(structure : ase.Atoms,
     # log file and cube file that I use
     energy = structure.get_potential_energy()
 
-
     # Make the single atom density tables to use
-    for charge in range(-2,3):
-        run(['python', 'cube2multiwfn.py', cube_file_name,
-            f'single_atoms/{donor_element}_{charge}.wfn'])
-        run(['Rscript', 'overlay_density.R', f'{donor_element}_{charge}_density_pbc.csv'])
-        run(['python', 'cube2multiwfn.py', cube_file_name,
-            f'single_atoms/{acceptor_element}_{charge}.wfn'])
-        run(['Rscript', 'overlay_density.R', f'{acceptor_element}_{charge}_density_pbc.csv'])
+    if first:
+        for charge in range(-2,3):
+            run(['python', 'cube2multiwfn.py', cube_file_name,
+                f'single_atoms/{donor_element}_{charge}.wfn'])
+            run(['Rscript', 'overlay_density.R', f'{donor_element}_{charge}_density_pbc.csv'])
+            run(['python', 'cube2multiwfn.py', cube_file_name,
+                f'single_atoms/{acceptor_element}_{charge}.wfn'])
+            run(['Rscript', 'overlay_density.R', f'{acceptor_element}_{charge}_density_pbc.csv'])
 
     # Compute charges by integration, and generate a potential to apply
     # First, convert electron density of crystal from cube to csv
@@ -316,7 +319,7 @@ n_iterations_completed = 0
 while current_charge < 0:
     # Do the simulation
     current_charge = simulate(structure, current_field_number, field_strength,
-            restart = not first, donor_element = cation, acceptor_element =
+            first = first, donor_element = cation, acceptor_element =
             anion)
     print(f'updated charge to {current_charge}')
 
