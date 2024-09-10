@@ -95,30 +95,35 @@ unit_cell <- read_csv(unit_cell_path, col_types = cols(
 unit_cell_basis <- unit_cell |>
     pivot_wider(names_from = vector, values_from = c(x, y, z))
 
+# Determine range of charges for which atomic references are available
+donor_ions <- Sys.glob(glue('single_atoms/{donor_element}_*.wfn'))
+donor_charges <- as.integer(str_extract(donor_ions, glue('(\\d+)\\.wfn$'),
+                                        group = 1))
+acceptor_ions <- Sys.glob(glue('single_atoms/{acceptor_element}_*.wfn'))
+acceptor_charges <- as.integer(str_extract(acceptor_ions, glue('(\\d+)\\.wfn$'),
+                                           group = 1))
+
 # Load unnormalized integer charge weight functions from files
-reference_charges <- tibble(
-    reference_charge = -2:2
-)
-donor_weight_functions <- reference_charges |>
+donor_weight_functions <- tibble(path = Sys.glob(glue('{donor_element}_*_density_pbc.csv'))) |>
+    mutate(reference_charge = as.integer(str_extract(path, glue('{donor_element}_(\\d+)_density_pbc.csv'), group = 1))) |>
     group_by(reference_charge) |>
-    reframe(read_csv(glue('{donor_element}_{reference_charge}_density_pbc.csv'), col_types = cols(
+    reframe(read_csv(path, col_types = cols(
     i = col_double(),
     j = col_double(),
     k = col_double(),
     density = col_double()
 ))) |>
     rename(unnormalized_weight = density)
-
-acceptor_weight_functions <- reference_charges |>
+acceptor_weight_functions <- tibble(path = Sys.glob(glue('{acceptor_element}_*_density_pbc.csv'))) |>
+    mutate(reference_charge = as.integer(str_extract(path, glue('{acceptor_element}_(\\d+)_density_pbc.csv'), group = 1))) |>
     group_by(reference_charge) |>
-    reframe(read_csv(glue('{acceptor_element}_{reference_charge}_density_pbc.csv'), col_types = cols(
+    reframe(read_csv(path, col_types = cols(
     i = col_double(),
     j = col_double(),
     k = col_double(),
     density = col_double()
 ))) |>
     rename(unnormalized_weight = density)
-
 
 # Make an initial charge table, initialized at neutral atoms
 charges <- charge_ref |>
@@ -126,6 +131,8 @@ charges <- charge_ref |>
     mutate(donor_or_acceptor = ifelse(symbol == donor_element, 'donor', 'acceptor'),
            population = valence_electrons,
            charge = 0)
+print('Initial charges:')
+print(charges)
 finished <- FALSE
 while (!finished) {
     # Decide the fraction contributions for the donor and acceptor weight
@@ -211,6 +218,7 @@ while (!finished) {
         left_join(charge_ref, by = 'symbol') |>
         mutate(charge = valence_electrons - population)
     
+    print('Charges in this iteration:')
     print(charges)
 
     # Decide if we're finished
@@ -221,6 +229,7 @@ while (!finished) {
         pull(max_charge_difference)
     finished <- charge_comparison < 0.01
 
+    print('Change in charge:')
     print(charge_comparison)
 }
     

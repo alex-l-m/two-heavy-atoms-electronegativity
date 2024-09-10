@@ -3,6 +3,7 @@ import argparse
 import sys
 import re
 import gzip
+from glob import glob
 from os.path import join, splitext
 from subprocess import run
 import os
@@ -220,12 +221,18 @@ def simulate(structure : ase.Atoms,
 
     # Make the single atom density tables to use
     if first:
-        for charge in range(-2,3):
-            run(['python', 'cube2multiwfn.py', cube_file_name,
-                f'single_atoms/{donor_element}_{charge}.wfn'])
+        donor_ions = glob(f'single_atoms/{donor_element}_*.wfn')
+        donor_charges = [int(re.search(r'_(-?\d+)\.wfn$', donor_ion).group(1)) \
+                         for donor_ion in donor_ions]
+        for path, charge in zip(donor_ions, donor_charges):
+            run(['python', 'cube2multiwfn.py', cube_file_name, path])
             run(['Rscript', 'overlay_density.R', f'{donor_element}_{charge}_density_pbc.csv'])
-            run(['python', 'cube2multiwfn.py', cube_file_name,
-                f'single_atoms/{acceptor_element}_{charge}.wfn'])
+
+        acceptor_ions = glob(f'single_atoms/{acceptor_element}_*.wfn')
+        acceptor_charges = [int(re.search(r'_(-?\d+)\.wfn$', acceptor_ion).group(1)) \
+                            for acceptor_ion in acceptor_ions]
+        for path, charge in zip(acceptor_ions, acceptor_charges):
+            run(['python', 'cube2multiwfn.py', cube_file_name, path])
             run(['Rscript', 'overlay_density.R', f'{acceptor_element}_{charge}_density_pbc.csv'])
 
     # Compute charges by integration, and generate a potential to apply
