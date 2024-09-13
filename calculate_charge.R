@@ -115,7 +115,7 @@ donor_weight_functions <- tibble(path = Sys.glob(glue('{donor_element}_*_density
 ))) |>
     rename(unnormalized_weight = density)
 acceptor_weight_functions <- tibble(path = Sys.glob(glue('{acceptor_element}_*_density_pbc.csv'))) |>
-    mutate(reference_charge = as.integer(str_extract(path, glue('{acceptor_element}_(\\d+)_density_pbc.csv'), group = 1))) |>
+    mutate(reference_charge = as.integer(str_extract(path, glue('{acceptor_element}_(-?\\d+)_density_pbc.csv'), group = 1))) |>
     group_by(reference_charge) |>
     reframe(read_csv(path, col_types = cols(
     i = col_double(),
