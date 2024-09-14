@@ -163,7 +163,7 @@ while (!finished) {
 
     acceptor_weight_function <- fraction_contributions |>
         filter(donor_or_acceptor == 'acceptor') |>
-        left_join(donor_weight_functions, by = 'reference_charge') |>
+        left_join(acceptor_weight_functions, by = 'reference_charge') |>
         mutate(contribution_at_point =
                reference_contribution * unnormalized_weight) |>
         group_by(i, j, k) |>
