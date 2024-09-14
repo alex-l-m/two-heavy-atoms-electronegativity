@@ -24,7 +24,7 @@ except FileExistsError:
 sim_tbl_path = 'simulations.csv.gz'
 # Column names for the simulation table
 sim_tbl_header = ['simulation_id', 'potential',
-                  'formula', 'cation', 'anion',
+                  'structure_id', 'cation', 'anion',
                   'field_number', 'field_value',
                   'log_file_path', 'cube_file_path']
 # Create (or overwrite) the simulation table and write the header

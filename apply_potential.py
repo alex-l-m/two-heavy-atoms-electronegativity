@@ -156,6 +156,7 @@ guess_options = {'fresh_start': 'ATOMIC', 'restart': 'RESTART'}
 charges_from_integration_path = f'charges_from_integration.csv.gz'
 
 def simulate(structure : ase.Atoms,
+        structure_id : str,
         current_field_number : int,
         field_strength : float,
         first : bool,
@@ -166,9 +167,7 @@ def simulate(structure : ase.Atoms,
     # Whether to run from a restart file
     restart = not first
 
-    formula = f'{donor_element}{acceptor_element}'
-
-    simulation_id = f'{formula}_F{current_field_number}_Vfield'
+    simulation_id = f'{structure_id}_F{current_field_number}_Vfield'
 
     # File names, needed for moving them later
     # Name of the cube file that gets written
@@ -187,7 +186,7 @@ def simulate(structure : ase.Atoms,
     with gzip.open(sim_tbl_path, 'at') as f:
         writer = csv.writer(f)
         writer.writerow([simulation_id, 'field',
-                         formula, donor_element, acceptor_element,
+                         structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
                          log_file_path, cube_file_path])
 
@@ -195,7 +194,7 @@ def simulate(structure : ase.Atoms,
     if current_field_number > 0:
         # Construct the previous combination id in order to find the cube file
         previous_field_number = current_field_number - 1
-        previous_simulation_id = f'{formula}_F{previous_field_number}_Vfield'
+        previous_simulation_id = f'{structure_id}_F{previous_field_number}_Vfield'
         previous_cube_name = f'{previous_simulation_id}-ELECTRON_DENSITY-2.cube'
         previous_cube_path = join(cube_file_dir_path, previous_cube_name)
         run(['python', 'to_cube.py', previous_cube_path, 'potential.csv', 'pot.cube'])
@@ -203,7 +202,7 @@ def simulate(structure : ase.Atoms,
                 potential_section_template.format(field_strength = field_strength)
     else:
         potential_section = ''
-    print(f'Running simulation for {formula} with field strength {field_strength}')
+    print(f'Running simulation for {structure_id} with field strength {field_strength}')
     print(f'using guess {guess} and potential section {potential_section}')
     text = template_text.format(potential_section = potential_section,
             guess = guess,
@@ -276,7 +275,7 @@ def simulate(structure : ase.Atoms,
 
     # Do a run with a single iteration just to get an energy in the absence of
     # a field
-    simulation_id = f'{formula}_F{current_field_number}_Vnuclei'
+    simulation_id = f'{structure_id}_F{current_field_number}_Vnuclei'
 
     # Recompute filenames with the new combination id
     cube_file_name = f'{simulation_id}-ELECTRON_DENSITY-2.cube'
@@ -288,7 +287,7 @@ def simulate(structure : ase.Atoms,
     with gzip.open(sim_tbl_path, 'at') as f:
         writer = csv.writer(f)
         writer.writerow([simulation_id, 'nuclei',
-                         formula, donor_element, acceptor_element,
+                         structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
                          log_file_path, cube_file_path])
     print(f'Running no field simulation with combination id {simulation_id}')
@@ -325,7 +324,8 @@ first = True
 n_iterations_completed = 0
 while current_charge < 0:
     # Do the simulation
-    current_charge = simulate(structure, current_field_number, field_strength,
+    current_charge = simulate(structure, structure_id,
+            current_field_number, field_strength,
             first = first, donor_element = cation, acceptor_element =
             anion)
     print(f'updated charge to {current_charge}')
