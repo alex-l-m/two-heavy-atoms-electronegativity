@@ -32,16 +32,3 @@ parallel --jobs $NPROC < gamess_jobs.sh
 # include two commands per wavefunction, they can't be parallelized, I would
 # have to separate into two shell scripts
 sh wavefunction_jobs.sh
-
-# Run CP2K
-Rscript make_structure_file_table.R
-Rscript make_element_pairs.R
-Rscript select_structure_files.R
-python make_cp2k_jobs.py
-sh cp2k_jobs.sh
-
-# Extraction and analysis of CP2K results
-Rscript charge_energy_cp2k.R
-Rscript smooth_energy.R
-Rscript smoothed_energy_plots.R
-Rscript electronegativity_regression.R
