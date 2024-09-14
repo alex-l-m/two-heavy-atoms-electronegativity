@@ -1,0 +1,4 @@
+crystal_structure,infile_glob,infile_regex
+rocksalt,{structure_path}/CP2Kset/rs/*/*.cp2k,{structure_path}/CP2Kset/rs/([A-Z][a-z]?)_([A-Z][a-z]?)/[A-Z][a-z]?_[A-Z][a-z]?.cp2k
+zincblende,{structure_path}/CP2Kset/zb_metallic/*/*.cp2k,{structure_path}/CP2Kset/zb_metallic/([A-Z][a-z]?)_([A-Z][a-z]?)/[A-Z][a-z]?_[A-Z][a-z]?.cp2k
+zincblende,{structure_path}/VASPSET_zb_g4/*/CONTCAR,{structure_path}/VASPSET_zb_g4/([A-Z][a-z]?)([A-Z][a-z]?)/CONTCAR
