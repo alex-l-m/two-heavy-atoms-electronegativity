@@ -1,6 +1,5 @@
 '''Run CP2K without a field, and then with increasing field strengths'''
 import argparse
-import sys
 import re
 import gzip
 from glob import glob
