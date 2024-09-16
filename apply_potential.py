@@ -166,6 +166,10 @@ def simulate(structure : ase.Atoms,
     # Whether to run from a restart file
     restart = not first
 
+    # Read the CP2K command from an environment variable
+    cp2k_command_varname = 'CP2KCOMMAND'
+    cp2k_command = os.environ[cp2k_command_varname]
+
     simulation_id = f'{structure_id}_F{current_field_number}_Vfield'
 
     # File names, needed for moving them later
@@ -210,6 +214,7 @@ def simulate(structure : ase.Atoms,
             kpoint_scheme = kpoint_scheme)
     calc = CP2K(label=simulation_id,
             inp=text,
+            command = cp2k_command,
             # Copying Zhibo's settings
             basis_set = 'DZVP-MOLOPT-SR-GTH', pseudo_potential = 'GTH-PBE')
     structure.calc = calc
@@ -299,7 +304,9 @@ def simulate(structure : ase.Atoms,
                                         max_outer_scf = 1,
                                         kpoint_scheme = kpoint_scheme)
     calc = CP2K(label=simulation_id,
-                inp=nofield_text, max_scf = 1)
+                inp=nofield_text,
+                command = cp2k_command,
+                max_scf = 1)
     structure.calc = calc
     energy = structure.get_potential_energy()
 
