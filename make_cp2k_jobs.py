@@ -21,7 +21,7 @@ except FileExistsError:
     pass
 
 # Path to simulation table to output
-sim_tbl_path = 'simulations.csv.gz'
+sim_tbl_path = 'simulations.csv'
 # Column names for the simulation table
 sim_tbl_header = ['simulation_id', 'potential',
                   'structure_id', 'cation', 'anion',
@@ -33,7 +33,7 @@ with gzip.open(sim_tbl_path, 'wt') as f:
     writer.writerow(sim_tbl_header)
 
 # Name of the csv file of charge potential pairs to write
-charges_from_integration_path = f'charges_from_integration.csv.gz'
+charges_from_integration_path = f'charges_from_integration.csv'
 # Create the file and write the header
 with gzip.open(charges_from_integration_path, 'wt') as f:
     writer = csv.writer(f)

@@ -1,7 +1,6 @@
 '''Run CP2K without a field, and then with increasing field strengths'''
 import argparse
 import re
-import gzip
 from glob import glob
 from os.path import join, splitext
 from subprocess import run
@@ -90,7 +89,7 @@ outfile = 'n_valence_electrons.csv'
 df.to_csv(outfile, index=False)
 
 # Path to simulation table to append to
-sim_tbl_path = 'simulations.csv.gz'
+sim_tbl_path = 'simulations.csv'
 
 # Read arguments with argparse
 parser = argparse.ArgumentParser()
@@ -151,7 +150,7 @@ guess_options = {'fresh_start': 'ATOMIC', 'restart': 'RESTART'}
 
 # Name of the csv file of charges to write
 # Should already exist
-charges_from_integration_path = f'charges_from_integration.csv.gz'
+charges_from_integration_path = f'charges_from_integration.csv'
 
 def simulate(structure : ase.Atoms,
         structure_id : str,
@@ -185,7 +184,7 @@ def simulate(structure : ase.Atoms,
     log_file_path = join(log_file_dir_path, log_file_name)
 
     # Write a row to the simulation table
-    with gzip.open(sim_tbl_path, 'at') as f:
+    with open(sim_tbl_path, 'a') as f:
         writer = csv.writer(f)
         writer.writerow([simulation_id, 'field',
                          structure_id, donor_element, acceptor_element,
@@ -292,7 +291,7 @@ def simulate(structure : ase.Atoms,
     shutil.move(cube_file_name, cube_file_path)
 
     # Write last charge to the csv file
-    with gzip.open(charges_from_integration_path, 'at') as f:
+    with open(charges_from_integration_path, 'a') as f:
         writer = csv.writer(f)
         for row in charge_tbl.itertuples():
             writer.writerow([simulation_id, row.symbol, row.charge])
@@ -308,7 +307,7 @@ def simulate(structure : ase.Atoms,
     log_file_path = join(log_file_dir_path, log_file_name)
 
     # Write a row on the no field simulation to the simulation table
-    with gzip.open(sim_tbl_path, 'at') as f:
+    with open(sim_tbl_path, 'a') as f:
         writer = csv.writer(f)
         writer.writerow([simulation_id, 'nuclei',
                          structure_id, donor_element, acceptor_element,

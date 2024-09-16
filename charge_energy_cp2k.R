@@ -1,7 +1,7 @@
 library(tidyverse)
 library(glue)
 
-simulations <- read_csv('simulations.csv.gz', col_types = cols(
+simulations <- read_csv('simulations.csv', col_types = cols(
     simulation_id = col_character(),
     potential = col_character(),
     formula = col_character(),
@@ -13,7 +13,7 @@ simulations <- read_csv('simulations.csv.gz', col_types = cols(
     cube_file_path = col_character()
 ))
 
-charges_from_integration <- read_csv('charges_from_integration.csv.gz', col_types = cols(
+charges_from_integration <- read_csv('charges_from_integration.csv', col_types = cols(
     simulation_id = col_character(),
     symbol = col_character(),
     charge = col_double()
