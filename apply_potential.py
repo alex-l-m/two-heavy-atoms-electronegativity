@@ -59,11 +59,10 @@ cube_file_dir_path = 'cp2k_cube'
 # The pseudopotential that I'm using, since Zhibo used it
 pseudopotential = 'GTH-PBE'
 
-# Write table of number of valence electrons for each element, which will be
-# used to convert electron populations into charges
-# Should probably read this directory from an environment variable
-cp2k_dir = '/usr/share/cp2k'
-infile = join(cp2k_dir, 'GTH_POTENTIALS')
+# Read path of CP2K pseudopotentials from the environment variable
+cp2k_psuedopotential_varname = 'CP2KPSEUDOPOTENTIALPATH'
+cp2k_pseudopotential_dir = os.environ[cp2k_psuedopotential_varname]
+infile = join(cp2k_pseudopotential_dir, 'GTH_POTENTIALS')
 
 # Regex for extracting number of valence electrons
 # Examples for pseudopotential GTH-PBE
