@@ -159,7 +159,8 @@ def simulate(structure : ase.Atoms,
         current_field_number : int,
         field_strength : float,
         first : bool,
-        donor_element : str, acceptor_element : str) -> float:
+        donor_element : str, acceptor_element : str,
+        sim_working_dir : str) -> float:
     '''Run DFT and iterate SCF to convergence, with a certain field strength,
     recording whatever information I'm going to need later'''
 
@@ -184,7 +185,6 @@ def simulate(structure : ase.Atoms,
     # Path to the log file, after it's moved
     log_file_path = join(log_file_dir_path, log_file_name)
 
-
     # Write a row to the simulation table
     with gzip.open(sim_tbl_path, 'at') as f:
         writer = csv.writer(f)
@@ -193,14 +193,21 @@ def simulate(structure : ase.Atoms,
                          current_field_number, field_strength,
                          log_file_path, cube_file_path])
 
+    # Save current working directory, which is where all the scripts are located
+    # This is so I can include it in the subprocess commands
+    project_dir = os.getcwd()
+
+    # Move to the working directory of the simulation
+    os.chdir(sim_working_dir)
+
     guess = guess_options['restart'] if restart else guess_options['fresh_start']
     if current_field_number > 0:
         # Construct the previous combination id in order to find the cube file
         previous_field_number = current_field_number - 1
         previous_simulation_id = f'{structure_id}_F{previous_field_number}_Vfield'
         previous_cube_name = f'{previous_simulation_id}-ELECTRON_DENSITY-2.cube'
-        previous_cube_path = join(cube_file_dir_path, previous_cube_name)
-        run(['python', 'to_cube.py', previous_cube_path, 'potential.csv', 'pot.cube'])
+        run(['python', join(project_dir, 'to_cube.py'), previous_cube_name,
+             'potential.csv', 'pot.cube'])
         potential_section = \
                 potential_section_template.format(field_strength = field_strength)
     else:
@@ -224,19 +231,25 @@ def simulate(structure : ase.Atoms,
 
     # Make the single atom density tables to use
     if first:
-        donor_ions = glob(f'single_atoms/{donor_element}_*.wfn')
+        donor_ions = glob(join(project_dir,
+                               f'single_atoms/{donor_element}_*.wfn'))
         donor_charges = [int(re.search(r'_(-?\d+)\.wfn$', donor_ion).group(1)) \
                          for donor_ion in donor_ions]
         for path, charge in zip(donor_ions, donor_charges):
-            run(['python', 'cube2multiwfn.py', cube_file_name, path])
-            run(['Rscript', 'overlay_density.R', f'{donor_element}_{charge}_density_pbc.csv'])
+            run(['python', join(project_dir, 'cube2multiwfn.py'),
+                 cube_file_name, path])
+            run(['Rscript', join(project_dir, 'overlay_density.R'),
+                f'{donor_element}_{charge}_density_pbc.csv'])
 
-        acceptor_ions = glob(f'single_atoms/{acceptor_element}_*.wfn')
+        acceptor_ions = glob(join(project_dir,
+                                  f'single_atoms/{acceptor_element}_*.wfn'))
         acceptor_charges = [int(re.search(r'_(-?\d+)\.wfn$', acceptor_ion).group(1)) \
                             for acceptor_ion in acceptor_ions]
         for path, charge in zip(acceptor_ions, acceptor_charges):
-            run(['python', 'cube2multiwfn.py', cube_file_name, path])
-            run(['Rscript', 'overlay_density.R', f'{acceptor_element}_{charge}_density_pbc.csv'])
+            run(['python', join(project_dir, 'cube2multiwfn.py'),
+                 cube_file_name, path])
+            run(['Rscript', join(project_dir, 'overlay_density.R'),
+                 f'{acceptor_element}_{charge}_density_pbc.csv'])
 
     # Compute charges by integration, and generate a potential to apply
     # First, convert electron density of crystal from cube to csv
@@ -245,16 +258,17 @@ def simulate(structure : ase.Atoms,
     # unit_cell.csv
     # density.csv
     # coordinate_system.csv
-    run(['python', 'cube2csv.py', cube_file_name])
+    run(['python', join(project_dir, 'cube2csv.py'), cube_file_name])
     # Then, integrate to obtain charges, and generate potential as a csv
     # Writes files:
     # charges.csv
     # potential.csv
     # density_with_weights.csv
-    run(['Rscript', 'calculate_charge.R',
+    run(['Rscript', join(project_dir, 'calculate_charge.R'),
          donor_element, acceptor_element,
          'density.csv', 'unit_cell.csv', 'coordinate_system.csv', 'atoms.csv',
-         'potential.csv', 'charges.csv', 'density_with_weights.csv'])
+         'potential.csv', 'charges.csv', 'density_with_weights.csv',
+         join(project_dir, 'n_valence_electrons.csv')])
     # Read the charges file
     # It has columns "symbol", "population", and "charge"
     charge_tbl = pd.read_csv('charges.csv')
@@ -267,15 +281,22 @@ def simulate(structure : ase.Atoms,
     assert not pd.isna(current_charge)
     print(f'Current charge: {current_charge}')
 
+    # Copy the output files to the project directory
+    shutil.copy(log_file_name, project_dir)
+    shutil.copy(cube_file_name, project_dir)
+
+    # Go back to the project directory
+    os.chdir(project_dir)
+
+    # Move the output files
+    shutil.move(log_file_name, log_file_path)
+    shutil.move(cube_file_name, cube_file_path)
+
     # Write last charge to the csv file
     with gzip.open(charges_from_integration_path, 'at') as f:
         writer = csv.writer(f)
         for row in charge_tbl.itertuples():
             writer.writerow([simulation_id, row.symbol, row.charge])
-
-    # Move the output files
-    shutil.move(log_file_name, log_file_path)
-    shutil.move(cube_file_name, cube_file_path)
 
     # Do a run with a single iteration just to get an energy in the absence of
     # a field
@@ -294,6 +315,10 @@ def simulate(structure : ase.Atoms,
                          structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
                          log_file_path, cube_file_path])
+    
+    # Go to the simulation directory
+    os.chdir(sim_working_dir)
+
     print(f'Running no field simulation with combination id {simulation_id}')
     # Copy the restart file to a temporary one so we're not messing up the
     # central one
@@ -309,6 +334,13 @@ def simulate(structure : ase.Atoms,
                 max_scf = 1)
     structure.calc = calc
     energy = structure.get_potential_energy()
+
+    # Copy the new output files to the project directory
+    shutil.copy(log_file_name, project_dir)
+    shutil.copy(cube_file_name, project_dir)
+    
+    # Go back to the project directory
+    os.chdir(project_dir)
 
     # Move the new output files
     shutil.move(log_file_name, log_file_path)
@@ -328,12 +360,17 @@ current_charge = -1.0
 current_field_number = 0
 first = True
 n_iterations_completed = 0
+# Create a directory to do the simulation in
+sim_working_dir = f'{structure_id}_simulation'
+os.makedirs(sim_working_dir, exist_ok = True)
 while current_charge < 0:
     # Do the simulation
     current_charge = simulate(structure, structure_id,
             current_field_number, field_strength,
-            first = first, donor_element = cation, acceptor_element =
-            anion)
+            first = first,
+            donor_element = cation,
+            acceptor_element = anion,
+            sim_working_dir = sim_working_dir)
     print(f'updated charge to {current_charge}')
 
     # Increment the field strength

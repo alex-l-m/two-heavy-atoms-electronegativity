@@ -14,13 +14,14 @@ atoms_path <- commandArgs(trailingOnly = TRUE)[6]
 potential_path <- commandArgs(trailingOnly = TRUE)[7]
 charges_path <- commandArgs(trailingOnly = TRUE)[8]
 density_with_weights_path <- commandArgs(trailingOnly = TRUE)[9]
+charge_ref_path <- commandArgs(trailingOnly = TRUE)[10]
 
 # A table mapping element symbols to donor or acceptor status
 elements <- tibble(symbol = c(donor_element, acceptor_element),
                    donor_or_acceptor = c('donor', 'acceptor'))
 
 
-charge_ref <- read_csv('n_valence_electrons.csv', col_types = cols(
+charge_ref <- read_csv(charge_ref_path, col_types = cols(
     symbol = col_character(),
     valence_electrons = col_integer()
 ))
