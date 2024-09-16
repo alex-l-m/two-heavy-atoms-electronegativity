@@ -8,12 +8,17 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     other_symbol = col_character(),
     donor_or_acceptor = col_character(),
     charge = col_double(),
-    formula = col_character(),
+    structure_id = col_character(),
     field_number = col_double(),
     field_value = col_double(),
     total_energy = col_double(),
     cdft = col_logical(),
-    group_id = col_character()
+    group_id = col_character(),
+    category = col_character(),
+    symbol_cation = col_character(),
+    symbol_anion = col_character(),
+    crystal_structure = col_character(),
+    formula = col_character()
 ))
 
 # Make a table for smoothing energy
@@ -25,14 +30,14 @@ charge_energy_long <- charge_energy |>
     pivot_longer(c(total_energy),
                  names_to = 'energy_type', values_to = 'energy')
 energy_for_smoothing <- charge_energy_long |>
-    add_count(formula) |>
+    add_count(structure_id) |>
     filter(n > 3) |>
     select(-n)
 # Table of smoothed energies, sampled on a grid, and derivative
 smoothed_energy_derivatives_long <- energy_for_smoothing |>
     group_by(
             # Identification of the system
-            formula,
+            crystal_structure, category, structure_id, symbol_anion, symbol_cation, formula,
             # Identification of the atom
             symbol, other_symbol, donor_or_acceptor, group_id,
             # Which energy calculation is being smoothed
@@ -46,7 +51,7 @@ smoothed_energy_derivatives_long <- energy_for_smoothing |>
     rename(charge = new_charge) |>
     # Reframe loses the groups, but I need those exact same groups to calculate
     # the derivative
-    group_by(formula,
+    group_by(crystal_structure, category, structure_id, symbol_anion, symbol_cation, formula,
              symbol, other_symbol, donor_or_acceptor, group_id,
              energy_type) |>
     # Calculate the derivative as discrete differences
@@ -79,13 +84,15 @@ energy_derivatives <- smoothed_energy_derivatives_long |>
     # Bader charge of this combination. It's the only way to handle the
     # different sizes of the smoothed data I'm interpolating, and the piont I'm
     # interpolating on
-    group_by(formula,
+    group_by(crystal_structure, category, structure_id, symbol_anion, symbol_cation, formula,
              symbol, other_symbol, donor_or_acceptor, group_id,
              energy_type) |>
     nest() |>
     ungroup() |>
     left_join(charge_energy_long,
-              by = c('formula', 'symbol', 'other_symbol',
+              by = c('crystal_structure', 'category', 'structure_id',
+                     'symbol_anion', 'symbol_cation', 'formula',
+                     'symbol', 'other_symbol', 
                      'donor_or_acceptor', 'group_id', 'energy_type')) |>
     group_by(
         # Have to map charge to derivative for each atom individually
@@ -93,7 +100,8 @@ energy_derivatives <- smoothed_energy_derivatives_long |>
         charge, energy_type,
         # But I also want to keep all of the simulation metadata so I don't
         # have to join with it later
-        formula, cdft, field_number, field_value
+        crystal_structure, category, structure_id, symbol_anion, symbol_cation, formula,
+        cdft, field_number, field_value
     ) |>
     # Using summarize rather than mutate just to get rid of the nested "data"
     # column
