@@ -11,6 +11,7 @@ wolframscript retrieve_electronegativity.wls
 wolframscript atomic_numbers.wls
 
 # Create atomic references for Hirshfeld charge calculation
+mkdir -p single_atoms
 Rscript single_atom_simulation_table.R
 python make_single_atom_input_files.py
 # Simulate a single atom, for each selected element
