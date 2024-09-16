@@ -24,11 +24,13 @@ v2 = cube['spacing'][1] / Bohr
 v3 = cube['spacing'][2] / Bohr
 
 # Decide the number of points to sample in each direction
-# If I want sample neighboring cells, this needs to be three times the original
-# number of points
+# I'm assuming that the wavefunction is a atom centered on the origin. For now
+# I want each unit cell that's adjacent to the origin, which is eight total. I
+# can make this larger in the future if atoms have numerically important
+# density outside of that
 original_n = cube['data'].shape[0]
 assert cube['data'].shape[1] == cube['data'].shape[2] == original_n
-new_n = 3 * original_n
+new_n = 2 * original_n
 
 # Adapt the origin to fully sample
 new_origin = origin - v1 * original_n - v2 * original_n - v3 * original_n
