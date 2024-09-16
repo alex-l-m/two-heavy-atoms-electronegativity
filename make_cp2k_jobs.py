@@ -1,6 +1,5 @@
 '''Output a shell script containing commands for all the CP2K jobs I want to run, by reading a file of anion and cation elements and outputting the jobs'''
 import csv
-import gzip
 import pandas as pd
 from os.path import exists
 from itertools import product
@@ -28,14 +27,14 @@ sim_tbl_header = ['simulation_id', 'potential',
                   'field_number', 'field_value',
                   'log_file_path', 'cube_file_path']
 # Create (or overwrite) the simulation table and write the header
-with gzip.open(sim_tbl_path, 'wt') as f:
+with open(sim_tbl_path, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(sim_tbl_header)
 
 # Name of the csv file of charge potential pairs to write
 charges_from_integration_path = f'charges_from_integration.csv'
 # Create the file and write the header
-with gzip.open(charges_from_integration_path, 'wt') as f:
+with open(charges_from_integration_path, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(['simulation_id', 'symbol', 'charge'])
 
