@@ -104,7 +104,6 @@
 	  ! &END PDOS
       
       &E_DENSITY_CUBE
-		TOTAL_DENSITY
         STRIDE 1
 		! &EACH
 		!   GEO_OPT 20
