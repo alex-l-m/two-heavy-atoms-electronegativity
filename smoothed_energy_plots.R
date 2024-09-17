@@ -117,9 +117,9 @@ for (category_structure_pair in category_structure_pairs)
         ggplot(mapping = aes(x = charge, y = total_energy)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
         geom_line() +
-#        geom_point(data =
-#                   filter(charge_energy, donor_or_acceptor == 'acceptor', glue('{category}:{crystal_structure}') == category_structure_pair),
-#                   size = 0, color = 'red') +
+        geom_point(data =
+                   filter(charge_energy, donor_or_acceptor == 'acceptor', glue('{category}:{crystal_structure}') == category_structure_pair),
+                   size = 0, color = 'red') +
         acceptor_charge_label +
         this_theme
     ggsave(glue('{category_structure_pair}_energy_smoothing_validation.png'), energy_smoothing_validation_plot,
@@ -139,7 +139,7 @@ for (category_structure_pair in category_structure_pairs)
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
         geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
         geom_line() +
-#        geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor'), glue('{category}:{crystal_structure}') == category_structure_pair) +
+        geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}') == category_structure_pair)) +
         acceptor_charge_label +
         this_theme +
         ylab('Energy above no field (eV)')
@@ -154,7 +154,8 @@ for (category_structure_pair in category_structure_pairs)
         ggplot(aes(x = charge, y = total_energy, color = computation)) +
         facet_wrap(vars(formula), scales = 'free', ncol = 3) +
         geom_line() +
-    #    geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor')) +
+        geom_point(data = mutate(filter(nofield_derivatives,
+                                        donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
         acceptor_charge_label +
         ylab('electronegativity difference (V)') +
         # Put a vertical line to indicate 0
@@ -179,7 +180,8 @@ for (category_structure_pair in category_structure_pairs)
         # Add a linear fit to check how close to linear they are
         geom_smooth(method = lmrob, formula = y ~ x, se = FALSE) +
         geom_line() +
-#        geom_point(data = filter(nofield_energies, donor_or_acceptor == 'acceptor', glue('{category}:{crystal_structure}') == category_structure_pair)) +
+        geom_point(data = mutate(filter(nofield_derivatives,
+                                        donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
         ylim(c(-5,5)) +
         acceptor_charge_label +
         this_theme
@@ -211,6 +213,7 @@ for (category_structure_pair in category_structure_pairs)
     
     # Fit lines to the lambda values, from the x axis and y axis
     lam_line_data <- lam_values |>
+        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
         filter(computation == '2 * Lam') |>
         # Compute rankings, so I can select the bottom and top charges from each
         # material
@@ -245,6 +248,8 @@ for (category_structure_pair in category_structure_pairs)
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
         geom_line() +
+        # Don't need to filter lam_line_data for the right category and crystal
+        # structure because that was already done during creation
         geom_abline(data = lam_line_data,
                     aes(intercept = intercept, slope = slope, color = line)) +
         acceptor_charge_label +
