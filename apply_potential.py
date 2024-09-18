@@ -100,6 +100,8 @@ parser.add_argument('anion', help='Anion element symbol')
 parser.add_argument('--potential', help='Whether to apply potential (0 for no, 1 for yes)', type=int, choices=[0,1], default=1)
 parser.add_argument('--kpoints', help='Size of the k-point grid', type=int, default=1)
 parser.add_argument('--maxiter', help='Maximum number of iterations to run', type=int, default=None)
+parser.add_argument('--initfield', help='Initial value of the field increment', type=float, default=0.001)
+parser.add_argument('--dcharge', help='Target charge increment', type=float, default=0.01)
 args = parser.parse_args()
 structure_id = args.structure_id
 structure_path = args.structure_path
@@ -108,6 +110,11 @@ anion = args.anion
 apply_potential = args.potential
 kpoint_grid_size = args.kpoints
 max_iter = args.maxiter
+# Initial field strength increment
+field_strength_increment = args.initfield
+# Target charge increment
+# Field strength increment will be adjusted to achieve this
+target_charge_increment = args.dcharge
 
 print(f'Simulating {structure_id}')
 
@@ -347,12 +354,6 @@ def simulate(structure : ase.Atoms,
     shutil.move(cube_file_name, cube_file_path)
 
     return current_charge
-
-# Initial field strength increment
-field_strength_increment = 0.001
-# Target charge increment
-# Field strength increment will be adjusted to achieve this
-target_charge_increment = 0.01
 
 # Run simulations at higher field strengths until the charge becomes positive
 # Later I want to put initial simulations to decide which is donor and which is acceptor
