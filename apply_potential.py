@@ -348,8 +348,11 @@ def simulate(structure : ase.Atoms,
 
     return current_charge
 
-
-field_strength_increment = 0.01
+# Initial field strength increment
+field_strength_increment = 0.001
+# Target charge increment
+# Field strength increment will be adjusted to achieve this
+target_charge_increment = 0.01
 
 # Run simulations at higher field strengths until the charge becomes positive
 # Later I want to put initial simulations to decide which is donor and which is acceptor
@@ -364,6 +367,8 @@ n_iterations_completed = 0
 sim_working_dir = f'{structure_id}_simulation'
 os.makedirs(sim_working_dir, exist_ok = True)
 while current_charge < 0:
+    # Store the previous charge, so I can calculate a charge difference, which will be used to update the field strength increment
+    previous_charge = current_charge
     # Do the simulation
     current_charge = simulate(structure, structure_id,
             current_field_number, field_strength,
@@ -374,13 +379,21 @@ while current_charge < 0:
             initial_charge = 0 if first else current_charge)
     print(f'updated charge to {current_charge}')
 
+    # If this wasn't the first stimulation, adjust the field strength increment
+    # First, calculate the derivative of charge with respect to field strength
+    if not first:
+        charge_increment = current_charge - previous_charge
+        assert charge_increment > 0
+        charge_derivative = charge_increment / field_strength_increment
+        # Then, calculate the required field strength increment
+        field_strength_increment = target_charge_increment / charge_derivative
+
     # Increment the field strength
     field_strength += field_strength_increment
 
     # Increment the field number
     current_field_number += 1
 
-    first = False
     n_iterations_completed += 1
     if max_iter is not None and n_iterations_completed >= max_iter:
         break
@@ -388,5 +401,7 @@ while current_charge < 0:
     # Exit the loop if I don't want to apply potentials to this material
     if not apply_potential:
         break
+
+    first = False
 
 print(f'Finished {structure_id} after {n_iterations_completed} iterations')
