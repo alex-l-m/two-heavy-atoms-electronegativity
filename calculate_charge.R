@@ -102,14 +102,6 @@ unit_cell <- read_csv(unit_cell_path, col_types = cols(
 unit_cell_basis <- unit_cell |>
     pivot_wider(names_from = vector, values_from = c(x, y, z))
 
-# Determine range of charges for which atomic references are available
-donor_ions <- Sys.glob(glue('single_atoms/{donor_element}_*.wfn'))
-donor_charges <- as.integer(str_extract(donor_ions, glue('(\\d+)\\.wfn$'),
-                                        group = 1))
-acceptor_ions <- Sys.glob(glue('single_atoms/{acceptor_element}_*.wfn'))
-acceptor_charges <- as.integer(str_extract(acceptor_ions, glue('(\\d+)\\.wfn$'),
-                                           group = 1))
-
 # Load unnormalized integer charge weight functions from files
 donor_weight_functions <- tibble(path = Sys.glob(glue('{donor_element}_*_density_pbc.csv'))) |>
     mutate(reference_charge = as.integer(str_extract(path, glue('{donor_element}_(\\d+)_density_pbc.csv'), group = 1))) |>
