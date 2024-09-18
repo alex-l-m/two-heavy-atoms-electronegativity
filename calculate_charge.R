@@ -18,6 +18,10 @@ charge_ref_path <- commandArgs(trailingOnly = TRUE)[10]
 # Charge to start with:
 initial_acceptor_charge <- as.double(commandArgs(trailingOnly = TRUE)[11])
 
+# Show more significant figures in tables, so I can see if the charges are
+# converging in the logs
+options(pillar.sigfig = 7)
+
 # A table mapping element symbols to donor or acceptor status
 elements <- tibble(symbol = c(donor_element, acceptor_element),
                    donor_or_acceptor = c('donor', 'acceptor'))
@@ -226,13 +230,16 @@ while (!finished) {
     print('Charges in this iteration:')
     print(charges)
 
+    print('Total charge:')
+    print(sum(charges$charge))
+
     # Decide if we're finished
     charge_comparison <- charges |>
         left_join(old_charges, by = c('symbol', 'donor_or_acceptor')) |>
         mutate(charge_difference = abs(charge.x - charge.y)) |>
         summarize(max_charge_difference = max(charge_difference)) |>
         pull(max_charge_difference)
-    finished <- charge_comparison < 0.01
+    finished <- charge_comparison < 0.0001
 
     print('Change in charge:')
     print(charge_comparison)
