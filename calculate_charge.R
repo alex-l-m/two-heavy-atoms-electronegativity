@@ -1,5 +1,8 @@
 # Integrate a density to get the Hirshfeld charges
-library(tidyverse)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
 library(glue)
 
 # Read arguments

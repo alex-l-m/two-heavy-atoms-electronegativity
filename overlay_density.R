@@ -1,6 +1,7 @@
 # Make a csv file of a density with periodic boundary conditions, given the
 # density sampled on a grid without periodic boundary conditions
-library(tidyverse)
+library(readr)
+library(dplyr)
 
 # One Bohr, in units of angstroms
 bohr <- 0.529177211
