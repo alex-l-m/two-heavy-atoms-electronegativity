@@ -86,7 +86,7 @@ atoms_with_voxel_index <- atoms |>
         tibble(nucleus_i = i, nucleus_j = j, nucleus_k = k)
     })
 
-# Number of voxels alone each basis vector direction
+# Number of voxels along each basis vector direction
 n_voxels <- density |>
     summarize(n_i = max(i) + 1,
               n_j = max(j) + 1,
