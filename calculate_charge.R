@@ -15,6 +15,8 @@ potential_path <- commandArgs(trailingOnly = TRUE)[7]
 charges_path <- commandArgs(trailingOnly = TRUE)[8]
 density_with_weights_path <- commandArgs(trailingOnly = TRUE)[9]
 charge_ref_path <- commandArgs(trailingOnly = TRUE)[10]
+# Charge to start with:
+initial_acceptor_charge <- as.double(commandArgs(trailingOnly = TRUE)[11])
 
 # A table mapping element symbols to donor or acceptor status
 elements <- tibble(symbol = c(donor_element, acceptor_element),
@@ -131,7 +133,9 @@ charges <- charge_ref |>
     filter(symbol %in% c(donor_element, acceptor_element)) |>
     mutate(donor_or_acceptor = ifelse(symbol == donor_element, 'donor', 'acceptor'),
            population = valence_electrons,
-           charge = 0)
+           charge = ifelse(donor_or_acceptor == 'acceptor',
+                           initial_acceptor_charge,
+                           -1 * initial_acceptor_charge))
 print('Initial charges:')
 print(charges)
 finished <- FALSE

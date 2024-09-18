@@ -158,7 +158,8 @@ def simulate(structure : ase.Atoms,
         field_strength : float,
         first : bool,
         donor_element : str, acceptor_element : str,
-        sim_working_dir : str) -> float:
+        sim_working_dir : str,
+        initial_charge : float) -> float:
     '''Run DFT and iterate SCF to convergence, with a certain field strength,
     recording whatever information I'm going to need later'''
 
@@ -266,7 +267,8 @@ def simulate(structure : ase.Atoms,
          donor_element, acceptor_element,
          'density.csv', 'unit_cell.csv', 'coordinate_system.csv', 'atoms.csv',
          'potential.csv', 'charges.csv', 'density_with_weights.csv',
-         join(project_dir, 'n_valence_electrons.csv')])
+         join(project_dir, 'n_valence_electrons.csv'),
+         str(initial_charge)])
     # Read the charges file
     # It has columns "symbol", "population", and "charge"
     charge_tbl = pd.read_csv('charges.csv')
@@ -368,7 +370,8 @@ while current_charge < 0:
             first = first,
             donor_element = cation,
             acceptor_element = anion,
-            sim_working_dir = sim_working_dir)
+            sim_working_dir = sim_working_dir,
+            initial_charge = 0 if first else current_charge)
     print(f'updated charge to {current_charge}')
 
     # Increment the field strength
