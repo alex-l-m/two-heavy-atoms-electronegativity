@@ -9,8 +9,8 @@ atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
 ))
 
 simulation_metadata <- atomic_numbers |>
-    # For every element, charges -2 to 2
-    expand_grid(charge = -2:2) |>
+    # For every element, charges -3 to 3
+    expand_grid(charge = -3:3) |>
     # Multiplicity, based on the atomic number and the charge
     mutate(n_electrons = atomic_number - charge,
            multiplicity = 1 + n_electrons %% 2,
