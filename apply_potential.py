@@ -338,7 +338,9 @@ def simulate(structure : ase.Atoms,
     calc = CP2K(label=simulation_id,
                 inp=nofield_text,
                 command = cp2k_command,
-                max_scf = 1)
+                max_scf = 1,
+                # Copying Zhibo's settings
+                basis_set = 'DZVP-MOLOPT-SR-GTH', pseudo_potential = 'GTH-PBE')
     structure.calc = calc
     energy = structure.get_potential_energy()
 
