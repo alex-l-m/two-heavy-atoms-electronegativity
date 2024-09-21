@@ -50,9 +50,10 @@ def cp2k2ase(inpath):
 
     return crystal
 
-# The directories where the files should be moved to,  assumed to already exist
+# The directories where the files should be moved to, assumed to already exist
 log_file_dir_path = 'cp2k_logs'
 cube_file_dir_path = 'cp2k_cube'
+pot_file_dir_path = 'cp2k_pot'
 
 # The pseudopotential that I'm using, since Zhibo used it
 pseudopotential = 'GTH-PBE'
@@ -184,8 +185,17 @@ def simulate(structure : ase.Atoms,
     # Changing this variable doesn't set the name of the cube file, it just has
     # to match whatever gets used
     cube_file_name = f'{simulation_id}-ELECTRON_DENSITY-2.cube'
-    # Path to the cube file, after it's moved
+    # Path to copy the density to
     cube_file_path = join(cube_file_dir_path, cube_file_name)
+    # Path to copy the potential to
+    # Only actually happens if this isn't the first simulation in the series
+    if current_field_number > 0:
+        potential_file_name = f'{simulation_id}-potential.cube'
+        potential_file_path = join(pot_file_dir_path, potential_file_name)
+    else:
+        # The path still gets used to make the simulation table, so fill it
+        # with a missing value
+        potential_file_path = None
     # Name of the log file
     log_file_name = f'{simulation_id}.out'
     # Path to the log file, after it's moved
@@ -197,7 +207,7 @@ def simulate(structure : ase.Atoms,
         writer.writerow([simulation_id, 'field',
                          structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
-                         log_file_path, cube_file_path])
+                         log_file_path, cube_file_path, potential_file_path])
 
     # Save current working directory, which is where all the scripts are located
     # This is so I can include it in the subprocess commands
@@ -291,6 +301,8 @@ def simulate(structure : ase.Atoms,
     # Copy the output files to the project directory
     shutil.copy(log_file_name, project_dir)
     shutil.copy(cube_file_name, project_dir)
+    if current_field_number > 0:
+        shutil.copy('pot.cube', os.path.join(project_dir, potential_file_name))
 
     # Go back to the project directory
     os.chdir(project_dir)
@@ -298,6 +310,8 @@ def simulate(structure : ase.Atoms,
     # Move the output files
     shutil.move(log_file_name, log_file_path)
     shutil.move(cube_file_name, cube_file_path)
+    if current_field_number > 0:
+        shutil.move(potential_file_name, potential_file_path)
 
     # Write last charge to the csv file
     with open(charges_from_integration_path, 'a') as f:

@@ -12,10 +12,17 @@ try:
 except FileExistsError:
     pass
 
-# Directory for the cube files
+# Directory for the cube files of the densities
 cube_file_dir_path = 'cp2k_cube'
 try:
     mkdir(cube_file_dir_path)
+except FileExistsError:
+    pass
+
+# Directory for the cube files of the potentials applied
+pot_file_dir_path = 'cp2k_pot'
+try:
+    mkdir(pot_file_dir_path)
 except FileExistsError:
     pass
 
@@ -25,7 +32,7 @@ sim_tbl_path = 'simulations.csv'
 sim_tbl_header = ['simulation_id', 'potential',
                   'structure_id', 'cation', 'anion',
                   'field_number', 'field_value',
-                  'log_file_path', 'cube_file_path']
+                  'log_file_path', 'cube_file_path', 'pot_file_path']
 # Create (or overwrite) the simulation table and write the header
 with open(sim_tbl_path, 'w') as f:
     writer = csv.writer(f)
