@@ -235,15 +235,15 @@ def simulate(structure : ase.Atoms,
             restart_file = 'potrestart',
             max_outer_scf = 20,
             kpoint_scheme = kpoint_scheme)
-    calc = CP2K(label=simulation_id,
-            inp=text,
-            command = cp2k_command,
-            # Copying Zhibo's settings
-            basis_set = 'DZVP-MOLOPT-SR-GTH', pseudo_potential = 'GTH-PBE')
-    structure.calc = calc
-    # I don't use this energy variable, but the energy calculation produces the
-    # log file and cube file that I use
-    energy = structure.get_potential_energy()
+    with CP2K(label=simulation_id,
+              inp=text,
+              command = cp2k_command,
+              # Copying Zhibo's settings
+              basis_set = 'DZVP-MOLOPT-SR-GTH', pseudo_potential = 'GTH-PBE') \
+            as calc:
+        # I don't use this energy variable, but the energy calculation produces
+        # the log file and cube file that I use
+        energy = calc.get_potential_energy(structure)
 
     # Make the single atom density tables to use
     if first:
@@ -349,14 +349,14 @@ def simulate(structure : ase.Atoms,
                                         restart_file = 'energyrestart',
                                         max_outer_scf = 1,
                                         kpoint_scheme = kpoint_scheme)
-    calc = CP2K(label=simulation_id,
-                inp=nofield_text,
-                command = cp2k_command,
-                max_scf = 1,
-                # Copying Zhibo's settings
-                basis_set = 'DZVP-MOLOPT-SR-GTH', pseudo_potential = 'GTH-PBE')
-    structure.calc = calc
-    energy = structure.get_potential_energy()
+    with CP2K(label=simulation_id,
+              inp=nofield_text,
+              command = cp2k_command,
+              max_scf = 1,
+              # Copying Zhibo's settings
+              basis_set = 'DZVP-MOLOPT-SR-GTH', pseudo_potential = 'GTH-PBE') \
+            as calc:
+        energy = calc.get_potential_energy(structure)
 
     # Copy the new output files to the project directory
     shutil.copy(log_file_name, project_dir)
