@@ -52,5 +52,5 @@ with open('cp2k_jobs.sh', 'w') as f:
         structure_path = row.structure_file_path
         assert exists(structure_path)
         structure_id = row.structure_id
-        job_command = f'python apply_potential.py {structure_id} {structure_path} {cation} {anion} --kpoints 7\n'
+        job_command = f'python apply_potential.py {structure_id} {structure_path} {cation} {anion} --kpoints 7 --initfield 0.001 --dcharge 0.01\n'
         f.write(job_command)
