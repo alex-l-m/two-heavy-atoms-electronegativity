@@ -1,6 +1,8 @@
 library(tidyverse)
 library(glue)
 
+TO_EV <- 27.211386246
+
 simulations <- read_csv('simulations.csv', col_types = cols(
     simulation_id = col_character(),
     potential = col_character(),
@@ -32,7 +34,8 @@ extract_first_energy <- function(inpath)
     intext <- read_file(inpath)
     
     first_energy_str <- str_match(intext, energy_line_regex)[1,2]
-    first_energy <- as.numeric(first_energy_str)
+    first_energy_au <- as.numeric(first_energy_str)
+    first_energy <- first_energy_au * TO_EV
 
     return(first_energy)
 }

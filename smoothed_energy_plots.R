@@ -7,6 +7,8 @@ library(glue)
 library(ggrepel)
 library(broom)
 
+TO_EV <- 27.211386246
+
 # Smoothed energies and derivatives
 smoothed_energy <- read_csv('smoothed_energy.csv.gz', col_types = cols(
     crystal_structure = col_character(),
@@ -189,7 +191,7 @@ for (category_structure_pair in category_structure_pairs)
     
     lam_values <- energy_derivatives |>
         filter(donor_or_acceptor == 'acceptor') |>
-        mutate(`2 * Lam` = 2 * field_value,
+        mutate(`2 * Lam` = 2 * field_value * TO_EV,
                `dE/dq` = total_energy) |>
         pivot_longer(c(`2 * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
     lam_plot <- lam_values |>
