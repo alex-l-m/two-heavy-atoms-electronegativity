@@ -80,6 +80,12 @@ energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
     total_energy = col_double()
 ))
 
+potential_correction_factor <- read_csv('correction_factor.csv.gz', col_types = cols(
+    structure_id = col_character(),
+    field_number = col_double(),
+    correction_factor = col_double()
+))
+
 # Energies for the simulations where no field was applied, so I can add them as
 # a dot on the plots. I expect them to be at the minimum of the parabola
 nofield_energies <- charge_energy |>
@@ -147,7 +153,7 @@ for (category_structure_pair in category_structure_pairs)
         ylab('Energy above no field (eV)')
     
     ggsave(glue('{category_structure_pair}_energy_with_nofield.png'), energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-    computation_levels <- c('dE/dq', '2 * Lam')
+    computation_levels <- c('dE/dq', 'correction * Lam')
     
     energy_derivatives_with_nofield <- smoothed_energy_derivative |>
         filter(donor_or_acceptor == 'acceptor') |>
@@ -191,9 +197,12 @@ for (category_structure_pair in category_structure_pairs)
     
     lam_values <- energy_derivatives |>
         filter(donor_or_acceptor == 'acceptor') |>
-        mutate(`2 * Lam` = 2 * field_value * TO_EV,
+        # Join correction factors to correct the potential
+        left_join(potential_correction_factor,
+                  by = c('structure_id', 'field_number')) |>
+        mutate(`correction * Lam` = field_value * TO_EV * correction_factor,
                `dE/dq` = total_energy) |>
-        pivot_longer(c(`2 * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
+        pivot_longer(c(`correction * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
     lam_plot <- lam_values |>
         mutate(formula = factor(formula, levels = formula_order)) |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
@@ -216,7 +225,7 @@ for (category_structure_pair in category_structure_pairs)
     # Fit lines to the lambda values, from the x axis and y axis
     lam_line_data <- lam_values |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
-        filter(computation == '2 * Lam') |>
+        filter(computation == 'correction * Lam') |>
         # Compute rankings, so I can select the bottom and top charges from each
         # material
         group_by(formula) |>
@@ -237,7 +246,7 @@ for (category_structure_pair in category_structure_pairs)
                   .groups = 'drop')
     
     lam_lines_plot <- lam_values |>
-        filter(computation == '2 * Lam') |>
+        filter(computation == 'correction * Lam') |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
         ggplot(aes(x = charge, y = electronegativity, color = computation)) +
         facet_wrap(~ formula, ncol = 3) +
