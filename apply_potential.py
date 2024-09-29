@@ -287,8 +287,14 @@ def simulate(structure : ase.Atoms,
          join(project_dir, 'n_valence_electrons.csv'),
          str(initial_charge)])
     # Read the charges file
-    # It has columns "symbol", "population", and "charge"
-    charge_tbl = pd.read_csv('charges.csv')
+    # It has columns "symbol", "valence_electrons", "donor_or_acceptor",
+    # "population", "charge", and "iteration"
+    charge_iterations_tbl = pd.read_csv('charges.csv')
+
+    # Filter the charge table for the maximum iteration
+    max_iteration = charge_iterations_tbl['iteration'].max()
+    charge_tbl = charge_iterations_tbl[charge_iterations_tbl['iteration'] == max_iteration]
+
     print(charge_tbl)
     # Set the current charge based on the charge for the electron donor, in
     # this case boron
@@ -313,11 +319,11 @@ def simulate(structure : ase.Atoms,
     if current_field_number > 0:
         shutil.move(potential_file_name, potential_file_path)
 
-    # Write last charge to the csv file
+    # Write charges for all iterations
     with open(charges_from_integration_path, 'a') as f:
         writer = csv.writer(f)
-        for row in charge_tbl.itertuples():
-            writer.writerow([simulation_id, row.symbol, row.charge])
+        for row in charge_iterations_tbl.itertuples():
+            writer.writerow([simulation_id, row.symbol, row.charge, row.iteration])
 
     # Do a run with a single iteration just to get an energy in the absence of
     # a field

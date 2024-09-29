@@ -138,7 +138,16 @@ charges <- charge_ref |>
 print('Initial charges:')
 print(charges)
 finished <- FALSE
+
+iteration <- 0
+# Create a table that contains charges for all iterations
+all_iteration_charges <- charges |>
+    mutate(iteration = iteration)
+
 while (!finished) {
+    # Increment the iteration
+    iteration <- iteration + 1
+
     # Decide the fraction contributions for the donor and acceptor weight
     # functions of each charge
     fraction_contributions <- charges |>
@@ -221,6 +230,12 @@ while (!finished) {
         # electrons)
         left_join(charge_ref, by = 'symbol') |>
         mutate(charge = valence_electrons - population)
+
+    # Add the charges to the table of all iterations
+    charges_with_iteration <- charges |>
+        mutate(iteration = iteration)
+    all_iteration_charges <- bind_rows(all_iteration_charges,
+                                       charges_with_iteration)
     
     print('Charges in this iteration:')
     print(charges)
@@ -240,7 +255,8 @@ while (!finished) {
     print(charge_comparison)
 }
     
-write_csv(charges, charges_path)
+# I want to write the charges for every iteration
+write_csv(all_iteration_charges, charges_path)
 
 # Write the weights as a csv so I can convert it to a cube file and use it as a
 # potential
