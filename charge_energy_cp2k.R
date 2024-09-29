@@ -18,8 +18,13 @@ simulations <- read_csv('simulations.csv', col_types = cols(
 charges_from_integration <- read_csv('charges_from_integration.csv', col_types = cols(
     simulation_id = col_character(),
     symbol = col_character(),
-    charge = col_double()
-))
+    charge = col_double(),
+    iteration = col_integer()
+)) |>
+    # Select only the last iteration, which is the Hirshfeld-I charge
+    group_by(simulation_id, symbol) |>
+    filter(iteration == max(iteration)) |>
+    select(-iteration)
 
 # Function for extracting the first-iteration energy from a log file
 # I don't like that I have to change this whenever I change the update method
