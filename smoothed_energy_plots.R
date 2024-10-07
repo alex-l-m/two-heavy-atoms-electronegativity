@@ -49,7 +49,6 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     donor_or_acceptor = col_character(),
     charge = col_double(),
     structure_id = col_character(),
-    category = col_character(),
     field_number = col_double(),
     field_value = col_double(),
     total_energy = col_double(),
@@ -58,7 +57,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     category = col_character(),
     symbol_cation = col_character(),
     symbol_anion = col_character(),
-    crystal_structure = col_character()
+    crystal_structure = col_character(),
+    formula = col_character()
 ))
 
 energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
