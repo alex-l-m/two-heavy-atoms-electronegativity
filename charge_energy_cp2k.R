@@ -15,12 +15,15 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     cube_file_path = col_character()
 ))
 
-charges_from_integration <- read_csv('charges_from_integration.csv', col_types = cols(
+# Why doesn't this have donor_or_acceptor?
+# Won't there be duplicates in 4-4 materials?
+charges_from_integration_all_iterations <- read_csv('charges_from_integration.csv', col_types = cols(
     simulation_id = col_character(),
     symbol = col_character(),
     charge = col_double(),
     iteration = col_integer()
-)) |>
+))
+charges_from_integration <- charges_from_integration_all_iterations |>
     # Select only the last iteration, which is the Hirshfeld-I charge
     group_by(simulation_id, symbol) |>
     filter(iteration == max(iteration)) |>
@@ -115,5 +118,39 @@ combinations_to_keep <- charge_energy_annotated |>
 charge_energy_annotated <- charge_energy_annotated |>
     inner_join(combinations_to_keep, by = 'combination_id')
 
-write_csv(charge_energy_annotated, 'charge_energy.csv.gz')
+# Calculation of correction factor relating field values to electronegativity
+# Right now the calcultaion is based on discrete differences, but I'll probably
+# add one based on integrating the density later
+# Table containing the charge at the first iteration, the last iteration, and
+# lagged versions of these columns
+electronegativity_field_discrete <- simulations |>
+    select(simulation_id, structure_id, field_number) |>
+    inner_join(charges_from_integration_all_iterations,
+               by = 'simulation_id') |>
+    group_by(structure_id, symbol, field_number) |>
+    # The iterations are 0 indexed, but iteration 0 really means no update has
+    # been done, so I want iteration 1, after the first update
+    # Next step will be a discrete difference across field numbers, so only
+    # drop that group
+    summarize(first_iteration_charge = charge[iteration == 1],
+              last_iteration_charge = charge[iteration == max(iteration)],
+              .groups = 'drop_last') |>
+    arrange(structure_id, symbol, field_number) |>
+    mutate(lagged_first_iteration_charge = lag(first_iteration_charge),
+           lagged_last_iteration_charge = lag(last_iteration_charge)) |>
+    # Use these numbers to calculate the correction factor
+    mutate(correction_factor_contribution =
+           (first_iteration_charge - lagged_last_iteration_charge) /
+           (last_iteration_charge - lagged_last_iteration_charge)) |>
+    ungroup()
+    
+charge_energy_electronegativity <- charge_energy_annotated |>
+    left_join(electronegativity_field_discrete,
+              by = c('structure_id', 'symbol', 'field_number')) |>
+    mutate(electronegativity_field_discrete =
+           field_value * TO_EV * correction_factor_contribution) |>
+    # Actually I don't need the "correction factor contribution" anymore since
+    # I'm not summing across atoms
+    select(-correction_factor_contribution)
 
+write_csv(charge_energy_electronegativity, 'charge_energy.csv.gz')
