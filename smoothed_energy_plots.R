@@ -58,7 +58,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     symbol_anion = col_character(),
     crystal_structure = col_character(),
-    formula = col_character()
+    formula = col_character(),
+    electronegativity_field_discrete = col_double()
 ))
 
 energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
@@ -78,12 +79,6 @@ energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
     field_number = col_double(),
     field_value = col_double(),
     total_energy = col_double()
-))
-
-potential_correction_factor <- read_csv('correction_factor.csv.gz', col_types = cols(
-    structure_id = col_character(),
-    field_number = col_double(),
-    correction_factor = col_double()
 ))
 
 # Energies for the simulations where no field was applied, so I can add them as
@@ -195,12 +190,18 @@ for (category_structure_pair in category_structure_pairs)
         this_theme
     ggsave(glue('{category_structure_pair}_energy_derivatives_zoomed.png'), energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     
+    electronegativity_difference_from_field <- charge_energy |>
+        select(combination_id, field_number, donor_or_acceptor, electronegativity_field_discrete) |>
+        pivot_wider(names_from = donor_or_acceptor, values_from = electronegativity_field_discrete) |>
+        group_by(combination_id, field_number) |>
+        transmute(electronegativity_difference_from_field = acceptor + donor) |>
+        ungroup()
     lam_values <- energy_derivatives |>
         filter(donor_or_acceptor == 'acceptor') |>
         # Join correction factors to correct the potential
-        left_join(potential_correction_factor,
-                  by = c('structure_id', 'field_number')) |>
-        mutate(`correction * Lam` = field_value * TO_EV * correction_factor,
+        left_join(electronegativity_difference_from_field,
+                  by = c('combination_id', 'field_number')) |>
+        mutate(`correction * Lam` = electronegativity_difference_from_field,
                `dE/dq` = total_energy) |>
         pivot_longer(c(`correction * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
     lam_plot <- lam_values |>

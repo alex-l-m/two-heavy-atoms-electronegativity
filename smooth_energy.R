@@ -18,7 +18,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     symbol_anion = col_character(),
     crystal_structure = col_character(),
-    formula = col_character()
+    formula = col_character(),
+    electronegativity_field_discrete = col_double()
 ))
 
 # Make a table for smoothing energy
