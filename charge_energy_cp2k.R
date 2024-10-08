@@ -99,5 +99,21 @@ structure_metadata <- read_csv('selected_structure_files.csv', col_types = cols(
 charge_energy_annotated <- charge_energy |>
     left_join(structure_metadata, by = 'structure_id')
 
+# Make a table of the ground state charges for each structure
+ground_state_charges <- charge_energy_annotated |>
+    filter(donor_or_acceptor == 'acceptor' & field_number == 0) |>
+    select(structure_id, donor_or_acceptor, charge) |>
+    rename(ground_state_charge = charge)
+
+# Hack: Remove all simulations that go past an integer value of the
+# corresponding structure
+combinations_to_keep <- charge_energy_annotated |>
+    inner_join(ground_state_charges,
+               by = c('structure_id', 'donor_or_acceptor')) |>
+    filter(charge < ceiling(ground_state_charge)) |>
+    select(combination_id)
+charge_energy_annotated <- charge_energy_annotated |>
+    inner_join(combinations_to_keep, by = 'combination_id')
+
 write_csv(charge_energy_annotated, 'charge_energy.csv.gz')
 
