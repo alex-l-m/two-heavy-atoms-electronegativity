@@ -27,7 +27,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     symbol_anion = col_character(),
     crystal_structure = col_character(),
-    formula = col_character()
+    formula = col_character(),
+    electronegativity_field_discrete = col_double()
 ))
 
 elements <- charge_energy |>
@@ -55,7 +56,7 @@ for (category_structure_pair in category_structure_pairs)
     cdft_charges <- charge_energy |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
         select(combination_id, formula, symbol, other_symbol, donor_or_acceptor,
-               charge)
+               charge, electronegativity_field_discrete)
     
     electronegativity_terms <- cdft_charges |>
         mutate(category = symbol,
@@ -76,11 +77,11 @@ for (category_structure_pair in category_structure_pairs)
         select(combination_id, category, variable_contribution)
     
     electronegativity_differences <- cdft_charges |>
-        # Would be "conceptually" more accurate to subtract the values of the donor
-        # and acceptor after negating one of them, but the result will be the same
-        # as doubling
-        filter(donor_or_acceptor == 'acceptor') |>
-        mutate(variable_contribution = 2 * field_value) |>
+        # Sum the electronegativities for each atom to get the derivative of
+        # energy as one atom gains charge and the other loses it
+        group_by(combination_id) |>
+        summarize(variable_contribution = sum(electronegativity_field_discrete),
+                  .groups = 'drop') |>
         select(combination_id, variable_contribution)
     
     regression_terms <- bind_rows(
