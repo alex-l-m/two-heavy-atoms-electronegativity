@@ -58,11 +58,20 @@ for (category_structure_pair in category_structure_pairs)
         select(combination_id, formula, symbol, other_symbol, donor_or_acceptor,
                charge, electronegativity_field_discrete)
     
+    ordered_selected_elements <- cdft_charges |>
+        select(symbol) |>
+        distinct() |>
+        arrange(symbol) |>
+        pull(symbol)
+    reference_element <- ordered_selected_elements[1]
     electronegativity_terms <- cdft_charges |>
         mutate(category = symbol,
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
-        select(combination_id, category, variable_contribution)
+        select(combination_id, category, variable_contribution) |>
+        # Remove electronegativity of an arbitrary element to use it as a
+        # reference
+        filter(category != reference_element)
     
     hardness_terms <- cdft_charges |>
         mutate(category = symbol,
@@ -102,8 +111,6 @@ for (category_structure_pair in category_structure_pairs)
                     values_fill = 0)
     
     regression_table <- pre_regression_table |>
-        # Remove electronegativity of nitrogen to use it as a reference
-        select(-electronegativity_N) |>
         select(-combination_id) |>
         as.data.frame()
     rownames(regression_table) <- pre_regression_table$combination_id
@@ -121,7 +128,8 @@ for (category_structure_pair in category_structure_pairs)
         filter(term_type == 'electronegativity') |>
         select(symbol, estimate) |>
         rename(regression_electronegativity = estimate) |>
-        bind_rows(tibble(symbol = 'N', regression_electronegativity = 0))
+        bind_rows(tibble(symbol = reference_element,
+                         regression_electronegativity = 0))
     
     electronegativity_comparison_tbl <- left_join(regression_electronegativity,
                                                   pauling_electronegativity,
@@ -133,7 +141,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_point() +
         geom_smooth(method = lmrob, se = FALSE) +
         geom_label_repel() +
-        ylab('Regression electronegativity (V, relative to N)') +
+        ylab('Regression electronegativity (V)') +
         xlab('Pauling electronegativity')
     
     ggsave(glue('{category_structure_pair}_electronegativity_comparison_plot.png'),
