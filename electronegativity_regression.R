@@ -77,7 +77,15 @@ for (category_structure_pair in category_structure_pairs)
         mutate(category = symbol,
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
-        select(combination_id, category, variable_contribution)
+        select(combination_id, category, variable_contribution) |>
+        # Remove hardness of an arbitrary element to use it as a
+        # reference
+        # This is harder to explain, but since all that matters is total
+        # hardness, and there's always a cation and an anion, you can "move"
+        # hardness from all cations to all anions without changing any of the
+        # totals. So we decide in advance how much to "move": whatever makes
+        # the hardness of the reference element zero
+        filter(category != reference_element)
     
     interaction_terms <- cdft_charges |>
         mutate(category = formula, 
