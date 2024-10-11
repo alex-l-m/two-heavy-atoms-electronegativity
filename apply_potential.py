@@ -389,8 +389,13 @@ n_iterations_completed = 0
 # Create a directory to do the simulation in
 sim_working_dir = f'{structure_id}_simulation'
 os.makedirs(sim_working_dir, exist_ok = True)
-while current_charge < 0:
-    # Store the previous charge, so I can calculate a charge difference, which will be used to update the field strength increment
+# Sometimes the "cation" by position in the periodic table is actually the
+# electron acceptor. I call these "reversed" materials. If it's reversed, we
+# want to actually do everything in the opposite direction.
+reverse = False
+while (not reverse and current_charge < 0) or (reverse and current_charge > 0):
+    # Store the previous charge, so I can calculate a charge difference, which
+    # will be used to update the field strength increment
     previous_charge = current_charge
     # Do the simulation
     current_charge = simulate(structure, structure_id,
@@ -402,11 +407,26 @@ while current_charge < 0:
             initial_charge = 0 if first else current_charge)
     print(f'updated charge to {current_charge}')
 
+    # If this is the ground state (first simulation), detect reversal
+    # "current_charge" is really the charge of the anion
+    # So if it's positive in the ground state that's a reversal
+    if first and current_charge > 0:
+        print('"Anion" is positive in the ground state, applying the field in the opposite direction')
+        reverse = True
+        # The field also has to be applied in the opposite direction
+        field_strength_increment = -field_strength_increment
+        # Also, this target charge increment should be negative instead of
+        # positive, since we now have a positive charge that needs to be
+        # reduced to zero
+        target_charge_increment = -target_charge_increment
+
     # If this wasn't the first stimulation, adjust the field strength increment
     # First, calculate the derivative of charge with respect to field strength
     if not first:
         charge_increment = current_charge - previous_charge
-        assert charge_increment > 0
+        # The charge of the anion is negative in the ground state, and should
+        # be getting more positive, unless it's reversed
+        assert (not reverse and charge_increment > 0) or (reverse and charge_increment < 0)
         charge_derivative = charge_increment / field_strength_increment
         # Then, calculate the required field strength increment
         field_strength_increment = target_charge_increment / charge_derivative
