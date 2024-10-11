@@ -73,6 +73,8 @@ for (category_structure_pair in category_structure_pairs)
         arrange(atomic_number) |>
         pull(symbol)
     reference_element <- ordered_selected_elements[1]
+    write_csv(tibble(symbol = reference_element),
+              glue('{category_structure_pair}_reference_element.csv'))
 
     # For each element, the formula with the minimum other element, to use as a
     # reference for the interaction term
@@ -88,6 +90,7 @@ for (category_structure_pair in category_structure_pairs)
     reference_formulas <- minimum_formulas |>
         rename(formula = minimum_formula) |>
         distinct(formula)
+    write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
 
     electronegativity_terms <- cdft_charges |>
         mutate(category = symbol,
