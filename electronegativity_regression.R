@@ -6,6 +6,12 @@ library(robustbase)
 library(glue)
 library(ggrepel)
 
+# Atomic numbers, for ordering
+atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
+    symbol = col_character(),
+    atomic_number = col_double()
+))
+
 pauling_electronegativity <- read_csv('pauling_electronegativity.csv', col_types = cols(
     symbol = col_character(),
     pauling_electronegativity = col_double()
@@ -61,7 +67,8 @@ for (category_structure_pair in category_structure_pairs)
     ordered_selected_elements <- cdft_charges |>
         select(symbol) |>
         distinct() |>
-        arrange(symbol) |>
+        left_join(atomic_numbers, by = 'symbol') |>
+        arrange(atomic_number) |>
         pull(symbol)
     reference_element <- ordered_selected_elements[1]
     electronegativity_terms <- cdft_charges |>
@@ -166,6 +173,10 @@ for (category_structure_pair in category_structure_pairs)
     # Make plots showing the data underlying the regression
     # I don't like having to rename here, needs refactoring upstream
     hardness_regression_plot <- regression_plot_table |>
+        # Turn the symbols into factors based on the ordering implied by the
+        # atomic numbers
+        mutate(symbol = factor(symbol, levels = ordered_selected_elements),
+               other_symbol = factor(other_symbol, levels = ordered_selected_elements)) |>
         ggplot(aes(x = this_charge, y = electronegativity_difference, color = other_symbol)) +
         facet_wrap(~ symbol) +
         geom_hline(yintercept = 0, linetype = 'dotted') +

@@ -9,6 +9,12 @@ library(broom)
 
 TO_EV <- 27.211386246
 
+# Atomic numbers, for ordering
+atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
+    symbol = col_character(),
+    atomic_number = col_double()
+))
+
 # Smoothed energies and derivatives
 smoothed_energy <- read_csv('smoothed_energy.csv.gz', col_types = cols(
     crystal_structure = col_character(),
@@ -110,8 +116,13 @@ for (category_structure_pair in category_structure_pairs)
     # original function
     formula_order <- charge_energy |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        select(formula, symbol_cation, symbol_anion) |>
+        # Order based on atomic numbers of the elements
+        left_join(atomic_numbers, by = c('symbol_cation' = 'symbol')) |>
+        left_join(atomic_numbers, by = c('symbol_anion' = 'symbol'),
+                                  suffix = c('_cation', '_anion')) |>
+        arrange(atomic_number_cation, atomic_number_anion) |>
         distinct(formula) |>
-        arrange(formula) |>
         pull(formula)
     energy_smoothing_validation_plot <- smoothed_energy |>
         filter(donor_or_acceptor == 'acceptor') |>
