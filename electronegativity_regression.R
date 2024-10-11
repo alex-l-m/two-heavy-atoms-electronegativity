@@ -64,6 +64,8 @@ for (category_structure_pair in category_structure_pairs)
         select(combination_id, formula, symbol, other_symbol, donor_or_acceptor,
                charge, electronegativity_field_discrete)
     
+    # Order elements by atomic number, to select the least for use as a
+    # reference for electronegativity and hardness
     ordered_selected_elements <- cdft_charges |>
         select(symbol) |>
         distinct() |>
@@ -71,6 +73,22 @@ for (category_structure_pair in category_structure_pairs)
         arrange(atomic_number) |>
         pull(symbol)
     reference_element <- ordered_selected_elements[1]
+
+    # For each element, the formula with the minimum other element, to use as a
+    # reference for the interaction term
+    minimum_formulas <- cdft_charges |>
+        select(formula, symbol, other_symbol) |>
+        distinct() |>
+        left_join(atomic_numbers, by = c('symbol' = 'symbol')) |>
+        left_join(atomic_numbers, by = c('other_symbol' = 'symbol'),
+                                  suffix = c('', '_other')) |>
+        group_by(symbol) |>
+        summarize(minimum_formula = formula[which.min(atomic_number_other)],
+                  .groups = 'drop')
+    reference_formulas <- minimum_formulas |>
+        rename(formula = minimum_formula) |>
+        distinct(formula)
+
     electronegativity_terms <- cdft_charges |>
         mutate(category = symbol,
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
@@ -95,6 +113,13 @@ for (category_structure_pair in category_structure_pairs)
         filter(category != reference_element)
     
     interaction_terms <- cdft_charges |>
+        # There's linear constraint on the interaction terms as well. Every
+        # atom can be thought of as having an "adjusted hardness", which is the
+        # hardness minus the interaction term. So the "true" hardness is never
+        # realized in practice. So you could just consider the smallest
+        # interaction term to be zero, and the hardness to be the highest
+        # achievable hardness
+        anti_join(reference_formulas, by = 'formula') |>
         mutate(category = formula, 
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
@@ -118,8 +143,6 @@ for (category_structure_pair in category_structure_pairs)
                                       glue('{variable_type}_{category}')))
     
     pre_regression_table <- regression_terms |>
-        # Temporary: no interaction terms
-        filter(variable_type != 'interaction') |>
         group_by(combination_id, variable_name) |>
         summarize(variable_value = sum(variable_contribution), .groups = 'drop') |>
         pivot_wider(names_from = variable_name, values_from = variable_value,
