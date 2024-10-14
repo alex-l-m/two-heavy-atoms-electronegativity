@@ -76,19 +76,13 @@ for (category_structure_pair in category_structure_pairs)
     write_csv(tibble(symbol = reference_element),
               glue('{category_structure_pair}_reference_element.csv'))
 
-    # For each element, the formula with the minimum other element, to use as a
-    # reference for the interaction term
-    minimum_formulas <- cdft_charges |>
-        select(formula, symbol, other_symbol) |>
-        distinct() |>
-        left_join(atomic_numbers, by = c('symbol' = 'symbol')) |>
-        left_join(atomic_numbers, by = c('other_symbol' = 'symbol'),
-                                  suffix = c('', '_other')) |>
-        group_by(symbol) |>
-        summarize(minimum_formula = formula[which.min(atomic_number_other)],
-                  .groups = 'drop')
-    reference_formulas <- minimum_formulas |>
-        rename(formula = minimum_formula) |>
+    # As a reference for the interaction terms, all formulas with the "minimum"
+    # (by atomic number) cation or anion
+    reference_formulas <- cdft_charges |>
+        distinct(formula, symbol, other_symbol, donor_or_acceptor) |>
+        left_join(atomic_numbers, by = 'symbol') |>
+        group_by(donor_or_acceptor) |>
+        filter(atomic_number == min(atomic_number)) |>
         distinct(formula)
     write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
 
