@@ -23,6 +23,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     other_symbol = col_character(),
     donor_or_acceptor = col_character(),
     charge = col_double(),
+    bader_charge = col_double(),
     structure_id = col_character(),
     field_number = col_double(),
     field_value = col_double(),

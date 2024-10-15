@@ -15,6 +15,8 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     cube_file_path = col_character()
 ))
 
+# Reading the Hirshfeld-I charges that I calculated by integrating against the
+# cube file
 # Why doesn't this have donor_or_acceptor?
 # Won't there be duplicates in 4-4 materials?
 charges_from_integration_all_iterations <- read_csv('charges_from_integration.csv', col_types = cols(
@@ -28,6 +30,29 @@ charges_from_integration <- charges_from_integration_all_iterations |>
     group_by(simulation_id, symbol) |>
     filter(iteration == max(iteration)) |>
     select(-iteration)
+
+# Reading the Bader charges
+bader_charges_raw <- read_csv('bader_charges.csv.gz', col_types = cols(
+    atom_number = col_double(),
+    x = col_double(),
+    y = col_double(),
+    z = col_double(),
+    population = col_double(),
+    min_dist = col_double(),
+    atomic_volume = col_double(),
+    simulation_id = col_character()
+))
+# Number of valence electrons. Needed to convert population into charge. though
+# that will be later, since the element is not yet available to join on
+n_valence_electrons <- read_csv('n_valence_electrons.csv', col_types = cols(
+    symbol = col_character(),
+    valence_electrons = col_integer()
+))
+bader_charges <- bader_charges_raw |>
+    group_by(simulation_id) |>
+    transmute(donor_or_acceptor = ifelse(atom_number == 1, 'donor', ifelse(atom_number == 2, 'acceptor', NA)),
+              bader_population = population) |>
+    ungroup()
 
 # Function for extracting the first-iteration energy from a log file
 # I don't like that I have to change this whenever I change the update method
@@ -65,7 +90,13 @@ charges <- simulations |>
     mutate(other_symbol = if_else(donor_or_acceptor == 'donor', anion,
                                   if_else(donor_or_acceptor == 'acceptor', cation,
                                           NA))) |>
-    select(combination_id, symbol, other_symbol, donor_or_acceptor, charge)
+    # Join the Bader charges
+    left_join(bader_charges, by = c('simulation_id', 'donor_or_acceptor')) |>
+    # This actually gives Bader populations. Join number of valence electrons
+    # and calculate charges
+    left_join(n_valence_electrons, by = 'symbol') |>
+    mutate(bader_charge = valence_electrons - bader_population) |>
+    select(combination_id, symbol, other_symbol, donor_or_acceptor, charge, bader_charge)
 
 # Get the initial energies from each log file
 initial_energies <- simulations |>
