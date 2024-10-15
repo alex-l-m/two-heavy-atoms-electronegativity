@@ -29,13 +29,34 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     electronegativity_field_discrete = col_double()
 ))
 
+# Atomic numbers, for ordering
+atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
+    symbol = col_character(),
+    atomic_number = col_double()
+))
+formula_order <- charge_energy |>
+    filter(category == '3-5') |>
+    select(formula, symbol_cation, symbol_anion) |>
+    # Order based on atomic numbers of the elements
+    left_join(atomic_numbers, by = c('symbol_cation' = 'symbol')) |>
+    left_join(atomic_numbers, by = c('symbol_anion' = 'symbol'),
+                              suffix = c('_cation', '_anion')) |>
+    arrange(atomic_number_cation, atomic_number_anion) |>
+    distinct(formula) |>
+    pull(formula)
 # Compare Bader charges with my own charge (the "charge" column)
-comparison_plot <- charge_energy |>
-    filter(category == '3-5' & crystal_structure == 'zincblende') |>
-    filter(donor_or_acceptor == 'acceptor') |>
-    ggplot(aes(x = charge, y = bader_charge, color = formula)) +
+comparison_tbl <- charge_energy |>
+    filter(category == '3-5') |>
+    mutate(formula = factor(formula, levels = formula_order)) |>
+    filter(donor_or_acceptor == 'acceptor')
+comparison_plot <- comparison_tbl |>
+    ggplot(aes(x = charge, y = bader_charge, color = crystal_structure)) +
+    facet_wrap(~ formula, ncol = 3) +
+    geom_abline(intercept = 0, slope = 1, linetype = 'dashed') +
     geom_line() +
-    geom_point() +
+    # Points for field value 0
+    geom_point(data = filter(comparison_tbl, field_value == 0)) +
     coord_fixed()
 
-ggsave('charge_comparison.png', comparison_plot, width = unit(7, 'in'), height = unit(7, 'in'))
+ggsave('charge_comparison.png', comparison_plot, 
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
