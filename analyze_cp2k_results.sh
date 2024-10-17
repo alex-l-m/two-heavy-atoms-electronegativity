@@ -1,4 +1,5 @@
 # Extraction and analysis of CP2K results
+python parse_cp2k_hirshfeld.py
 python compute_bader.py
 python parse_bader.py
 Rscript charge_energy_cp2k.R

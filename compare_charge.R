@@ -15,6 +15,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     donor_or_acceptor = col_character(),
     charge = col_double(),
     bader_charge = col_double(),
+    cp2k_hirshfeld_charge = col_double(),
     structure_id = col_character(),
     field_number = col_double(),
     field_value = col_double(),
@@ -44,14 +45,19 @@ formula_order <- charge_energy |>
     arrange(atomic_number_cation, atomic_number_anion) |>
     distinct(formula) |>
     pull(formula)
-# Compare Bader charges with my own charge (the "charge" column)
+# Compare charges with my own charge (the "charge" column)
 comparison_tbl <- charge_energy |>
     filter(category == '3-5') |>
     mutate(formula = factor(formula, levels = formula_order)) |>
-    filter(donor_or_acceptor == 'acceptor')
+    filter(donor_or_acceptor == 'acceptor') |>
+    # Turn the Bader and Hirshfeld charges into a single column
+    pivot_longer(cols = c(bader_charge, cp2k_hirshfeld_charge),
+                 names_to = 'charge_type', values_to = 'other_charge') |>
+    # Remove the suffix to make the names of the charge types shorter
+    mutate(charge_type = str_remove(charge_type, '_charge'))
 comparison_plot <- comparison_tbl |>
-    ggplot(aes(x = charge, y = bader_charge, color = crystal_structure)) +
-    facet_wrap(~ formula, ncol = 3) +
+    ggplot(aes(x = charge, y = other_charge, color = crystal_structure)) +
+    facet_grid(charge_type ~ formula) +
     geom_abline(intercept = 0, slope = 1, linetype = 'dashed') +
     geom_line() +
     # Points for field value 0

@@ -54,6 +54,15 @@ bader_charges <- bader_charges_raw |>
               bader_population = population) |>
     ungroup()
 
+# Reading the Hirshfeld charges calculated by CP2K
+cp2k_hirshfeld_charges <- read_csv('cp2k_hirshfeld_charges.csv.gz', col_types = cols(
+    simulation_id = col_character(),
+    symbol = col_character(),
+    donor_or_acceptor = col_character(),
+    charge = col_double()
+)) |>
+    rename(cp2k_hirshfeld_charge = charge)
+
 # Function for extracting the first-iteration energy from a log file
 # I don't like that I have to change this whenever I change the update method
 energy_line_regex <- ' *1 +P_Mix/Diag. +[0-9.E+-]+ +[0-9.E+-]+ +[0-9.E+-]+ +([0-9.E+-]+) +[0-9.E+-]+'
@@ -96,7 +105,9 @@ charges <- simulations |>
     # and calculate charges
     left_join(n_valence_electrons, by = 'symbol') |>
     mutate(bader_charge = valence_electrons - bader_population) |>
-    select(combination_id, symbol, other_symbol, donor_or_acceptor, charge, bader_charge)
+    # Join CP2K's Hirshfeld charges
+    left_join(cp2k_hirshfeld_charges, by = c('simulation_id', 'symbol', 'donor_or_acceptor')) |>
+    select(combination_id, symbol, other_symbol, donor_or_acceptor, charge, bader_charge, cp2k_hirshfeld_charge)
 
 # Get the initial energies from each log file
 initial_energies <- simulations |>
