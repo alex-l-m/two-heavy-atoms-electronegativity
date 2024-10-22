@@ -62,7 +62,8 @@ comparison_plot <- comparison_tbl |>
     geom_line() +
     # Points for field value 0
     geom_point(data = filter(comparison_tbl, field_value == 0)) +
-    coord_fixed()
+    coord_fixed() +
+    theme(legend.position = 'bottom')
 
 ggsave('charge_comparison.png', comparison_plot, 
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
