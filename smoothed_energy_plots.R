@@ -226,7 +226,6 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
         geom_hline(yintercept = 0, linetype = 'dashed')+
-        xlab('charge of electron acceptor') +
         ylab('electronegativity difference (V)') +
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
@@ -268,7 +267,6 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
         geom_hline(yintercept = 0, linetype = 'dashed')+
-        xlab('charge of electron acceptor') +
         ylab('electronegativity difference (V)') +
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
