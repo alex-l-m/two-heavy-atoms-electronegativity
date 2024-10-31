@@ -12,7 +12,8 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     field_number = col_double(),
     field_value = col_double(),
     log_file_path = col_character(),
-    cube_file_path = col_character()
+    cube_file_path = col_character(),
+    pot_file_path = col_character()
 ))
 
 # Reading the Hirshfeld-I charges that I calculated by integrating against the
