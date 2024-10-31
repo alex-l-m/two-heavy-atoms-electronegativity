@@ -59,6 +59,10 @@
       &PLUS_U
       &END PLUS_U
 
+      &V_HARTREE_CUBE ON
+        STRIDE 1
+      &END V_HARTREE_CUBE
+
       ! &MO_CUBES
 	  !   NHOMO -1
 	  !   NLUMO -1

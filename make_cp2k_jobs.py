@@ -26,13 +26,21 @@ try:
 except FileExistsError:
     pass
 
+# Directory for the cube files of the electrostatic potential for mean field
+hartree_pot_dir_path = 'v_hartree_cube'
+try:
+    mkdir(hartree_pot_dir_path)
+except FileExistsError:
+    pass
+
 # Path to simulation table to output
 sim_tbl_path = 'simulations.csv'
 # Column names for the simulation table
 sim_tbl_header = ['simulation_id', 'potential',
                   'structure_id', 'cation', 'anion',
                   'field_number', 'field_value',
-                  'log_file_path', 'cube_file_path', 'pot_file_path']
+                  'log_file_path', 'cube_file_path', 'pot_file_path',
+                  'hartree_pot_path']
 # Create (or overwrite) the simulation table and write the header
 with open(sim_tbl_path, 'w') as f:
     writer = csv.writer(f)

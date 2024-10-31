@@ -54,6 +54,7 @@ def cp2k2ase(inpath):
 log_file_dir_path = 'cp2k_logs'
 cube_file_dir_path = 'cp2k_cube'
 pot_file_dir_path = 'cp2k_pot'
+hartree_pot_dir_path = 'v_hartree_cube'
 
 # The pseudopotential that I'm using, since Zhibo used it
 pseudopotential = 'GTH-PBE'
@@ -196,6 +197,10 @@ def simulate(structure : ase.Atoms,
         # The path still gets used to make the simulation table, so fill it
         # with a missing value
         potential_file_path = None
+    # Name of the cube file output from the V_HARTREE_CUBE print setting
+    hartree_pot_name = f'{simulation_id}-v_hartree-2.cube'
+    # Path it will be moved to
+    hartree_pot_path = join(hartree_pot_dir_path, hartree_pot_name)
     # Name of the log file
     log_file_name = f'{simulation_id}.out'
     # Path to the log file, after it's moved
@@ -207,7 +212,8 @@ def simulate(structure : ase.Atoms,
         writer.writerow([simulation_id, 'field',
                          structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
-                         log_file_path, cube_file_path, potential_file_path])
+                         log_file_path, cube_file_path, potential_file_path,
+                         hartree_pot_path])
 
     # Save current working directory, which is where all the scripts are located
     # This is so I can include it in the subprocess commands
@@ -307,6 +313,7 @@ def simulate(structure : ase.Atoms,
     # Copy the output files to the project directory
     shutil.copy(log_file_name, project_dir)
     shutil.copy(cube_file_name, project_dir)
+    shutil.copy(hartree_pot_name, project_dir)
     if current_field_number > 0:
         shutil.copy('pot.cube', os.path.join(project_dir, potential_file_name))
 
@@ -316,6 +323,7 @@ def simulate(structure : ase.Atoms,
     # Move the output files
     shutil.move(log_file_name, log_file_path)
     shutil.move(cube_file_name, cube_file_path)
+    shutil.move(hartree_pot_name, hartree_pot_path)
     if current_field_number > 0:
         shutil.move(potential_file_name, potential_file_path)
 
