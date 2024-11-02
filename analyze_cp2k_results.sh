@@ -1,4 +1,7 @@
 # Extraction and analysis of CP2K results
+python cube_diff.py density_derivatives cube_file_path
+python cube_diff.py vdiff pot_file_path
+python cube_diff.py dhartree hartree_pot_path
 python parse_cp2k_hirshfeld.py
 python compute_bader.py
 python parse_bader.py
