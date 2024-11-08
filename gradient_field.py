@@ -57,3 +57,4 @@ for row in intable.itertuples():
 
 # Write the output table
 outtable = pd.DataFrame(outrows)
+outtable.to_csv('dhartree_grad.csv', index=False)
