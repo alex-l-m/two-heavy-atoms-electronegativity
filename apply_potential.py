@@ -11,6 +11,7 @@ import pandas as pd
 import ase.io
 from ase.calculators.cp2k import CP2K
 from ase import Atoms
+from ase.io.cube import read_cube, write_cube
 import json
 import numpy as np
 
@@ -189,14 +190,8 @@ def simulate(structure : ase.Atoms,
     # Path to copy the density to
     cube_file_path = join(cube_file_dir_path, cube_file_name)
     # Path to copy the potential to
-    # Only actually happens if this isn't the first simulation in the series
-    if current_field_number > 0:
-        potential_file_name = f'{simulation_id}-potential.cube'
-        potential_file_path = join(pot_file_dir_path, potential_file_name)
-    else:
-        # The path still gets used to make the simulation table, so fill it
-        # with a missing value
-        potential_file_path = None
+    potential_file_name = f'{simulation_id}-potential.cube'
+    potential_file_path = join(pot_file_dir_path, potential_file_name)
     # Name of the cube file output from the V_HARTREE_CUBE print setting
     hartree_pot_name = f'{simulation_id}-v_hartree-2.cube'
     # Path it will be moved to
@@ -223,7 +218,7 @@ def simulate(structure : ase.Atoms,
     os.chdir(sim_working_dir)
 
     guess = guess_options['restart'] if restart else guess_options['fresh_start']
-    if current_field_number > 0:
+    if not first:
         # Construct the previous combination id in order to find the cube file
         previous_field_number = current_field_number - 1
         previous_simulation_id = f'{structure_id}_F{previous_field_number}_Vfield'
@@ -302,20 +297,36 @@ def simulate(structure : ase.Atoms,
     charge_tbl = charge_iterations_tbl[charge_iterations_tbl['iteration'] == max_iteration]
 
     print(charge_tbl)
-    # Set the current charge based on the charge for the electron donor, in
-    # this case boron
+    # Set the current charge based on the charge for the electron donor
     # We can assume there's only one matching row
     current_charge = charge_tbl[charge_tbl['symbol'] == acceptor_element]['charge'].values[0]
     # Assert not nan
     assert not pd.isna(current_charge)
     print(f'Current charge: {current_charge}')
 
+    # If no potential was applied, create a cube file of all zeroes
+    # representing the potential applied
+    if first:
+        # First, load the cube file of the density, since the new cube file
+        # will re-use the unit cell, origin and Atoms object
+        template_cube = read_cube(open(cube_file_name))
+        # Create cube data for the zero potential, all zeroes but in the same
+        # shape as the data from the density
+        zero_potential = template_cube['data'] * 0
+        # Write a new cube file to 'pot.cube', which is ordinarily the name of
+        # the potential file read by CP2K
+        write_cube(open('pot.cube', 'w'), template_cube['atoms'],
+                zero_potential, template_cube['origin'])
+
     # Copy the output files to the project directory
     shutil.copy(log_file_name, project_dir)
     shutil.copy(cube_file_name, project_dir)
     shutil.copy(hartree_pot_name, project_dir)
-    if current_field_number > 0:
-        shutil.copy('pot.cube', os.path.join(project_dir, potential_file_name))
+    # Copying the potential that was used as input
+    # Although the charge calculation output a potential to be used in the next
+    # iteration of the loop, it is actually still a csv file, and 'pot.cube'
+    # has not been overwritten yet
+    shutil.copy('pot.cube', os.path.join(project_dir, potential_file_name))
 
     # Go back to the project directory
     os.chdir(project_dir)
@@ -324,8 +335,7 @@ def simulate(structure : ase.Atoms,
     shutil.move(log_file_name, log_file_path)
     shutil.move(cube_file_name, cube_file_path)
     shutil.move(hartree_pot_name, hartree_pot_path)
-    if current_field_number > 0:
-        shutil.move(potential_file_name, potential_file_path)
+    shutil.move(potential_file_name, potential_file_path)
 
     # Write charges for all iterations
     with open(charges_from_integration_path, 'a') as f:
