@@ -20,3 +20,7 @@ Rscript smoothed_energy_plots.R
 # Model fitting and analysis of parameters
 Rscript electronegativity_regression.R
 Rscript compare_structure_params.R
+
+# Making images
+Rscript slice.R
+Rscript slice_animations.R
