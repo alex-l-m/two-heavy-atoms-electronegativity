@@ -43,6 +43,11 @@ slices_list <- slices |>
     group_split()
 for (this_slices in slices_list)
 {
+    # Condensed table of one row per simulation containing just the simulation
+    # id (along with whatever columns are constant within a simulation_id)
+    text_table <- this_slices |>
+        distinct(simulation_id, cube_file_type, structure_id,
+                 field_number, cube_file_path)
     animation <- this_slices |>
         # Filter out anything too far above the 95% quantile
         # This helps when plotting densities, which have spikes that throw off
@@ -61,6 +66,8 @@ for (this_slices in slices_list)
         theme(legend.position = 'bottom', plot.title = element_text(hjust = 0.5)) +
         # Actually don't include the title because it makes it take forever for
         # some reason
+        # Include the simulation id as text
+        geom_text(data = text_table, aes(label = simulation_id), x = 0, y = 0, color = 'white') +
         # Don't display name of variable in the legend, because I'm using the
         # name "density" for various stuff that isn't really the density
         guides(color = guide_colorbar(title = NULL))
@@ -69,5 +76,5 @@ for (this_slices in slices_list)
     structure_id <- this_slices$structure_id[1]
     cube_type <- this_slices$cube_file_type[1]
     anim_save(glue('{outdir}/slices_{structure_id}_{cube_type}.gif'),
-              animation, duration = 1, width = 500)
+              animation, duration = 5, width = 500)
 }
