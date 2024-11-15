@@ -39,6 +39,9 @@ target_types <- c('cube_file_path',
 slices_list <- slices |>
     # Filter for just the kinds of cube file that I want to animate
     filter(cube_file_type %in% target_types) |>
+    # For the external potential, filer out field number zero, which I should
+    # never have saved anyway
+    filter(!(cube_file_type == 'pot_file_path' & field_number == 0)) |>
     group_by(structure_id, cube_file_type) |>
     group_split()
 for (this_slices in slices_list)
