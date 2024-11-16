@@ -1,6 +1,8 @@
 # Make table of files containing optimized structures of binary materials
 
-library(tidyverse)
+library(readr)
+library(dplyr)
+library(stringr)
 library(glue)
 
 # Read the environment variable containing the path to the database of

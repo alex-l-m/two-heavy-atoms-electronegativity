@@ -1,4 +1,5 @@
-library(tidyverse)
+library(readr)
+library(dplyr)
 
 element_roles <- read_csv('element_roles.csv', col_types = cols(
     symbol = col_character(),

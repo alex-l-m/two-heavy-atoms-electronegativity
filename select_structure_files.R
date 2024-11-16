@@ -2,7 +2,8 @@
 # files containing those elements and make a table where each row corresponds
 # to a system to simulate
 
-library(tidyverse)
+library(readr)
+library(dplyr)
 library(glue)
 
 element_pairs <- read_csv('element_pairs.csv', col_types = cols(
