@@ -24,3 +24,4 @@ Rscript compare_structure_params.R
 # Making images
 Rscript slice.R
 Rscript slice_animations.R
+Rscript plot_vector_field.R
