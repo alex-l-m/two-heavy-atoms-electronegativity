@@ -30,4 +30,4 @@ selected_structures <- element_pairs |>
 with(selected_structures,
      stopifnot(length(unique(structure_id)) == length(structure_id)))
 
-write_csv(selected_structures, 'selected_structure_files.csv')
+write_csv(selected_structures, 'selected_structure_files_unscaled.csv')
