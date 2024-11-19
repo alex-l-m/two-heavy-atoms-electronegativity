@@ -2,7 +2,7 @@
 import argparse
 import re
 from glob import glob
-from os.path import join, splitext
+from os.path import join
 from subprocess import run
 import os
 import shutil
@@ -11,7 +11,7 @@ import pandas as pd
 import ase.io
 from ase.calculators.cp2k import CP2K
 from ase.io.cube import read_cube, write_cube
-from enutils import cp2k2ase
+from enutils import read_structure
 
 # The directories where the files should be moved to, assumed to already exist
 log_file_dir_path = 'cp2k_logs'
@@ -87,17 +87,7 @@ field_strength = 0.0
 
 # Read the crystal structure
 print(f'Reading structure from {structure_path}')
-# Read VASP CONTCAR with ASE
-if re.search('CONTCAR$', structure_path):
-    structure = ase.io.read(structure_path)
-# Read CP2K input file (assumed to have extension .cp2k) using the Python
-# "cp2k-input-tools"
-elif splitext(structure_path)[1] == '.cp2k':
-    structure = cp2k2ase(structure_path)
-# That should be everything, value error if I've added something else without
-# realizing it
-else:
-    raise ValueError('Unrecognized file type for structure {structure_id} with path {structure_path}')
+structure = read_structure(structure_path)
     
 # Assert that there's only two atoms
 assert len(structure) == 2
