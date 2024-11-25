@@ -13,8 +13,6 @@ charge_section_regex = re.compile(r''' *!-+! *
  *Total +Charge +[-+.0-9]* *
  *!-+! *''')
 
-infiles = ['cp2k_logs/zincblende_Ga_As_F0_Vfield.out']
-
 intable = pd.read_csv('simulations.csv')
 
 # Rows of the table as a list of dictionaries
@@ -24,6 +22,7 @@ for row in intable.itertuples():
     logfile_path = row.log_file_path
     # Skip if the file doesn't exist
     if not exists(logfile_path):
+        print(f'Can\'t find charges for {simulation_id} because {logfile_path} does not exist')
         continue
     simulation_id, ext = splitext(basename(logfile_path))
     logfile_text = open(logfile_path).read()
