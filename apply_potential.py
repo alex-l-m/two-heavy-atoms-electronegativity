@@ -159,8 +159,8 @@ def simulate(structure : ase.Atoms,
         writer.writerow([simulation_id, 'field',
                          structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
-                         log_file_path, cube_file_path, potential_file_path,
-                         hartree_pot_path])
+                         log_file_path, cube_file_path,
+                         potential_file_path, hartree_pot_path])
 
     # Save current working directory, which is where all the scripts are located
     # This is so I can include it in the subprocess commands
@@ -311,7 +311,10 @@ def simulate(structure : ase.Atoms,
         writer.writerow([simulation_id, 'nuclei',
                          structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
-                         log_file_path, cube_file_path])
+                         log_file_path, cube_file_path,
+                         # Don't bother writing applied potential and
+                         # electrostatic potential, I'm not using them
+                         '', ''])
     
     # Go to the simulation directory
     os.chdir(sim_working_dir)
