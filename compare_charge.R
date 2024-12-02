@@ -27,7 +27,10 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     symbol_anion = col_character(),
     crystal_structure = col_character(),
     formula = col_character(),
-    electronegativity_field_discrete = col_double()
+    electronegativity_field_discrete = col_double(),
+    unscaled_structure_id = col_character(),
+    scale_number = col_integer(),
+    scale = col_double()
 ))
 
 # Born charges

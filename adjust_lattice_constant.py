@@ -22,10 +22,12 @@ with open(outtbl_path, 'w') as csvfile:
     writer.writerow(['structure_id', 'unscaled_structure_id',
         'scale_number', 'scale', 'structure_file_path'])
 
-intbl = pd.read_csv('selected_structure_files.csv')
+intbl = pd.read_csv('selected_structure_files_unscaled.csv')
+scales = [.9, .95, 1.05, 1.1]
 for row in intbl.itertuples():
     unscaled_structure_id = row.structure_id
-    for scale_number, scale in zip(range(4), [.9, .95, 1.05, 1.1]):
+    # 1-index the scales because scale 0 will be equilibrium structure
+    for scale_number, scale in zip(range(1, len(scales)+1), scales):
         # Create a new structure id by adding the scale number
         structure_id = f'{unscaled_structure_id}_scale_{scale_number}'
         # Load the original structure
