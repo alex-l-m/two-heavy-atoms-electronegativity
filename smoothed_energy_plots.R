@@ -66,7 +66,14 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     symbol_anion = col_character(),
     crystal_structure = col_character(),
+    scale_number = col_integer(),
+    scale = col_double(),
+    unscaled_structure_id = col_character(),
     formula = col_character(),
+    first_iteration_charge = col_double(),
+    last_iteration_charge = col_double(),
+    lagged_first_iteration_charge = col_double(),
+    lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double()
 ))
 
@@ -108,8 +115,12 @@ this_theme <-
 acceptor_charge_label <- xlab('Charge of electron acceptor group')
 
 # Make separate plots for each category and crystal structure
+# Also the scale, although I'm not going to bother changing the variable name
+# to reflect that. So these are really category structure scale triples
+# This requires changing a shocking number of lines, so if I add anything else
+# to that I should refactor somehow
 category_structure_pairs <- charge_energy |>
-    mutate(category_structure_pair = glue('{category}:{crystal_structure}')) |>
+    mutate(category_structure_pair = glue('{category}:{crystal_structure}:{scale_number}')) |>
     distinct(category_structure_pair) |>
     pull(category_structure_pair)
 for (category_structure_pair in category_structure_pairs)
@@ -117,7 +128,7 @@ for (category_structure_pair in category_structure_pairs)
     # Make a plot judging the quality of fit of the smoothed energy function to the
     # original function
     formula_order <- charge_energy |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         select(formula, symbol_cation, symbol_anion) |>
         # Order based on atomic numbers of the elements
         left_join(atomic_numbers, by = c('symbol_cation' = 'symbol')) |>
@@ -129,12 +140,12 @@ for (category_structure_pair in category_structure_pairs)
     energy_smoothing_validation_plot <- smoothed_energy |>
         filter(donor_or_acceptor == 'acceptor') |>
         mutate(formula = factor(formula, levels = formula_order)) |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         ggplot(mapping = aes(x = charge, y = total_energy)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
         geom_line() +
         geom_point(data =
-                   filter(charge_energy, donor_or_acceptor == 'acceptor', glue('{category}:{crystal_structure}') == category_structure_pair),
+                   filter(charge_energy, donor_or_acceptor == 'acceptor', glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair),
                    size = 0, color = 'red') +
         acceptor_charge_label +
         this_theme
@@ -150,12 +161,12 @@ for (category_structure_pair in category_structure_pairs)
                   suffix = c('', '_nofield'), relationship = 'many-to-one') |>
         mutate(energy_above_nofield = total_energy - total_energy_nofield) |>
         filter(donor_or_acceptor == 'acceptor') |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
         geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
         geom_line() +
-        geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}') == category_structure_pair)) +
+        geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)) +
         acceptor_charge_label +
         this_theme +
         ylab('Energy above no field (eV)')
@@ -166,12 +177,12 @@ for (category_structure_pair in category_structure_pairs)
     energy_derivatives_with_nofield <- smoothed_energy_derivative |>
         filter(donor_or_acceptor == 'acceptor') |>
         mutate(computation = factor('dE/dq', levels = computation_levels)) |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         ggplot(aes(x = charge, y = total_energy, color = computation)) +
         facet_wrap(vars(formula), scales = 'free', ncol = 3) +
         geom_line() +
         geom_point(data = mutate(filter(nofield_derivatives,
-                                        donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
+                                        donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
         acceptor_charge_label +
         ylab('electronegativity difference (V)') +
         # Put a vertical line to indicate 0
@@ -185,7 +196,7 @@ for (category_structure_pair in category_structure_pairs)
     # Zoom in to look for linearity near neutral molecule
     energy_derivatives_zoomed <- smoothed_energy_derivative |>
         filter(donor_or_acceptor == 'acceptor') |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         ggplot(aes(x = charge, y = total_energy)) +
         facet_wrap(vars(formula), ncol = 3) +
         # Add a horizontal line so we can see how far the no-field condition is
@@ -197,7 +208,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_smooth(method = lmrob, formula = y ~ x, se = FALSE) +
         geom_line() +
         geom_point(data = mutate(filter(nofield_derivatives,
-                                        donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
+                                        donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
         ylim(c(-5,5)) +
         acceptor_charge_label +
         this_theme
@@ -219,7 +230,7 @@ for (category_structure_pair in category_structure_pairs)
         pivot_longer(c(`correction * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
     lam_plot <- lam_values |>
         mutate(formula = factor(formula, levels = formula_order)) |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         ggplot(aes(x = charge, y = electronegativity, color = computation)) +
         facet_wrap(~ formula, ncol = 3) +
         # Put a vertical line to indicate 0
@@ -237,7 +248,7 @@ for (category_structure_pair in category_structure_pairs)
     
     # Fit lines to the lambda values, from the x axis and y axis
     lam_line_data <- lam_values |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         filter(computation == 'correction * Lam') |>
         # Compute rankings, so I can select the bottom and top charges from each
         # material
@@ -260,7 +271,7 @@ for (category_structure_pair in category_structure_pairs)
     
     lam_lines_plot <- lam_values |>
         filter(computation == 'correction * Lam') |>
-        filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
         ggplot(aes(x = charge, y = electronegativity, color = computation)) +
         facet_wrap(~ formula, ncol = 3) +
         # Put a vertical line to indicate 0

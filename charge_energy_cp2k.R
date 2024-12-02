@@ -89,7 +89,10 @@ charges <- simulations |>
     # Filter should be redundant since charges should only be calculated with
     # the field
     filter(potential == 'field') |>
-    inner_join(charges_from_integration, by = 'simulation_id') |>
+    inner_join(charges_from_integration, by = 'simulation_id',
+    # Every simulation should correspond to two charges, one for each atom, so
+    # this relationship should be one-to-many
+               relationship='one-to-many') |>
     # Assign a combination id
     mutate(combination_id = glue('{structure_id}_F{field_number}')) |>
     # Decide donor or acceptor status based on whether the element symbol
@@ -139,12 +142,23 @@ structure_metadata <- read_csv('selected_structure_files.csv', col_types = cols(
     symbol_anion = col_character(),
     crystal_structure = col_character(),
     structure_file_path = col_character(),
-    structure_id = col_character()
+    structure_id = col_character(),
+    scale_number = col_integer(),
+    scale = col_double(),
+    unscaled_structure_id = col_character()
 )) |>
     select(-structure_file_path) |>
     mutate(formula = glue('{symbol_cation}{symbol_anion}'))
 charge_energy_annotated <- charge_energy |>
-    left_join(structure_metadata, by = 'structure_id')
+    left_join(structure_metadata,
+              # Different lattice constants are distinct stuctures with their
+              # own structure id that includes the scale, so structure_id is
+              # sufficient to join on
+              by = 'structure_id',
+              # Since a charge corresponds to a simulation, and there are
+              # multiple simulations of the same structure, this relationship
+              # is expected to be many-to-one
+              relationship = 'many-to-one')
 
 # Make a table of the ground state charges for each structure
 ground_state_charges <- charge_energy_annotated |>
@@ -156,7 +170,10 @@ ground_state_charges <- charge_energy_annotated |>
 # corresponding structure
 combinations_to_keep <- charge_energy_annotated |>
     inner_join(ground_state_charges,
-               by = c('structure_id', 'donor_or_acceptor')) |>
+               by = c('structure_id', 'donor_or_acceptor'),
+    # All simulations of the same structure are being compared to the same
+    # ground state, so this relationship should be many-to-one
+               relationship = 'many-to-one') |>
     filter(charge < ceiling(ground_state_charge)) |>
     select(combination_id)
 charge_energy_annotated <- charge_energy_annotated |>

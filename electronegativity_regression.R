@@ -35,12 +35,23 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     symbol_anion = col_character(),
     crystal_structure = col_character(),
+    scale_number = col_integer(),
+    scale = col_double(),
+    unscaled_structure_id = col_character(),
     formula = col_character(),
+    first_iteration_charge = col_double(),
+    last_iteration_charge = col_double(),
+    lagged_first_iteration_charge = col_double(),
+    lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double()
 ))
 
 elements <- charge_energy |>
     select(combination_id, symbol, other_symbol) |>
+    distinct()
+
+scale_numbers <- charge_energy |>
+    select(combination_id, scale_number) |>
     distinct()
 
 this_theme <- 
@@ -64,7 +75,8 @@ for (category_structure_pair in category_structure_pairs)
     cdft_charges <- charge_energy |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
         select(combination_id, formula, symbol, other_symbol, donor_or_acceptor,
-               charge, electronegativity_field_discrete)
+               charge, electronegativity_field_discrete,
+               scale_number)
     
     # Order elements by atomic number, to select the least for use as a
     # reference for electronegativity and hardness
@@ -85,7 +97,10 @@ for (category_structure_pair in category_structure_pairs)
         left_join(atomic_numbers, by = 'symbol') |>
         group_by(donor_or_acceptor) |>
         filter(atomic_number == min(atomic_number)) |>
-        distinct(formula)
+        distinct(formula) |>
+        # Also add a scale number that I'm going to use as a reference. Only
+        # the interaction terms with that scale number need to be removed
+        mutate(scale_number = 1)
     write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
 
     electronegativity_terms <- cdft_charges |>
@@ -118,8 +133,11 @@ for (category_structure_pair in category_structure_pairs)
         # realized in practice. So you could just consider the smallest
         # interaction term to be zero, and the hardness to be the highest
         # achievable hardness
-        anti_join(reference_formulas, by = 'formula') |>
-        mutate(category = formula, 
+        # I think this only needs to be done for one scale though, so the table
+        # actually also contains scale numbers, even though I haven't updated
+        # the name from "reference formulas"
+        anti_join(reference_formulas, by = c('formula', 'scale_number')) |>
+        mutate(category = glue('{formula}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
         select(combination_id, category, variable_contribution)
@@ -188,6 +206,7 @@ for (category_structure_pair in category_structure_pairs)
     regression_plot_table <- hardness_terms |>
         rename(symbol = category, this_charge = variable_contribution) |>
         left_join(elements, by = c('combination_id', 'symbol'), relationship = 'many-to-one') |>
+        left_join(scale_numbers, by = 'combination_id', relationship = 'many-to-one') |>
         left_join(rename(electronegativity_differences,
                          electronegativity_difference = variable_contribution),
                   by = 'combination_id', relationship = 'many-to-one')
@@ -199,7 +218,7 @@ for (category_structure_pair in category_structure_pairs)
         # atomic numbers
         mutate(symbol = factor(symbol, levels = ordered_selected_elements),
                other_symbol = factor(other_symbol, levels = ordered_selected_elements)) |>
-        ggplot(aes(x = this_charge, y = electronegativity_difference, color = other_symbol)) +
+        ggplot(aes(x = this_charge, y = electronegativity_difference, color = other_symbol, group = scale_number)) +
         facet_wrap(~ symbol) +
         geom_hline(yintercept = 0, linetype = 'dotted') +
         geom_vline(xintercept = 0, linetype = 'dotted') +
