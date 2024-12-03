@@ -9,6 +9,7 @@ python gradient_field.py
 # Partial charges
 python parse_cp2k_hirshfeld.py
 python compute_bader.py
+parallel -j $(nproc) < bader_commands.sh
 python parse_bader.py
 
 # Analysis of charges
