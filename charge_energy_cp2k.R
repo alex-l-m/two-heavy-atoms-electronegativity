@@ -108,13 +108,20 @@ charges <- simulations |>
                                   if_else(donor_or_acceptor == 'acceptor', cation,
                                           NA))) |>
     # Join the Bader charges
-    left_join(bader_charges, by = c('simulation_id', 'donor_or_acceptor')) |>
+    left_join(bader_charges, by = c('simulation_id', 'donor_or_acceptor'),
+              # Join columns identify an atom, so it should be one to one
+              relationship = 'one-to-one') |>
     # This actually gives Bader populations. Join number of valence electrons
     # and calculate charges
-    left_join(n_valence_electrons, by = 'symbol') |>
+    left_join(n_valence_electrons, by = 'symbol',
+              relationship = 'many-to-one') |>
     mutate(bader_charge = valence_electrons - bader_population) |>
     # Join CP2K's Hirshfeld charges
-    left_join(cp2k_hirshfeld_charges, by = c('simulation_id', 'symbol', 'donor_or_acceptor')) |>
+    # This is on the level of atoms, so one-to-one
+    left_join(cp2k_hirshfeld_charges,
+              by = c('simulation_id', 'symbol', 'donor_or_acceptor'),
+              # This is on the level of atoms, so one-to-one
+              relationship = 'one-to-one') |>
     select(combination_id, symbol, other_symbol, donor_or_acceptor, charge, bader_charge, cp2k_hirshfeld_charge)
 
 # Get the initial energies from each log file
@@ -210,7 +217,10 @@ electronegativity_field_discrete <- simulations |>
     
 charge_energy_electronegativity <- charge_energy_annotated |>
     left_join(electronegativity_field_discrete,
-              by = c('structure_id', 'symbol', 'field_number')) |>
+              # This join looks wrong. Symbol doesn't identify an atom in the
+              # 4-4's. Need to change this if I include the 4-4's again?
+              by = c('structure_id', 'symbol', 'field_number'),
+              relationship = 'one-to-one') |>
     mutate(electronegativity_field_discrete =
            field_value * TO_EV * correction_factor_contribution) |>
     # Actually I don't need the "correction factor contribution" anymore since
@@ -226,6 +236,8 @@ scale_data <- selected_structures |>
     select(structure_id, unscaled_structure_id, scale_number, scale)
 
 charge_energy_withscale <- charge_energy_electronegativity |>
-    left_join(scale_data, by = 'structure_id')
+    left_join(scale_data, by = 'structure_id',
+              # Many simulations in atoms per structure, so many-to-one
+              relationship = 'many-to-one')
 
 write_csv(charge_energy_withscale, 'charge_energy.csv.gz')
