@@ -34,16 +34,19 @@ charges_from_integration <- charges_from_integration_all_iterations |>
     select(-iteration)
 
 # Reading the Bader charges
-bader_charges_raw <- read_csv('bader_charges.csv.gz', col_types = cols(
-    atom_number = col_double(),
-    x = col_double(),
-    y = col_double(),
-    z = col_double(),
-    population = col_double(),
-    min_dist = col_double(),
-    atomic_volume = col_double(),
+bader_charges_raw <- read_csv('bader_charges_raw.csv.gz', col_types = cols(
+    Id = col_double(),
+    cp = col_double(),
+    ncp = col_double(),
+    Name = col_character(),
+    Z = col_double(),
+    mult = col_character(),
+    Volume = col_double(),
+    Pop = col_double(),
+    Lap = col_double(),
     simulation_id = col_character()
 ))
+
 # Number of valence electrons. Needed to convert population into charge. though
 # that will be later, since the element is not yet available to join on
 n_valence_electrons <- read_csv('n_valence_electrons.csv', col_types = cols(
@@ -52,8 +55,8 @@ n_valence_electrons <- read_csv('n_valence_electrons.csv', col_types = cols(
 ))
 bader_charges <- bader_charges_raw |>
     group_by(simulation_id) |>
-    transmute(donor_or_acceptor = ifelse(atom_number == 1, 'donor', ifelse(atom_number == 2, 'acceptor', NA)),
-              bader_population = population) |>
+    transmute(donor_or_acceptor = ifelse(Id == 1, 'donor', ifelse(Id == 2, 'acceptor', NA)),
+              bader_population = Pop) |>
     ungroup()
 
 # Reading the Hirshfeld charges calculated by CP2K
