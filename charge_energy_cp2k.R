@@ -227,17 +227,4 @@ charge_energy_electronegativity <- charge_energy_annotated |>
     # I'm not summing across atoms
     select(-correction_factor_contribution)
 
-selected_structures <- read_csv('selected_structure_files.csv', col_types = cols(
-    .default = col_character(),
-    scale_number = col_integer(),
-    scale = col_double()))
-
-scale_data <- selected_structures |>
-    select(structure_id, unscaled_structure_id, scale_number, scale)
-
-charge_energy_withscale <- charge_energy_electronegativity |>
-    left_join(scale_data, by = 'structure_id',
-              # Many simulations in atoms per structure, so many-to-one
-              relationship = 'many-to-one')
-
-write_csv(charge_energy_withscale, 'charge_energy.csv.gz')
+write_csv(charge_energy_electronegativity, 'charge_energy.csv.gz')
