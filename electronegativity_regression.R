@@ -232,6 +232,9 @@ for (category_structure_pair in category_structure_pairs)
     # Make plots showing the data underlying the regression
     # I don't like having to rename here, needs refactoring upstream
     hardness_regression_plot <- regression_plot_table |>
+        # Filter so that I'm only making plots where "symbol" corresponds to
+        # the symbol of the acceptor
+        filter(donor_or_acceptor == 'acceptor') |>
         # Turn the symbols into factors based on the ordering implied by the
         # atomic numbers
         mutate(symbol = factor(symbol, levels = ordered_selected_elements),
