@@ -209,10 +209,25 @@ for (category_structure_pair in category_structure_pairs)
     regression_plot_table <- hardness_terms |>
         rename(symbol = category, this_charge = variable_contribution) |>
         left_join(elements, by = c('combination_id', 'symbol'), relationship = 'many-to-one') |>
-        left_join(scale_numbers, by = 'combination_id', relationship = 'many-to-one') |>
+        # Join the scale numbers. I originally joined this because I was
+        # intending to use it as a grouping variable. It makes more sense, I
+        # realized, to just use the structure id. But there's no harm in having
+        # an extra variable in the table
+        left_join(scale_numbers, by = 'combination_id',
+                  relationship = 'many-to-one') |>
         left_join(rename(electronegativity_differences,
                          electronegativity_difference = variable_contribution),
-                  by = 'combination_id', relationship = 'many-to-one')
+                  by = 'combination_id', relationship = 'many-to-one') |>
+        # Restore the information about structure id, for grouping on the plot
+        left_join(distinct(charge_energy, combination_id, structure_id),
+                  by = 'combination_id', relationship = 'many-to-one') |>
+        # Restore information about which is donor and which is acceptor
+        # This won't work for 4-4's
+        left_join(distinct(charge_energy, combination_id, symbol,
+                           donor_or_acceptor),
+                  by = c('combination_id', 'symbol'),
+                  relationship = 'many-to-one')
+
     
     # Make plots showing the data underlying the regression
     # I don't like having to rename here, needs refactoring upstream
@@ -221,7 +236,7 @@ for (category_structure_pair in category_structure_pairs)
         # atomic numbers
         mutate(symbol = factor(symbol, levels = ordered_selected_elements),
                other_symbol = factor(other_symbol, levels = ordered_selected_elements)) |>
-        ggplot(aes(x = this_charge, y = electronegativity_difference, color = other_symbol, group = scale_number)) +
+        ggplot(aes(x = this_charge, y = electronegativity_difference, color = other_symbol, group = structure_id)) +
         facet_wrap(~ symbol) +
         geom_hline(yintercept = 0, linetype = 'dotted') +
         geom_vline(xintercept = 0, linetype = 'dotted') +
