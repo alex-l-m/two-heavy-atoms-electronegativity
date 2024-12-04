@@ -16,7 +16,7 @@ critic2_tbl = pd.read_csv('critic2_bader_files.csv')
 
 # Rows as dictionaries
 rows = []
-for row in critic2_tbl.iterrows():
+for row in critic2_tbl.itertuples():
     simulation_id = row.simulation_id
     inpath = row.bader_out_path
     # Variable tracking whether we have reached a table in the input
@@ -46,6 +46,7 @@ for row in critic2_tbl.iterrows():
                 row = dict(zip(column_names, values))
                 # Append the row
                 rows.append(row)
+    print(f'Didn\'t find table in {inpath}')
 
 df = pd.DataFrame(rows)
-df.to_csv('bader_charges.csv.gz', index=False)
+df.to_csv('bader_charges_raw.csv.gz', index=False)

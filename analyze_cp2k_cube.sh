@@ -1,6 +1,8 @@
 # Partial charges
 python compute_bader.py
+cd cp2k_cube
 parallel -j $(nproc) < bader_commands.sh
+cd ..
 python parse_bader.py
 
 # Derivative cube files
