@@ -48,7 +48,6 @@ for row in critic2_tbl.itertuples():
                 row['simulation_id'] = simulation_id
                 # Append the row
                 rows.append(row)
-    print(f'Didn\'t find table in {inpath}')
 
 df = pd.DataFrame(rows)
 df.to_csv('bader_charges_raw.csv.gz', index=False)
