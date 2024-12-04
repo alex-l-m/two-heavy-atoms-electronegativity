@@ -44,6 +44,8 @@ for row in critic2_tbl.itertuples():
                 values = line.split()
                 # Create a row as a dictionary, using column names as keys
                 row = dict(zip(column_names, values))
+                # Add the simulation id to the row
+                row['simulation_id'] = simulation_id
                 # Append the row
                 rows.append(row)
     print(f'Didn\'t find table in {inpath}')
