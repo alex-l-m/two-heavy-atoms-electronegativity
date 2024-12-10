@@ -49,6 +49,10 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     scale = col_double()
 ))
 
+unique_scale_numbers <- charge_energy |>
+    distinct(scale_number) |>
+    pull(scale_number)
+
 elements <- charge_energy |>
     select(combination_id, symbol, other_symbol) |>
     distinct()
@@ -107,7 +111,9 @@ for (category_structure_pair in category_structure_pairs)
     write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
 
     electronegativity_terms <- cdft_charges |>
-        mutate(category = symbol,
+        # Electronegativity terms correspond to an element
+        # Also make them dependent on scale
+        mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
         select(combination_id, category, variable_contribution) |>
@@ -116,7 +122,9 @@ for (category_structure_pair in category_structure_pairs)
         filter(category != reference_element)
     
     hardness_terms <- cdft_charges |>
-        mutate(category = symbol,
+        # Same as electronegativity: each term corresponds to an element, also
+        # dependent on scale
+        mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
         select(combination_id, category, variable_contribution) |>
@@ -178,16 +186,19 @@ for (category_structure_pair in category_structure_pairs)
     estimates <- tidy(linear_model)
     write_csv(estimates, glue('{category_structure_pair}_electronegativity_regression_estimates.csv'))
     
+    electronegativity_param_regex <- '([^_]*)_([^_]*)_S(\\d+)'
     regression_electronegativity <- estimates |>
         mutate(
-            term_type = str_match(term, '([^_]*)_([^_]*)')[,2],
-            symbol = str_match(term, '([^_]*)_([^_]*)')[,3]
+            term_type = str_match(term, electronegativity_param_regex)[, 2],
+            symbol = str_match(term, electronegativity_param_regex)[, 3],
+            scale_number = as.integer(str_match(term, electronegativity_param_regex)[, 4])
         ) |>
         filter(term_type == 'electronegativity') |>
-        select(symbol, estimate) |>
+        select(symbol, estimate, scale_number) |>
         rename(regression_electronegativity = estimate) |>
         bind_rows(tibble(symbol = reference_element,
-                         regression_electronegativity = 0))
+                         regression_electronegativity = 0,
+                         scale_number = unique_scale_numbers))
     
     electronegativity_comparison_tbl <- left_join(regression_electronegativity,
                                                   pauling_electronegativity,
@@ -196,6 +207,8 @@ for (category_structure_pair in category_structure_pairs)
     electronegativity_comparison_plot <- electronegativity_comparison_tbl |>
         ggplot(aes(x = pauling_electronegativity, y = regression_electronegativity,
                    label = symbol)) +
+        # Divide it up by scale
+        facet_wrap(~ scale_number) +
         geom_point() +
         geom_smooth(method = lmrob, se = FALSE) +
         geom_label_repel() +
