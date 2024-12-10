@@ -167,6 +167,9 @@ for (category_structure_pair in category_structure_pairs)
             hardness = hardness_terms,
             interaction = interaction_terms,
             .id = 'variable_type') |>
+        # The categories are all {formula}_S{scale_number} or {symbol}_S{scale_number}
+        # Therefore variable names will consist of three parts: type, group, scale number
+        # (where group is either formula or scale number)
         mutate(variable_name = ifelse(is.na(category), variable_type,
                                       glue('{variable_type}_{category}')))
     
@@ -194,7 +197,7 @@ for (category_structure_pair in category_structure_pairs)
             scale_number = as.integer(str_match(term, electronegativity_param_regex)[, 4])
         ) |>
         filter(term_type == 'electronegativity') |>
-        select(symbol, estimate, scale_number) |>
+        select(symbol, scale_number, estimate) |>
         rename(regression_electronegativity = estimate) |>
         bind_rows(tibble(symbol = reference_element,
                          regression_electronegativity = 0,
@@ -220,7 +223,11 @@ for (category_structure_pair in category_structure_pairs)
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
     
     regression_plot_table <- hardness_terms |>
-        rename(symbol = category, this_charge = variable_contribution) |>
+        mutate(
+               # Extract the symbol from the category
+               symbol = str_match(category, '([^_]*)_S\\d+')[, 2],
+               this_charge = variable_contribution) |>
+        select(-category, -variable_contribution) |>
         left_join(elements, by = c('combination_id', 'symbol'), relationship = 'many-to-one') |>
         # Join the scale numbers. I originally joined this because I was
         # intending to use it as a grouping variable. It makes more sense, I
