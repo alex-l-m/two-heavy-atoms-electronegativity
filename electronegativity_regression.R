@@ -9,7 +9,7 @@ library(ggrepel)
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
     symbol = col_character(),
-    atomic_number = col_double()
+    atomic_number = col_integer()
 ))
 
 pauling_electronegativity <- read_csv('pauling_electronegativity.csv', col_types = cols(
@@ -26,7 +26,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
     structure_id = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double(),
     cdft = col_logical(),

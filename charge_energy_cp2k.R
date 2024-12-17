@@ -9,7 +9,7 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     structure_id = col_character(),
     cation = col_character(),
     anion = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     log_file_path = col_character(),
     cube_file_path = col_character(),
@@ -21,7 +21,7 @@ simulations <- read_csv('simulations.csv', col_types = cols(
 energies <- read_csv('energies.csv.gz', col_types = cols(
     combination_id = col_character(),
     structure_id = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double()
 ))

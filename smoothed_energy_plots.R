@@ -12,7 +12,7 @@ TO_EV <- 27.211386246
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
     symbol = col_character(),
-    atomic_number = col_double()
+    atomic_number = col_integer()
 ))
 
 # Smoothed energies and derivatives
@@ -57,7 +57,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
     structure_id = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double(),
     cdft = col_logical(),
@@ -94,7 +94,7 @@ energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     formula = col_character(),
     cdft = col_logical(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double()
 ))

@@ -17,7 +17,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
     structure_id = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double(),
     cdft = col_logical(),
@@ -50,7 +50,7 @@ born_charges <- read_csv('yu_cardona_table_6.7_born_charges.csv', col_types = co
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
     symbol = col_character(),
-    atomic_number = col_double()
+    atomic_number = col_integer()
 ))
 formula_order <- charge_energy |>
     filter(category == '3-5') |>
