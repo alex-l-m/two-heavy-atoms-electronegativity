@@ -31,7 +31,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     unscaled_structure_id = col_character(),
     scale_number = col_integer(),
     scale = col_double()
-))
+)) |>
+    filter(scale_number == 0)
 
 # Born charges
 born_charges <- read_csv('yu_cardona_table_6.7_born_charges.csv', col_types = cols(
