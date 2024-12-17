@@ -22,7 +22,7 @@ regression_estimate_coltypes <- cols(
     p.value = col_double()
 )
 filename_regex <- '(.*):(.*)_electronegativity_regression_estimates.csv'
-term_regex <- '(.*)_(.*)'
+term_regex <- '([^_]*)_(.*)'
 regression_estimates <- tibble(infile = infiles) |>
     group_by(infile) |>
     reframe(read_csv(infile, col_types = regression_estimate_coltypes)) |>
@@ -31,7 +31,9 @@ regression_estimates <- tibble(infile = infiles) |>
            structure = str_extract(infile, filename_regex, 2)) |>
     # Extract information from the term name
     mutate(variable_type = str_extract(term, term_regex, 1),
-           entity = str_extract(term, term_regex, 2))
+           entity = str_extract(term, term_regex, 2)) |>
+    # Hack: only plot scale zero
+    filter(str_detect(entity, '_S0'))
 
 # Make a plot comparing estimates the two structures, with separate scatter
 # plots for each type of variable
