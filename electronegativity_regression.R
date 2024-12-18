@@ -104,38 +104,35 @@ for (category_structure_pair in category_structure_pairs)
         left_join(atomic_numbers, by = 'symbol') |>
         group_by(donor_or_acceptor) |>
         filter(atomic_number == min(atomic_number)) |>
-        distinct(formula) |>
-        # Also add a scale number that I'm going to use as a reference. Only
-        # the interaction terms with that scale number need to be removed
-        mutate(scale_number = 1)
+        distinct(formula)
     write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
 
     electronegativity_terms <- cdft_charges |>
+        # Remove electronegativity of an arbitrary element to use it as a
+        # reference
+        filter(symbol != reference_element) |>
         # Electronegativity terms correspond to an element
         # Also make them dependent on scale
         mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
-        select(combination_id, category, variable_contribution) |>
-        # Remove electronegativity of an arbitrary element to use it as a
-        # reference
-        filter(category != reference_element)
+        select(combination_id, category, variable_contribution)
     
     hardness_terms <- cdft_charges |>
-        # Same as electronegativity: each term corresponds to an element, also
-        # dependent on scale
-        mutate(category = glue('{symbol}_S{scale_number}'),
-               variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
-                                              1, -1) * charge) |>
-        select(combination_id, category, variable_contribution) |>
-        # Remove hardness of an arbitrary element to use it as a
+        # Remove electronegativity of an arbitrary element to use it as a
         # reference
         # This is harder to explain, but since all that matters is total
         # hardness, and there's always a cation and an anion, you can "move"
         # hardness from all cations to all anions without changing any of the
         # totals. So we decide in advance how much to "move": whatever makes
         # the hardness of the reference element zero
-        filter(category != reference_element)
+        filter(symbol != reference_element) |>
+        # Same as electronegativity: each term corresponds to an element, also
+        # dependent on scale
+        mutate(category = glue('{symbol}_S{scale_number}'),
+               variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
+                                              1, -1) * charge) |>
+        select(combination_id, category, variable_contribution)
     
     interaction_terms <- cdft_charges |>
         # There's linear constraint on the interaction terms as well. Every
@@ -144,10 +141,7 @@ for (category_structure_pair in category_structure_pairs)
         # realized in practice. So you could just consider the smallest
         # interaction term to be zero, and the hardness to be the highest
         # achievable hardness
-        # I think this only needs to be done for one scale though, so the table
-        # actually also contains scale numbers, even though I haven't updated
-        # the name from "reference formulas"
-        anti_join(reference_formulas, by = c('formula', 'scale_number')) |>
+        anti_join(reference_formulas, by = 'formula') |>
         mutate(category = glue('{formula}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
