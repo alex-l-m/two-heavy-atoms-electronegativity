@@ -12,6 +12,9 @@ data_path = sys.argv[2]
 # Path to output cube to
 output_cube_path = sys.argv[3]
 
+# Name of the column containing the data
+colname = sys.argv[4]
+
 # Dictionary containing information from the cube file
 cube = read_cube(open(cube_path))
 
@@ -26,10 +29,10 @@ new_data = cube['data']
 
 # Dataframe with the potential
 potential_df = pd.read_csv(data_path)
-for row in potential_df.itertuples():
-    i = int(row.i)
-    j = int(row.j)
-    k = int(row.k)
-    new_data[i][j][k] = row.potential 
+for index, row in potential_df.iterrows():
+    i = int(row['i'])
+    j = int(row['j'])
+    k = int(row['k'])
+    new_data[i][j][k] = row[colname]
 
 write_cube(open(output_cube_path, 'w'), atoms, new_data, origin)

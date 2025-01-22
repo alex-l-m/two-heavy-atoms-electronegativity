@@ -14,7 +14,10 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     log_file_path = col_character(),
     cube_file_path = col_character(),
     pot_file_path = col_character(),
-    hartree_pot_path = col_character()
+    hartree_pot_path = col_character(),
+    acceptor_proatom_path = col_character(),
+    donor_proatom_path = col_character(),
+    promolecule_path = col_character()
 ))
 
 # Other tables of cube files
@@ -36,7 +39,7 @@ dhartree_grad <- read_csv('dhartree_grad.csv', col_types = cols(
 all_cube_files <- simulations |>
     # Only include simulations with the field
     filter(potential == 'field') |>
-    # Select only the columns in going to use later, as well as all the cube
+    # Select only the columns I'm going to use later, as well as all the cube
     # file path columns
     # This includes the field number, which is going to be necessary for
     # ordering the animation

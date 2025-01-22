@@ -18,6 +18,9 @@ log_file_dir_path = 'cp2k_logs'
 cube_file_dir_path = 'cp2k_cube'
 pot_file_dir_path = 'cp2k_pot'
 hartree_pot_dir_path = 'v_hartree_cube'
+acceptor_proatom_dir_path = 'acceptor_proatom_cube'
+donor_proatom_dir_path = 'donor_proatom_cube'
+promolecule_dir_path = 'promolecule_cube'
 
 # The pseudopotential that I'm using, since Zhibo used it
 pseudopotential = 'GTH-PBE'
@@ -148,6 +151,13 @@ def simulate(structure : ase.Atoms,
     hartree_pot_name = f'{simulation_id}-v_hartree-2.cube'
     # Path it will be moved to
     hartree_pot_path = join(hartree_pot_dir_path, hartree_pot_name)
+    # Names and target paths for the cube files containing the reference atoms
+    acceptor_proatom_name = f'{simulation_id}_acceptor_proatom.cube'
+    acceptor_proatom_path = join(acceptor_proatom_dir_path, acceptor_proatom_name)
+    donor_proatom_name = f'{simulation_id}_donor_proatom.cube'
+    donor_proatom_path = join(donor_proatom_dir_path, donor_proatom_name)
+    promolecule_name = f'{simulation_id}_promolecule.cube'
+    promolecule_path = join(promolecule_dir_path, promolecule_name)
     # Name of the log file
     log_file_name = f'{simulation_id}.out'
     # Path to the log file, after it's moved
@@ -160,7 +170,9 @@ def simulate(structure : ase.Atoms,
                          structure_id, donor_element, acceptor_element,
                          current_field_number, field_strength,
                          log_file_path, cube_file_path,
-                         potential_file_path, hartree_pot_path])
+                         potential_file_path, hartree_pot_path,
+                         acceptor_proatom_path, donor_proatom_path,
+                         promolecule_path])
 
     # Save current working directory, which is where all the scripts are located
     # This is so I can include it in the subprocess commands
@@ -176,7 +188,7 @@ def simulate(structure : ase.Atoms,
         previous_simulation_id = f'{structure_id}_F{previous_field_number}_Vfield'
         previous_cube_name = f'{previous_simulation_id}-ELECTRON_DENSITY-2.cube'
         run(['python', join(project_dir, 'to_cube.py'), previous_cube_name,
-             'potential.csv', 'pot.cube'])
+             'potential.csv', 'pot.cube', 'potential'])
         potential_section = \
                 potential_section_template.format(field_strength = field_strength)
     else:
@@ -256,6 +268,14 @@ def simulate(structure : ase.Atoms,
     assert not pd.isna(current_charge)
     print(f'Current charge: {current_charge}')
 
+    # Create cube files for the promolecular densities
+    run(['python', join(project_dir, 'to_cube.py'), cube_file_name,
+         'acceptor_proatom.csv', acceptor_proatom_name, 'unnormalized_weight'])
+    run(['python', join(project_dir, 'to_cube.py'), cube_file_name,
+         'donor_proatom.csv', donor_proatom_name, 'unnormalized_weight'])
+    run(['python', join(project_dir, 'to_cube.py'), cube_file_name,
+         'promolecule.csv', promolecule_name, 'unnormalized_weight'])
+
     # If no potential was applied, create a cube file of all zeroes
     # representing the potential applied
     if first:
@@ -279,6 +299,10 @@ def simulate(structure : ase.Atoms,
     # iteration of the loop, it is actually still a csv file, and 'pot.cube'
     # has not been overwritten yet
     shutil.copy('pot.cube', os.path.join(project_dir, potential_file_name))
+    # Also copy the cube files with the proatom densities
+    shutil.copy(acceptor_proatom_name, project_dir)
+    shutil.copy(donor_proatom_name, project_dir)
+    shutil.copy(promolecule_name, project_dir)
 
     # Go back to the project directory
     os.chdir(project_dir)
@@ -288,6 +312,9 @@ def simulate(structure : ase.Atoms,
     shutil.move(cube_file_name, cube_file_path)
     shutil.move(hartree_pot_name, hartree_pot_path)
     shutil.move(potential_file_name, potential_file_path)
+    shutil.move(acceptor_proatom_name, acceptor_proatom_path)
+    shutil.move(donor_proatom_name, donor_proatom_path)
+    shutil.move(promolecule_name, promolecule_path)
 
     # Write charges for all iterations
     with open(charges_from_integration_path, 'a') as f:

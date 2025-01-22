@@ -272,3 +272,21 @@ write_csv(potential, potential_path)
 
 # Also write the density with weights for plotting purposes
 write_csv(density_with_weights, density_with_weights_path)
+
+# Make a table of the acceptor pro-atom, that is, the unnormalized weight of
+# the acceptor atom
+acceptor_proatom <- density_with_weights |>
+    filter(donor_or_acceptor == 'acceptor') |>
+    select(i, j, k, x, y, z, unnormalized_weight)
+write_csv(acceptor_proatom, 'acceptor_proatom.csv')
+# Also donor pro-atom
+donor_proatom <- density_with_weights |>
+    filter(donor_or_acceptor == 'donor') |>
+    select(i, j, k, x, y, z, unnormalized_weight)
+write_csv(donor_proatom, 'donor_proatom.csv')
+# Also the sum of both
+promolecule <- density_with_weights |>
+    group_by(i, j, k, x, y, z) |>
+    summarize(unnormalized_weight = sum(unnormalized_weight)) |>
+    select(i, j, k, x, y, z, unnormalized_weight)
+write_csv(promolecule, 'promolecule.csv')

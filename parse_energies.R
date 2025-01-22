@@ -14,7 +14,10 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     log_file_path = col_character(),
     cube_file_path = col_character(),
     pot_file_path = col_character(),
-    hartree_pot_path = col_character()
+    hartree_pot_path = col_character(),
+    acceptor_proatom_path = col_character(),
+    donor_proatom_path = col_character(),
+    promolecule_path = col_character()
 ))
 
 # Function for extracting the first-iteration energy from a log file
