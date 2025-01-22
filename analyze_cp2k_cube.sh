@@ -15,3 +15,4 @@ python gradient_field.py
 Rscript slice.R
 Rscript slice_animations.R
 Rscript plot_vector_field.R
+Rscript line_between_atoms.R
