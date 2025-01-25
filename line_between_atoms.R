@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(glue)
+library(parallel)
 
 simulations <- read_csv('simulations.csv', col_types = cols(
     simulation_id = col_character(),
@@ -40,19 +41,30 @@ all_cube_files <- simulations |>
 
 # Convert the simulation table to a list of rows
 inrows <- split(all_cube_files, seq(nrow(all_cube_files)))
+names(inrows) <- sapply(inrows, function(x) x$cube_id)
 
-# Empty list of tables containing slices
-slice_list <- list()
-
-# Loop over the rows of the simulation table
-for (row in inrows)
+# Function to map a row of the simulation table to an element of the slice list
+sample_slice <- function(row)
 {
+    # Create a unique prefix for the temporary files, using the cube id, and
+    # also a string of random characters just in case I forgot something
+    random_chars <- paste(sample(letters, 10), collapse = '')
+    prefix <- glue('{row$cube_id}_{random_chars}')
+
     # Run the python script to convert the cube file into csv files
     # cube2csv.py
-    system(glue('python cube2csv.py {row$cube_file_path}'))
+    system(glue('python cube2csv.py {row$cube_file_path} {prefix}'))
+
+    # Paths to the output files
+    atoms_path <- glue('{prefix}_atoms.csv')
+    unit_cell_path = glue('{prefix}_unit_cell.csv')
+    density_path <- glue('{prefix}_density.csv')
+    coordinate_system_path = glue('{prefix}_coordinate_system.csv')
+    temporary_file_paths <- c(atoms_path, unit_cell_path, density_path,
+                              coordinate_system_path)
 
     # Table of nuclear positions for each atom
-    atoms <- read_csv('atoms.csv', col_types = cols(
+    atoms <- read_csv(atoms_path, col_types = cols(
         atom_id = col_double(),
         symbol = col_character(),
         x = col_double(),
@@ -70,7 +82,7 @@ for (row in inrows)
     u <- with(center_atom, c(x, y, z) / sqrt(x^2 + y^2 + z^2))
     
     # Table of electron density at each voxel
-    density <- read_csv('density.csv', col_types = cols(
+    density <- read_csv(density_path, col_types = cols(
         i = col_integer(),
         j = col_integer(),
         k = col_integer(),
@@ -95,9 +107,14 @@ for (row in inrows)
         select(-squared_distance, -min_squared_distance, -closest) |>
         ungroup()
 
-    # Add to the list
-    slice_list[[row$cube_id]] <- this_slice
+    # Delete the temporary files
+    file.remove(temporary_file_paths)
+
+    return(this_slice)
 }
+
+# List of tables containing slices
+slice_list <- mclapply(inrows, sample_slice)
 
 # Combine the slice tables into a single table
 slice_tbl <- bind_rows(slice_list, .id = 'cube_id') |>
