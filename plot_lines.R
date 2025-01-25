@@ -65,26 +65,38 @@ anion_levels <- simulations |>
 # How to label the cube file types for plotting
 cube_type_labels <- c(acceptor_proatom_path = 'Acceptor atom ref',
                       donor_proatom_path = 'Donor atom ref',
-                      promolecule_path = 'Mixture density',
                       cube_file_path = 'Actual density')
-# Plot density
-line_plt <- line_tbl |>
-    # Relabel and order the cube types
-    mutate(cube_type_label_character = cube_type_labels[cube_file_type],
-           cube_type_label = factor(cube_type_label_character,
-                                    levels = cube_type_labels)) |>
-    # Join with the simulation table so I can use the extra annotations
-    left_join(simulations,
-              by = c('simulation_id', 'field_number', 'structure_id')) |>
-    # Order the anion and cations
-    mutate(anion = factor(anion, levels = anion_levels),
-           cation = factor(cation, levels = cation_levels)) |>
-    ggplot(aes(x = sqrt(projection_squarednorm), y = density, color = cube_type_label)) +
-    # Rows for cations, columns for anions
-    facet_grid(cation ~ anion) +
-    geom_line() +
-    ylim(0, 10) +
-    xlab('Distance along line between atoms (Å)') +
-    theme(legend.position = 'bottom')
 
-ggsave('line_density.png', line_plt, height = unit(4.76, 'in'), width = unit(11.5, 'in'), dpi = 96)
+# Create the output directory
+line_density_dir <- 'line_density_plots'
+dir.create(line_density_dir, showWarnings = FALSE)
+
+# Make a plot for each field number
+for (this_field_number in unique(line_tbl$field_number))
+{
+    # Plot density
+    line_plt <- line_tbl |>
+        filter(field_number == this_field_number) |>
+        # Relabel and order the cube types
+        mutate(cube_type_label_character = cube_type_labels[cube_file_type],
+               cube_type_label = factor(cube_type_label_character,
+                                        levels = cube_type_labels)) |>
+        # Join with the simulation table so I can use the extra annotations
+        left_join(simulations,
+                  by = c('simulation_id', 'field_number', 'structure_id')) |>
+        # Order the anion and cations
+        mutate(anion = factor(anion, levels = anion_levels),
+               cation = factor(cation, levels = cation_levels)) |>
+        ggplot(aes(x = sqrt(projection_squarednorm), y = density, color = cube_type_label)) +
+        # Rows for cations, columns for anions
+        facet_grid(cation ~ anion) +
+        geom_line() +
+        # Plot density on a log scale so I can see what's happening in the bonds
+        scale_y_log10(limits = c(.01, 10)) +
+        xlab('Distance along line between atoms (Å)') +
+        theme(legend.position = 'bottom',
+              # Add a background grid, thin and lightly coloured
+              panel.grid.major = element_line(size = 0.1, colour = 'grey80'))
+    
+    ggsave(glue('{line_density_dir}/line_density_{this_field_number}.png'), line_plt, height = unit(4.76, 'in'), width = unit(11.5, 'in'), dpi = 96)
+}
