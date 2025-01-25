@@ -27,7 +27,7 @@ all_cube_files <- simulations |>
     # file path columns
     select(simulation_id, field_number, structure_id,
            cube_file_path,
-           acceptor_proatom_path, donor_proatom_path, promolecule_path) |>
+           acceptor_proatom_path, donor_proatom_path) |>
     # Pivot so there's one cube file path per row
     pivot_longer(cols = -c(simulation_id, field_number, structure_id),
                  names_to = 'cube_file_type', values_to = 'cube_file_path') |>
