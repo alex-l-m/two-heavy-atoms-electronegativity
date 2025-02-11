@@ -248,6 +248,46 @@ for (category_structure_pair in category_structure_pairs)
         this_theme
     ggsave(glue('{category_structure_pair}_lam_comparison.png'), lam_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+    # Make a plot like the lam comparison plot but instead of comparing lam to
+    # derivative, show just derivative, but with various kinds of charge
+    charge_comparison_tbl <- energy_derivatives |>
+        inner_join(select(charge_energy,
+                         # Identify the simulation
+                         combination_id, scale_number,
+                         # Identify the atom
+                         donor_or_acceptor,
+                         # The charge columns that I want
+                         cp2k_hirshfeld_charge, bader_charge),
+                  by = c('combination_id', 'scale_number', 'donor_or_acceptor'),
+                  relationship = 'one-to-one') |>
+        rename(electronegativity = total_energy) |>
+        select(combination_id, scale_number,
+               category, crystal_structure, formula,
+               donor_or_acceptor, symbol, other_symbol,
+               electronegativity,
+               charge, cp2k_hirshfeld_charge, bader_charge) |>
+        # Pivot to create a single charge column so that I can compare kinds of
+        # charge
+        pivot_longer(c(charge, cp2k_hirshfeld_charge, bader_charge), names_to = 'charge_definition', values_to = 'charge') |>
+        filter(donor_or_acceptor == 'acceptor')
+    charge_comparison_plot <- charge_comparison_tbl |>
+        mutate(formula = factor(formula, levels = formula_order)) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        ggplot(aes(x = charge, y = electronegativity, color = charge_definition)) +
+        facet_wrap(~ formula, ncol = 3) +
+        # Put a vertical line to indicate 0
+        geom_vline(xintercept = 0, linetype = 'dashed') +
+        # Put a horizontal line to indicate zero
+        geom_hline(yintercept = 0, linetype = 'dashed')+
+        ylab('dE/dq (V)') +
+        # Remove the title from the legend
+        guides(color = guide_legend(title = NULL)) +
+        geom_line() +
+        acceptor_charge_label +
+        this_theme
+    ggsave(glue('{category_structure_pair}_charge_comparison_electronegativity.png'), charge_comparison_plot,
+           width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     
     # Fit lines to the lambda values, from the x axis and y axis
     lam_line_data <- lam_values |>
