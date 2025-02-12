@@ -5,6 +5,7 @@ library(cowplot)
 library(ggdark)
 theme_set(dark_mode(theme_cowplot()))
 library(robustbase)
+library(broom)
 
 # Function for reading the line density output from MultiWFN
 # The first three columns are coordinates. I'm not sure what the fourth column
@@ -59,11 +60,11 @@ ordered_elements <- elements_present |>
     pull(element)
 
 # Plot, with each element as a facet and ions superimposed
-zmax <- 2
+zmax <- 5
 line_density_plt <- line_density_sep |>
     # Order the elements by atomic number
     mutate(element = factor(element, levels=ordered_elements)) |>
-    filter(abs(charge) <= 2 & z < zmax & 10^-2 < density & density < 10) |>
+    filter(abs(charge) <= 2 & z < zmax & 10^-5 < density & density < 10) |>
     ggplot(aes(x=z, y=density, color=as.factor(charge))) +
     facet_grid(`Ion type` ~ element) +
     geom_line() +
@@ -73,4 +74,28 @@ line_density_plt <- line_density_sep |>
     theme(legend.position = 'bottom')
 
 ggsave('single_atom_lines.png', line_density_plt,
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+# Add linear fits to the plot
+line_density_plt_fits <- line_density_plt +
+    geom_smooth(method=lmrob, formula=y ~ x, se=FALSE, linetype='dashed')
+
+ggsave('single_atom_lines_fits.png', line_density_plt_fits,
+       width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+# Save linear fits to a table using broom
+line_density_fits <- line_densities |>
+    filter(abs(charge) <= 2 & z < zmax & 10^-5 < density & density < 10) |>
+    group_by(ion_id, element, charge) |>
+    do(tidy(lmrob(log(density) ~ z, data=.))) |>
+    ungroup()
+write_csv(line_density_fits, 'single_atom_lines_fits.csv')
+
+# Make a plot of the slopes
+slater_exponent_plot <- line_density_fits |>
+    filter(term == 'z') |>
+    ggplot(aes(x=charge, y=estimate)) +
+    facet_wrap(~element) +
+    geom_point()
+ggsave('single_atom_slopes.png', slater_exponent_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
