@@ -21,6 +21,8 @@ charge_ref_path <- commandArgs(trailingOnly = TRUE)[10]
 # Charge to start with:
 initial_acceptor_charge <- as.double(commandArgs(trailingOnly = TRUE)[11])
 
+method <- 'hirschfeld-i'
+
 # Show more significant figures in tables, so I can see if the charges are
 # converging in the logs
 options(pillar.sigfig = 7)
@@ -28,7 +30,6 @@ options(pillar.sigfig = 7)
 # A table mapping element symbols to donor or acceptor status
 elements <- tibble(symbol = c(donor_element, acceptor_element),
                    donor_or_acceptor = c('donor', 'acceptor'))
-
 
 charge_ref <- read_csv(charge_ref_path, col_types = cols(
     symbol = col_character(),
@@ -163,6 +164,15 @@ while (!finished) {
                 reference_contribution = c(1 - fractional_part, fractional_part)
             )
         })
+    if (method == 'hirschfeld')
+    {
+        donor_weight_function <- donor_weight_functions |>
+            filter(reference_charge == 0)
+        acceptor_weight_function <- acceptor_weight_functions |>
+            filter(reference_charge == 0)
+            
+    } else if (method == 'hirschfeld-i')
+    {
     # Average the integer charge weight functions to get matched charge weight
     # functions
     donor_weight_function <- fraction_contributions |>
@@ -182,6 +192,49 @@ while (!finished) {
         group_by(i, j, k) |>
         summarize(unnormalized_weight = sum(contribution_at_point),
                   .groups = 'drop')
+    } else if (method == 'hirschfeld-i-smooth')
+    {
+        donor_charge <- charges |>
+            filter(donor_or_acceptor == 'donor') |>
+            pull(charge)
+        donor_weight_function <- donor_weight_functions |>
+            filter(reference_charge == 0) |>
+            # Add x, y, and z
+            mutate(x = i * v1[1] + j * v2[1] + k * v3[1],
+                   y = i * v1[2] + j * v2[2] + k * v3[2],
+                   z = i * v1[3] + j * v2[3] + k * v3[3]) |>
+            # Distance from origin
+            mutate(r = sqrt(x^2 + y^2 + z^2)) |>
+            # Tails are exp(l + b q r)
+            # l < 0, b < 0
+            # b is the "slope rate" (how slope on a log scale changes with
+            # charge)
+            mutate(correction_factor = 
+                   pmin(exp(donor_slope_rate * donor_charge * r), 100)) |>
+            mutate(unnormalized_weight = unnormalized_weight *
+                                         correction_factor) |>
+            select(i, j, k, unnormalized_weight)
+        acceptor_charge <- charges |>
+            filter(donor_or_acceptor == 'acceptor') |>
+            pull(charge)
+        acceptor_weight_function <- acceptor_weight_functions |>
+            filter(reference_charge == 0) |>
+            # Add x, y, and z
+            mutate(x = i * v1[1] + j * v2[1] + k * v3[1],
+                   y = i * v1[2] + j * v2[2] + k * v3[2],
+                   z = i * v1[3] + j * v2[3] + k * v3[3]) |>
+            # Distance from origin
+            mutate(r = sqrt(x^2 + y^2 + z^2)) |>
+            # Tails are exp(l + b q r)
+            # l < 0, b < 0
+            # b is the "slope rate" (how slope on a log scale changes with
+            # charge)
+            mutate(correction_factor = 
+                   pmin(exp(acceptor_slope_rate * acceptor_charge * r), 100)) |>
+            mutate(unnormalized_weight = unnormalized_weight *
+                                         correction_factor) |>
+            select(i, j, k, unnormalized_weight)
+    }
     
     weight_functions <-
         bind_rows(acceptor = acceptor_weight_function,
