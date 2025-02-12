@@ -13,12 +13,12 @@ wolframscript atomic_numbers.wls
 # Create atomic references for Hirshfeld charge calculation
 mkdir -p single_atoms
 Rscript single_atom_simulation_table.R
-rm single_atoms/*.inp
+rm -f single_atoms/*.inp
 python make_single_atom_input_files.py
 # Simulate a single atom, for each selected element
-rm single_atoms/*.log
-rm single_atoms/*.wfn
-rm single_atoms/*_line.txt
+rm -f single_atoms/*.log
+rm -f single_atoms/*.wfn
+rm -f single_atoms/*_line.txt
 > gamess_jobs.sh
 > wavefunction_jobs.sh
 csvcut single_atom_simulations.csv -c job_id | tail +2 > job_ids.txt
