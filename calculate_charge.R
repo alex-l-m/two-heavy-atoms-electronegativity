@@ -287,6 +287,7 @@ write_csv(donor_proatom, 'donor_proatom.csv')
 # Also the sum of both
 promolecule <- density_with_weights |>
     group_by(i, j, k, x, y, z) |>
-    summarize(unnormalized_weight = sum(unnormalized_weight)) |>
+    summarize(unnormalized_weight = sum(unnormalized_weight),
+              .groups = 'drop') |>
     select(i, j, k, x, y, z, unnormalized_weight)
 write_csv(promolecule, 'promolecule.csv')
