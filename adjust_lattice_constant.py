@@ -24,7 +24,7 @@ with open(outtbl_path, 'w') as csvfile:
         'scale_number', 'scale', 'structure_file_path'])
 
 intbl = pd.read_csv('selected_structure_files_unscaled.csv')
-scales = [.9, .95, 1.05, 1.1, 1.01, 1.02, .98, .99]
+scales = []
 for row in intbl.itertuples():
     unscaled_structure_id = row.structure_id
     # Load the original structure

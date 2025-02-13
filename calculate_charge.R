@@ -21,7 +21,7 @@ charge_ref_path <- commandArgs(trailingOnly = TRUE)[10]
 # Charge to start with:
 initial_acceptor_charge <- as.double(commandArgs(trailingOnly = TRUE)[11])
 
-method <- 'hirschfeld-i'
+method <- 'hirschfeld-i-smooth'
 
 # Show more significant figures in tables, so I can see if the charges are
 # converging in the logs
