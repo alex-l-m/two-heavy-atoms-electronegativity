@@ -70,7 +70,7 @@ charges_from_integration_path = f'charges_from_integration.csv'
 # Create the file and write the header
 with open(charges_from_integration_path, 'w') as f:
     writer = csv.writer(f)
-    writer.writerow(['simulation_id', 'symbol', 'charge', 'iteration'])
+    writer.writerow(['simulation_id', 'symbol', 'charge', 'iteration', 'derivative'])
 
 with open('cp2k_jobs.sh', 'w') as f:
     for row in pd.read_csv('selected_structure_files.csv').itertuples():

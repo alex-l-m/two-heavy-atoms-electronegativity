@@ -320,7 +320,7 @@ def simulate(structure : ase.Atoms,
     with open(charges_from_integration_path, 'a') as f:
         writer = csv.writer(f)
         for row in charge_iterations_tbl.itertuples():
-            writer.writerow([simulation_id, row.symbol, row.charge, row.iteration])
+            writer.writerow([simulation_id, row.symbol, row.charge, row.iteration, row.derivative])
 
     # Do a run with a single iteration just to get an energy in the absence of
     # a field

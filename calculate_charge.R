@@ -255,8 +255,24 @@ while (!finished) {
         group_by(i, j, k) |>
         mutate(weight = unnormalized_weight / sum(unnormalized_weight))
     
-    density_with_weights <- density |>
+    density_with_weights_noderiv <- density |>
         left_join(weight_functions, by = c('i', 'j', 'k'))
+
+    # Add the "derivative density", which is the derivative of the weight
+    # function with respect to electron population
+    if (method == 'hirschfeld-i-smooth')
+    {
+        # Sum of inverse electron populations of each atom
+        total_inverse_pop <- 1/acceptor_electron_population +
+            1/donor_electron_population
+        density_with_weights <- density_with_weights_noderiv |>
+            mutate(derivative_density =
+                   total_inverse_pop * weight * (1 - weight))
+    } else {
+        # Derivative for other charge definitions to be implemented later
+        # For now, stop with an error
+        stop(glue('Derivative for method {method} not implemented'))
+    }
     
     # Integrate the total density and print it
     total_density <- density |>
@@ -274,6 +290,7 @@ while (!finished) {
         # atoms the same element, I can just use the element symbol
         group_by(symbol, donor_or_acceptor) |>
         summarize(population = sum(weight * density * dv),
+                  derivative = sum(derivative_density * density * dv),
                   .groups = 'drop') |>
         # Compute the charges by subtracting the electron population from the
         # charge after screening from the core (that is, the number of valence
