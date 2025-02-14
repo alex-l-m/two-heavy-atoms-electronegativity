@@ -27,6 +27,12 @@ method <- 'hirschfeld-i-smooth'
 # converging in the logs
 options(pillar.sigfig = 7)
 
+# Atomic numbers, used for adjustment of proatomdensities in some methods
+atomic_numbers <- read_csv('../atomic_numbers.csv', col_types = cols(
+    symbol = col_character(),
+    atomic_number = col_integer()
+))
+
 # A table mapping element symbols to donor or acceptor status
 elements <- tibble(symbol = c(donor_element, acceptor_element),
                    donor_or_acceptor = c('donor', 'acceptor'))
@@ -197,43 +203,34 @@ while (!finished) {
         donor_charge <- charges |>
             filter(donor_or_acceptor == 'donor') |>
             pull(charge)
+        donor_atomic_number <- atomic_numbers |>
+            filter(symbol == donor_element) |>
+            pull(atomic_number)
+        donor_electron_population <- donor_atomic_number - donor_charge
+        # Scaling the "y value" (the density itself, as opposed to the
+        # position, which is the input)
+        donor_scale_y <- donor_electron_population / donor_atomic_number
         donor_weight_function <- donor_weight_functions |>
             filter(reference_charge == 0) |>
-            # Add x, y, and z
-            mutate(x = i * v1[1] + j * v2[1] + k * v3[1],
-                   y = i * v1[2] + j * v2[2] + k * v3[2],
-                   z = i * v1[3] + j * v2[3] + k * v3[3]) |>
-            # Distance from origin
-            mutate(r = sqrt(x^2 + y^2 + z^2)) |>
-            # Tails are exp(l + b q r)
-            # l < 0, b < 0
-            # b is the "slope rate" (how slope on a log scale changes with
-            # charge)
-            mutate(correction_factor = 
-                   pmin(exp(donor_slope_rate * donor_charge * r), 100)) |>
-            mutate(unnormalized_weight = unnormalized_weight *
-                                         correction_factor) |>
-            select(i, j, k, unnormalized_weight)
+            # Adjust the weight function by the number of electrons in the
+            # donor
+            mutate(unnormalized_weight = unnormalized_weight * donor_scale_y)
+
         acceptor_charge <- charges |>
             filter(donor_or_acceptor == 'acceptor') |>
             pull(charge)
+        acceptor_atomic_number <- atomic_numbers |>
+            filter(symbol == acceptor_element) |>
+            pull(atomic_number)
+        acceptor_electron_population <- acceptor_atomic_number - acceptor_charge
+        # Scaling the "y value" (the density itself, as opposed to the
+        # position, which is the input)
+        acceptor_scale_y <- acceptor_electron_population / acceptor_atomic_number
         acceptor_weight_function <- acceptor_weight_functions |>
             filter(reference_charge == 0) |>
-            # Add x, y, and z
-            mutate(x = i * v1[1] + j * v2[1] + k * v3[1],
-                   y = i * v1[2] + j * v2[2] + k * v3[2],
-                   z = i * v1[3] + j * v2[3] + k * v3[3]) |>
-            # Distance from origin
-            mutate(r = sqrt(x^2 + y^2 + z^2)) |>
-            # Tails are exp(l + b q r)
-            # l < 0, b < 0
-            # b is the "slope rate" (how slope on a log scale changes with
-            # charge)
-            mutate(correction_factor = 
-                   pmin(exp(acceptor_slope_rate * acceptor_charge * r), 100)) |>
-            mutate(unnormalized_weight = unnormalized_weight *
-                                         correction_factor) |>
-            select(i, j, k, unnormalized_weight)
+            # Adjust the weight function by the number of electrons in the
+            # acceptor
+            mutate(unnormalized_weight = unnormalized_weight * acceptor_scale_y)
     }
     
     weight_functions <-
