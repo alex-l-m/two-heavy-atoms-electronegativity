@@ -388,7 +388,17 @@ first = True
 n_iterations_completed = 0
 # Create a directory to do the simulation in
 sim_working_dir = f'{structure_id}_simulation'
-os.makedirs(sim_working_dir, exist_ok = True)
+# os.makedirs(sim_working_dir, exist_ok = True)
+# Try creating the simulation working directory. If it already exists, delete
+# it and then recreate it.
+try:
+    os.mkdir(sim_working_dir)
+except FileExistsError:
+    # Recursively delete the working directory
+    shutil.rmtree(sim_working_dir)
+    # Then create it
+    os.mkdir(sim_working_dir)
+
 # Sometimes the "cation" by position in the periodic table is actually the
 # electron acceptor. I call these "reversed" materials. If it's reversed, we
 # want to actually do everything in the opposite direction.
