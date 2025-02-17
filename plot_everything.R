@@ -18,6 +18,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     charge = col_double(),
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
+    weight_function_derivative = col_double(),
     structure_id = col_character(),
     field_number = col_double(),
     field_value = col_double(),
@@ -37,6 +38,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     lagged_first_iteration_charge = col_double(),
     lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double(),
+    electronegativity_field_analytic = col_double(),
     unscaled_structure_id = col_character(),
     scale_number = col_integer(),
     scale = col_double()
@@ -55,7 +57,8 @@ everything_tbl <- charge_energy |>
         # Everything I want to plot
         charge, field_value, total_energy,
         first_iteration_charge, last_iteration_charge,
-        electronegativity_field_discrete) |>
+        electronegativity_field_discrete,
+        electronegativity_field_analytic) |>
     # Change total energy so that it's referenced to the minimum value
     group_by(symbol_cation, symbol_anion, scale_number) |>
     mutate(total_energy = total_energy - min(total_energy)) |>

@@ -37,7 +37,8 @@ charges_from_integration_all_iterations <- read_csv('charges_from_integration.cs
     simulation_id = col_character(),
     symbol = col_character(),
     charge = col_double(),
-    iteration = col_integer()
+    iteration = col_integer(),
+    derivative = col_double()
 ))
 charges_from_integration <- charges_from_integration_all_iterations |>
     # Select only the last iteration, which is the Hirshfeld-I charge
@@ -115,7 +116,11 @@ charges <- simulations |>
               by = c('simulation_id', 'symbol', 'donor_or_acceptor'),
               # This is on the level of atoms, so one-to-one
               relationship = 'one-to-one') |>
-    select(combination_id, symbol, other_symbol, donor_or_acceptor, charge, bader_charge, cp2k_hirshfeld_charge)
+    select(combination_id, symbol, other_symbol, donor_or_acceptor,
+           charge, bader_charge, cp2k_hirshfeld_charge, derivative) |>
+    # Rename the derivative column, because I use that name later on when
+    # computing the derivative of energy with respect to charge
+    rename(weight_function_derivative = derivative)
 
 # Make the table of charges and energies
 charge_energy <- charges |>
@@ -206,6 +211,13 @@ charge_energy_electronegativity <- charge_energy_annotated |>
            field_value * TO_EV * correction_factor_contribution) |>
     # Actually I don't need the "correction factor contribution" anymore since
     # I'm not summing across atoms
-    select(-correction_factor_contribution)
+    select(-correction_factor_contribution) |>
+    # Analytic formula. The "weight_function_derivative" column is actually the
+    # expectation value of the derivative of the weight function with respect
+    # to the electron population, <dwk/dNk>. Then the correction factor is
+    # 1-<dwk/dNk>. No need to multiply by two, because these electronegativity
+    # values are not summed across atoms
+    mutate(electronegativity_field_analytic =
+           field_value * TO_EV * (1 - weight_function_derivative))
 
 write_csv(charge_energy_electronegativity, 'charge_energy.csv.gz')

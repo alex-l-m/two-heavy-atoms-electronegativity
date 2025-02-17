@@ -56,6 +56,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     charge = col_double(),
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
+    weight_function_derivative = col_double(),
     structure_id = col_character(),
     field_number = col_integer(),
     field_value = col_double(),
@@ -75,6 +76,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     lagged_first_iteration_charge = col_double(),
     lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double(),
+    electronegativity_field_analytic = col_double(),
     unscaled_structure_id = col_character(),
     scale_number = col_integer(),
     scale = col_double()
@@ -216,10 +218,25 @@ for (category_structure_pair in category_structure_pairs)
         acceptor_charge_label +
         this_theme
     ggsave(glue('{category_structure_pair}_energy_derivatives_zoomed.png'), energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+    # Verify the analytic and discrete electronegativities come out the same
+    electronegativity_differentiation_check <- charge_energy |>
+        filter(donor_or_acceptor == 'acceptor') |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        ggplot(aes(x = electronegativity_field_discrete, y = electronegativity_field_analytic)) +
+        facet_wrap(vars(formula), ncol = 3) +
+        geom_abline(intercept = 0, slope = 1, linetype = 'dashed') +
+        geom_point() +
+        xlab('Discrete electronegativity') +
+        ylab('Analytic electronegativity') +
+        this_theme
+    ggsave(glue('{category_structure_pair}_differentiation_check.png'),
+           electronegativity_differentiation_check,
+           width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     
     electronegativity_difference_from_field <- charge_energy |>
-        select(combination_id, field_number, donor_or_acceptor, electronegativity_field_discrete) |>
-        pivot_wider(names_from = donor_or_acceptor, values_from = electronegativity_field_discrete) |>
+        select(combination_id, field_number, donor_or_acceptor, electronegativity_field_analytic) |>
+        pivot_wider(names_from = donor_or_acceptor, values_from = electronegativity_field_analytic) |>
         group_by(combination_id, field_number) |>
         transmute(electronegativity_difference_from_field = acceptor + donor) |>
         ungroup()
