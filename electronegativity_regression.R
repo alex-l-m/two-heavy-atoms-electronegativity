@@ -261,6 +261,6 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dotted') +
         geom_line() +
         xlab('Charge of acceptor group') +
-        ylab('Δpotential (V)')
+        ylab('Δelectronegativity (V)')
     ggsave(glue('{category_structure_pair}_hardness_regression_plot.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
 }
