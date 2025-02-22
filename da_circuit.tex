@@ -1,0 +1,39 @@
+\documentclass[tikz,border=5pt]{standalone}
+\usepackage{circuitikz}
+
+\begin{document}
+\begin{tikzpicture}[font=\small]
+
+  % Define an "atom" style
+  \tikzset{atom/.style={
+    circle, draw, minimum size=1cm, inner sep=0pt
+  }}
+
+  % 1) Place the atoms
+  \node[atom] (D) at (0,0) {D};
+  \node[atom] (A) at (4,0) {A};
+
+  % 2) Quantum capacitor between the atoms
+  \draw (D) to [C] (A);
+
+  % 3) Battery in the middle, horizontally from (1,-2) to (3,-2).
+  %    By default, short line is on the right (negative).
+  \coordinate (BatLeft)  at (1,-2);
+  \coordinate (BatRight) at (3,-2);
+
+  \draw (BatLeft)
+    to [battery1, l_=$\lambda$, name=Bat] (BatRight);
+
+  % Explicit + and - above the battery terminals
+  \node[above] at (BatLeft)  {$+$};
+  \node[above] at (BatRight) {$-$};
+
+  % 4) Connect Donor -> left battery node
+  %    L-shaped wire: go vertically down to y=-2, then horizontally to (BatLeft).
+  \draw (D) |- (BatLeft);
+
+  % 5) Connect Acceptor -> right battery node
+  \draw (A) |- (BatRight);
+
+\end{tikzpicture}
+\end{document}
