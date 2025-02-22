@@ -11,3 +11,6 @@ PDFFILE=$IMGBASE.pdf
 # Convert pdf to png with Poppler
 PNGFILE=$IMGBASE.png
 pdftoppm -png -r 300 $PDFFILE > $PNGFILE
+
+# Assemble figures into a patchwork
+Rscript figures.R

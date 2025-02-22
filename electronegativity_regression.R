@@ -214,9 +214,12 @@ for (category_structure_pair in category_structure_pairs)
         ylab('Regression electronegativity (V)') +
         xlab('Pauling electronegativity')
     
-    ggsave(glue('{category_structure_pair}_electronegativity_comparison_plot.png'),
+    electronegativity_comparison_base <- glue('{category_structure_pair}_electronegativity_comparison_plot')
+    ggsave(glue('{electronegativity_comparison_base}.png'),
            electronegativity_comparison_plot,
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
+    write_rds(electronegativity_comparison_plot,
+             glue('{electronegativity_comparison_base}.rds'))
     
     regression_plot_table <- hardness_terms |>
         mutate(
@@ -262,5 +265,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_line() +
         xlab('Charge of acceptor group') +
         ylab('Δelectronegativity (V)')
-    ggsave(glue('{category_structure_pair}_hardness_regression_plot.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
+    hardness_regression_base <- glue('{category_structure_pair}_hardness_regression_plot')
+    ggsave(glue('{hardness_regression_base}.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
+    write_rds(hardness_regression_plot, glue('{hardness_regression_base}.rds'))
 }
