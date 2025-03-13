@@ -12,7 +12,7 @@ TO_EV <- 27.211386246
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
     symbol = col_character(),
-    atomic_number = col_double()
+    atomic_number = col_integer()
 ))
 
 # Smoothed energies and derivatives
@@ -56,8 +56,9 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     charge = col_double(),
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
+    weight_function_derivative = col_double(),
     structure_id = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double(),
     cdft = col_logical(),
@@ -75,6 +76,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     lagged_first_iteration_charge = col_double(),
     lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double(),
+    electronegativity_field_analytic = col_double(),
     unscaled_structure_id = col_character(),
     scale_number = col_integer(),
     scale = col_double()
@@ -94,7 +96,7 @@ energy_derivatives <- read_csv('energy_derivatives.csv.gz', col_types = cols(
     symbol_cation = col_character(),
     formula = col_character(),
     cdft = col_logical(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double()
 ))
@@ -216,10 +218,25 @@ for (category_structure_pair in category_structure_pairs)
         acceptor_charge_label +
         this_theme
     ggsave(glue('{category_structure_pair}_energy_derivatives_zoomed.png'), energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+    # Verify the analytic and discrete electronegativities come out the same
+    electronegativity_differentiation_check <- charge_energy |>
+        filter(donor_or_acceptor == 'acceptor') |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        ggplot(aes(x = electronegativity_field_discrete, y = electronegativity_field_analytic)) +
+        facet_wrap(vars(formula), ncol = 3) +
+        geom_abline(intercept = 0, slope = 1, linetype = 'dashed') +
+        geom_point() +
+        xlab('Discrete electronegativity') +
+        ylab('Analytic electronegativity') +
+        this_theme
+    ggsave(glue('{category_structure_pair}_differentiation_check.png'),
+           electronegativity_differentiation_check,
+           width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     
     electronegativity_difference_from_field <- charge_energy |>
-        select(combination_id, field_number, donor_or_acceptor, electronegativity_field_discrete) |>
-        pivot_wider(names_from = donor_or_acceptor, values_from = electronegativity_field_discrete) |>
+        select(combination_id, field_number, donor_or_acceptor, electronegativity_field_analytic) |>
+        pivot_wider(names_from = donor_or_acceptor, values_from = electronegativity_field_analytic) |>
         group_by(combination_id, field_number) |>
         transmute(electronegativity_difference_from_field = acceptor + donor) |>
         ungroup()
@@ -247,6 +264,46 @@ for (category_structure_pair in category_structure_pairs)
         acceptor_charge_label +
         this_theme
     ggsave(glue('{category_structure_pair}_lam_comparison.png'), lam_plot,
+           width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+    # Make a plot like the lam comparison plot but instead of comparing lam to
+    # derivative, show just derivative, but with various kinds of charge
+    charge_comparison_tbl <- energy_derivatives |>
+        inner_join(select(charge_energy,
+                         # Identify the simulation
+                         combination_id, scale_number,
+                         # Identify the atom
+                         donor_or_acceptor,
+                         # The charge columns that I want
+                         cp2k_hirshfeld_charge, bader_charge),
+                  by = c('combination_id', 'scale_number', 'donor_or_acceptor'),
+                  relationship = 'one-to-one') |>
+        rename(electronegativity = total_energy) |>
+        select(combination_id, scale_number,
+               category, crystal_structure, formula,
+               donor_or_acceptor, symbol, other_symbol,
+               electronegativity,
+               charge, cp2k_hirshfeld_charge, bader_charge) |>
+        # Pivot to create a single charge column so that I can compare kinds of
+        # charge
+        pivot_longer(c(charge, cp2k_hirshfeld_charge, bader_charge), names_to = 'charge_definition', values_to = 'charge') |>
+        filter(donor_or_acceptor == 'acceptor')
+    charge_comparison_plot <- charge_comparison_tbl |>
+        mutate(formula = factor(formula, levels = formula_order)) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        ggplot(aes(x = charge, y = electronegativity, color = charge_definition)) +
+        facet_wrap(~ formula, ncol = 3) +
+        # Put a vertical line to indicate 0
+        geom_vline(xintercept = 0, linetype = 'dashed') +
+        # Put a horizontal line to indicate zero
+        geom_hline(yintercept = 0, linetype = 'dashed')+
+        ylab('dE/dq (V)') +
+        # Remove the title from the legend
+        guides(color = guide_legend(title = NULL)) +
+        geom_line() +
+        acceptor_charge_label +
+        this_theme
+    ggsave(glue('{category_structure_pair}_charge_comparison_electronegativity.png'), charge_comparison_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     
     # Fit lines to the lambda values, from the x axis and y axis

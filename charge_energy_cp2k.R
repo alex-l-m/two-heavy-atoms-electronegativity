@@ -9,12 +9,24 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     structure_id = col_character(),
     cation = col_character(),
     anion = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     log_file_path = col_character(),
     cube_file_path = col_character(),
     pot_file_path = col_character(),
-    hartree_pot_path = col_character()
+    hartree_pot_path = col_character(),
+    acceptor_proatom_path = col_character(),
+    donor_proatom_path = col_character(),
+    promolecule_path = col_character()
+))
+
+# Read table of energies parsed from the log files
+energies <- read_csv('energies.csv.gz', col_types = cols(
+    combination_id = col_character(),
+    structure_id = col_character(),
+    field_number = col_integer(),
+    field_value = col_double(),
+    total_energy = col_double()
 ))
 
 # Reading the Hirshfeld-I charges that I calculated by integrating against the
@@ -25,7 +37,8 @@ charges_from_integration_all_iterations <- read_csv('charges_from_integration.cs
     simulation_id = col_character(),
     symbol = col_character(),
     charge = col_double(),
-    iteration = col_integer()
+    iteration = col_integer(),
+    derivative = col_double()
 ))
 charges_from_integration <- charges_from_integration_all_iterations |>
     # Select only the last iteration, which is the Hirshfeld-I charge
@@ -68,25 +81,6 @@ cp2k_hirshfeld_charges <- read_csv('cp2k_hirshfeld_charges.csv.gz', col_types = 
 )) |>
     rename(cp2k_hirshfeld_charge = charge)
 
-# Function for extracting the first-iteration energy from a log file
-# I don't like that I have to change this whenever I change the update method
-energy_line_regex <- ' *1 +P_Mix/Diag. +[0-9.E+-]+ +[0-9.E+-]+ +[0-9.E+-]+ +([0-9.E+-]+) +[0-9.E+-]+'
-extract_first_energy <- function(inpath)
-{
-    # Check if the file exists
-    if (!file.exists(inpath))
-    {
-        return(NA)
-    }
-    intext <- read_file(inpath)
-    
-    first_energy_str <- str_match(intext, energy_line_regex)[1,2]
-    first_energy_au <- as.numeric(first_energy_str)
-    first_energy <- first_energy_au * TO_EV
-
-    return(first_energy)
-}
-
 # Get the charges from the simulations with a field applied
 charges <- simulations |>
     # Filter should be redundant since charges should only be calculated with
@@ -122,19 +116,11 @@ charges <- simulations |>
               by = c('simulation_id', 'symbol', 'donor_or_acceptor'),
               # This is on the level of atoms, so one-to-one
               relationship = 'one-to-one') |>
-    select(combination_id, symbol, other_symbol, donor_or_acceptor, charge, bader_charge, cp2k_hirshfeld_charge)
-
-# Get the initial energies from each log file
-initial_energies <- simulations |>
-    mutate(total_energy = map_dbl(log_file_path, extract_first_energy))
-# The energy I'm interested in is the energy with no field applied
-# Get the no field energy and assign a combination idea
-energies <- initial_energies |>
-    filter(potential == 'nuclei') |>
-    mutate(combination_id = glue('{structure_id}_F{field_number}')) |>
-    # This is also where I will keep the simulation annotations that should
-    # depend only on the combination
-    select(combination_id, structure_id, field_number, field_value, total_energy)
+    select(combination_id, symbol, other_symbol, donor_or_acceptor,
+           charge, bader_charge, cp2k_hirshfeld_charge, derivative) |>
+    # Rename the derivative column, because I use that name later on when
+    # computing the derivative of energy with respect to charge
+    rename(weight_function_derivative = derivative)
 
 # Make the table of charges and energies
 charge_energy <- charges |>
@@ -225,6 +211,13 @@ charge_energy_electronegativity <- charge_energy_annotated |>
            field_value * TO_EV * correction_factor_contribution) |>
     # Actually I don't need the "correction factor contribution" anymore since
     # I'm not summing across atoms
-    select(-correction_factor_contribution)
+    select(-correction_factor_contribution) |>
+    # Analytic formula. The "weight_function_derivative" column is actually the
+    # expectation value of the derivative of the weight function with respect
+    # to the electron population, <dwk/dNk>. Then the correction factor is
+    # 1-<dwk/dNk>. No need to multiply by two, because these electronegativity
+    # values are not summed across atoms
+    mutate(electronegativity_field_analytic =
+           field_value * TO_EV * (1 - weight_function_derivative))
 
 write_csv(charge_energy_electronegativity, 'charge_energy.csv.gz')

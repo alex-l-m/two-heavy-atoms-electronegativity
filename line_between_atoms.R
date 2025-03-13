@@ -1,7 +1,8 @@
-# Take a slice of a density that passes through both atoms
+# Sample density along a line that passes through both atoms
 
 library(tidyverse)
 library(glue)
+library(parallel)
 
 simulations <- read_csv('simulations.csv', col_types = cols(
     simulation_id = col_character(),
@@ -20,37 +21,14 @@ simulations <- read_csv('simulations.csv', col_types = cols(
     promolecule_path = col_character()
 ))
 
-# Other tables of cube files
-density_derivatives <- read_csv('density_derivatives.csv', col_types = cols(
-    simulation_id = col_character(),
-    density_derivatives_path = col_character()
-))
-dhartree <- read_csv('dhartree.csv', col_types = cols(
-    simulation_id = col_character(),
-    dhartree_path = col_character()
-))
-dhartree_grad <- read_csv('dhartree_grad.csv', col_types = cols(
-    simulation_id = col_character(),
-    dhartree_grad_x = col_character(),
-    dhartree_grad_y = col_character(),
-    dhartree_grad_z = col_character()
-))
-
 all_cube_files <- simulations |>
     # Only include simulations with the field
     filter(potential == 'field') |>
     # Select only the columns I'm going to use later, as well as all the cube
     # file path columns
-    # This includes the field number, which is going to be necessary for
-    # ordering the animation
-    # Also the structure id, which is going to be used for grouping the images
-    # into animations
     select(simulation_id, field_number, structure_id,
-           cube_file_path, pot_file_path, hartree_pot_path) |>
-    # Join with the other tables containing cube file paths
-    left_join(density_derivatives, by = 'simulation_id') |>
-    left_join(dhartree, by = 'simulation_id') |>
-    left_join(dhartree_grad, by = 'simulation_id') |>
+           cube_file_path,
+           acceptor_proatom_path, donor_proatom_path) |>
     # Pivot so there's one cube file path per row
     pivot_longer(cols = -c(simulation_id, field_number, structure_id),
                  names_to = 'cube_file_type', values_to = 'cube_file_path') |>
@@ -60,21 +38,33 @@ all_cube_files <- simulations |>
     # Make a "cube id" column combining simulation id and cube file type
     mutate(cube_id = glue('{simulation_id}_{cube_file_type}'))
 
+
 # Convert the simulation table to a list of rows
 inrows <- split(all_cube_files, seq(nrow(all_cube_files)))
+names(inrows) <- sapply(inrows, function(x) x$cube_id)
 
-# Empty list of tables containing slices
-slice_list <- list()
-
-# Loop over the rows of the simulation table
-for (row in inrows)
+# Function to map a row of the simulation table to an element of the slice list
+sample_slice <- function(row)
 {
+    # Create a unique prefix for the temporary files, using the cube id, and
+    # also a string of random characters just in case I forgot something
+    random_chars <- paste(sample(letters, 10), collapse = '')
+    prefix <- glue('{row$cube_id}_{random_chars}')
+
     # Run the python script to convert the cube file into csv files
     # cube2csv.py
-    system(glue('python cube2csv.py {row$cube_file_path}'))
+    system(glue('python cube2csv.py {row$cube_file_path} {prefix}'))
+
+    # Paths to the output files
+    atoms_path <- glue('{prefix}_atoms.csv')
+    unit_cell_path = glue('{prefix}_unit_cell.csv')
+    density_path <- glue('{prefix}_density.csv')
+    coordinate_system_path = glue('{prefix}_coordinate_system.csv')
+    temporary_file_paths <- c(atoms_path, unit_cell_path, density_path,
+                              coordinate_system_path)
 
     # Table of nuclear positions for each atom
-    atoms <- read_csv('atoms.csv', col_types = cols(
+    atoms <- read_csv(atoms_path, col_types = cols(
         atom_id = col_double(),
         symbol = col_character(),
         x = col_double(),
@@ -86,13 +76,13 @@ for (row in inrows)
     center_atom <- atoms |>
         filter(abs(x) > 1e-5, abs(y) > 1e-5, abs(z) > 1e-5)
     
-    # I think that we need a basis which is just the elementary vectors for x and
-    # y, but with a z component equal to z / (x + y) for the center atom
-    # Calling that z component "s":
-    s <- with(center_atom, z / (x + y))
+    # Unit vector pointing along the line between the atoms
+    # Since one of the atoms is at the origin, this is just the position of the
+    # center atom, normalized
+    u <- with(center_atom, c(x, y, z) / sqrt(x^2 + y^2 + z^2))
     
     # Table of electron density at each voxel
-    density <- read_csv('density.csv', col_types = cols(
+    density <- read_csv(density_path, col_types = cols(
         i = col_integer(),
         j = col_integer(),
         k = col_integer(),
@@ -102,27 +92,35 @@ for (row in inrows)
         density = col_double()
     ))
     
-    # Filter for points on the plane by selecting, for each i and j, the k that is
-    # closest to the plane
+    # Filter for points on the line by selecting, for each i, the point that's
+    # closest to the line
     this_slice <- density |>
-        group_by(i, j) |>
+        group_by(i) |>
         mutate(
-            distance = abs(z - s * (x + y)),
-            min_distance = min(distance),
-            closest = distance == min_distance
+            squarednorm = x^2 + y^2 + z^2,
+            projection_squarednorm = (x * u[1] + y * u[2] + z * u[3])^2,
+            squared_distance = squarednorm - projection_squarednorm,
+            min_squared_distance = min(squared_distance),
+            closest = squared_distance == min_squared_distance
         ) |>
         filter(closest) |>
-        select(-distance, -min_distance, -closest) |>
+        select(-squared_distance, -min_squared_distance, -closest) |>
         ungroup()
 
-    # Add to the list
-    slice_list[[row$cube_id]] <- this_slice
+    # Delete the temporary files
+    file.remove(temporary_file_paths)
+
+    return(this_slice)
 }
+
+# List of tables containing slices
+slice_list <- mclapply(inrows, sample_slice)
 
 # Combine the slice tables into a single table
 slice_tbl <- bind_rows(slice_list, .id = 'cube_id') |>
     # Join with the original table of cube files so I have metadata
-    left_join(all_cube_files, by = 'cube_id', relationship = 'many-to-one')
+    left_join(all_cube_files, by = 'cube_id',
+              relationship = 'many-to-one')
 
 # Write the slice table to a CSV file
-write_csv(slice_tbl, 'slices.csv.gz')
+write_csv(slice_tbl, 'lines.csv.gz')

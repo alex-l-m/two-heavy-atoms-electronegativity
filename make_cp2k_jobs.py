@@ -33,6 +33,23 @@ try:
 except FileExistsError:
     pass
 
+# Directories for the proatoms and promolecule density cube files
+acceptor_proatom_dir_path = 'acceptor_proatom_cube'
+try:
+    mkdir(acceptor_proatom_dir_path)
+except FileExistsError:
+    pass
+donor_proatom_dir_path = 'donor_proatom_cube'
+try:
+    mkdir(donor_proatom_dir_path)
+except FileExistsError:
+    pass
+promolecule_dir_path = 'promolecule_cube'
+try:
+    mkdir(promolecule_dir_path)
+except FileExistsError:
+    pass
+
 # Path to simulation table to output
 sim_tbl_path = 'simulations.csv'
 # Column names for the simulation table
@@ -40,7 +57,9 @@ sim_tbl_header = ['simulation_id', 'potential',
                   'structure_id', 'cation', 'anion',
                   'field_number', 'field_value',
                   'log_file_path', 'cube_file_path', 'pot_file_path',
-                  'hartree_pot_path']
+                  'hartree_pot_path',
+                  'acceptor_proatom_path', 'donor_proatom_path',
+                  'promolecule_path']
 # Create (or overwrite) the simulation table and write the header
 with open(sim_tbl_path, 'w') as f:
     writer = csv.writer(f)
@@ -51,7 +70,7 @@ charges_from_integration_path = f'charges_from_integration.csv'
 # Create the file and write the header
 with open(charges_from_integration_path, 'w') as f:
     writer = csv.writer(f)
-    writer.writerow(['simulation_id', 'symbol', 'charge', 'iteration'])
+    writer.writerow(['simulation_id', 'symbol', 'charge', 'iteration', 'derivative'])
 
 with open('cp2k_jobs.sh', 'w') as f:
     for row in pd.read_csv('selected_structure_files.csv').itertuples():

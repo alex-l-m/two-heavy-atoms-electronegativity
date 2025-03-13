@@ -7,11 +7,24 @@ from ase.units import Bohr
 # Path to input file
 cube_path = sys.argv[1]
 
+# Optional argument: prefix to add to the paths
+# I use this to parallelize the cube analysis
+try:
+    prefix = sys.argv[2]
+except IndexError:
+    prefix = None
+
 # Paths to output files
-atoms_path = 'atoms.csv'
-unit_cell_path = 'unit_cell.csv'
-density_path = 'density.csv'
-coordinate_system_path = 'coordinate_system.csv'
+if prefix is None:
+    atoms_path = 'atoms.csv'
+    unit_cell_path = 'unit_cell.csv'
+    density_path = 'density.csv'
+    coordinate_system_path = 'coordinate_system.csv'
+else:
+    atoms_path = f'{prefix}_atoms.csv'
+    unit_cell_path = f'{prefix}_unit_cell.csv'
+    density_path = f'{prefix}_density.csv'
+    coordinate_system_path = f'{prefix}_coordinate_system.csv'
 
 # Dictionary containing information from the cube file
 cube = read_cube(open(cube_path))

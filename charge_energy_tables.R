@@ -59,7 +59,7 @@ coordinates <- read_csv('coordinates.csv.gz', col_types = cols(
 simulation_table <- read_csv('simulations.csv.gz', col_types = cols(
     combination_id = col_character(),
     formula = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     molecule_charge = col_integer()
 ))
@@ -120,7 +120,7 @@ bader_charge_atom <- one_tbl |>
 # Becke charge of each atom
 becke_charge_atom <- read_csv('raw_becke_populations.csv.gz', col_types = cols(
     combination_id = col_character(),
-    atom_number = col_double(),
+    atom_number = col_integer(),
     symbol = col_character(),
     excess_electrons = col_double(),
     population = col_double(),

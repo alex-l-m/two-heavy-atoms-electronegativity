@@ -21,14 +21,21 @@ charge_ref_path <- commandArgs(trailingOnly = TRUE)[10]
 # Charge to start with:
 initial_acceptor_charge <- as.double(commandArgs(trailingOnly = TRUE)[11])
 
+method <- 'hirschfeld-i-smooth'
+
 # Show more significant figures in tables, so I can see if the charges are
 # converging in the logs
 options(pillar.sigfig = 7)
 
+# Atomic numbers, used for adjustment of proatomdensities in some methods
+atomic_numbers <- read_csv('../atomic_numbers.csv', col_types = cols(
+    symbol = col_character(),
+    atomic_number = col_integer()
+))
+
 # A table mapping element symbols to donor or acceptor status
 elements <- tibble(symbol = c(donor_element, acceptor_element),
                    donor_or_acceptor = c('donor', 'acceptor'))
-
 
 charge_ref <- read_csv(charge_ref_path, col_types = cols(
     symbol = col_character(),
@@ -163,6 +170,15 @@ while (!finished) {
                 reference_contribution = c(1 - fractional_part, fractional_part)
             )
         })
+    if (method == 'hirschfeld')
+    {
+        donor_weight_function <- donor_weight_functions |>
+            filter(reference_charge == 0)
+        acceptor_weight_function <- acceptor_weight_functions |>
+            filter(reference_charge == 0)
+            
+    } else if (method == 'hirschfeld-i')
+    {
     # Average the integer charge weight functions to get matched charge weight
     # functions
     donor_weight_function <- fraction_contributions |>
@@ -182,6 +198,40 @@ while (!finished) {
         group_by(i, j, k) |>
         summarize(unnormalized_weight = sum(contribution_at_point),
                   .groups = 'drop')
+    } else if (method == 'hirschfeld-i-smooth')
+    {
+        donor_charge <- charges |>
+            filter(donor_or_acceptor == 'donor') |>
+            pull(charge)
+        donor_atomic_number <- atomic_numbers |>
+            filter(symbol == donor_element) |>
+            pull(atomic_number)
+        donor_electron_population <- donor_atomic_number - donor_charge
+        # Scaling the "y value" (the density itself, as opposed to the
+        # position, which is the input)
+        donor_scale_y <- donor_electron_population / donor_atomic_number
+        donor_weight_function <- donor_weight_functions |>
+            filter(reference_charge == 0) |>
+            # Adjust the weight function by the number of electrons in the
+            # donor
+            mutate(unnormalized_weight = unnormalized_weight * donor_scale_y)
+
+        acceptor_charge <- charges |>
+            filter(donor_or_acceptor == 'acceptor') |>
+            pull(charge)
+        acceptor_atomic_number <- atomic_numbers |>
+            filter(symbol == acceptor_element) |>
+            pull(atomic_number)
+        acceptor_electron_population <- acceptor_atomic_number - acceptor_charge
+        # Scaling the "y value" (the density itself, as opposed to the
+        # position, which is the input)
+        acceptor_scale_y <- acceptor_electron_population / acceptor_atomic_number
+        acceptor_weight_function <- acceptor_weight_functions |>
+            filter(reference_charge == 0) |>
+            # Adjust the weight function by the number of electrons in the
+            # acceptor
+            mutate(unnormalized_weight = unnormalized_weight * acceptor_scale_y)
+    }
     
     weight_functions <-
         bind_rows(acceptor = acceptor_weight_function,
@@ -205,8 +255,24 @@ while (!finished) {
         group_by(i, j, k) |>
         mutate(weight = unnormalized_weight / sum(unnormalized_weight))
     
-    density_with_weights <- density |>
+    density_with_weights_noderiv <- density |>
         left_join(weight_functions, by = c('i', 'j', 'k'))
+
+    # Add the "derivative density", which is the derivative of the weight
+    # function with respect to electron population
+    if (method == 'hirschfeld-i-smooth')
+    {
+        # Sum of inverse electron populations of each atom
+        total_inverse_pop <- 1/acceptor_electron_population +
+            1/donor_electron_population
+        density_with_weights <- density_with_weights_noderiv |>
+            mutate(derivative_density =
+                   total_inverse_pop * weight * (1 - weight))
+    } else {
+        # Derivative for other charge definitions to be implemented later
+        # For now, stop with an error
+        stop(glue('Derivative for method {method} not implemented'))
+    }
     
     # Integrate the total density and print it
     total_density <- density |>
@@ -224,6 +290,7 @@ while (!finished) {
         # atoms the same element, I can just use the element symbol
         group_by(symbol, donor_or_acceptor) |>
         summarize(population = sum(weight * density * dv),
+                  derivative = sum(derivative_density * density * dv),
                   .groups = 'drop') |>
         # Compute the charges by subtracting the electron population from the
         # charge after screening from the core (that is, the number of valence
@@ -272,3 +339,22 @@ write_csv(potential, potential_path)
 
 # Also write the density with weights for plotting purposes
 write_csv(density_with_weights, density_with_weights_path)
+
+# Make a table of the acceptor pro-atom, that is, the unnormalized weight of
+# the acceptor atom
+acceptor_proatom <- density_with_weights |>
+    filter(donor_or_acceptor == 'acceptor') |>
+    select(i, j, k, x, y, z, unnormalized_weight)
+write_csv(acceptor_proatom, 'acceptor_proatom.csv')
+# Also donor pro-atom
+donor_proatom <- density_with_weights |>
+    filter(donor_or_acceptor == 'donor') |>
+    select(i, j, k, x, y, z, unnormalized_weight)
+write_csv(donor_proatom, 'donor_proatom.csv')
+# Also the sum of both
+promolecule <- density_with_weights |>
+    group_by(i, j, k, x, y, z) |>
+    summarize(unnormalized_weight = sum(unnormalized_weight),
+              .groups = 'drop') |>
+    select(i, j, k, x, y, z, unnormalized_weight)
+write_csv(promolecule, 'promolecule.csv')

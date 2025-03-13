@@ -1,3 +1,7 @@
+module load NiaEnv/2022a
+module load gcc/11.3.0 openmpi/4.1.4+ucx-1.11.2
+module load cp2k/2024.2
+module load r
 # Run CP2K
 Rscript make_structure_file_table.R
 Rscript make_element_pairs.R

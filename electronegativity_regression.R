@@ -9,7 +9,7 @@ library(ggrepel)
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
     symbol = col_character(),
-    atomic_number = col_double()
+    atomic_number = col_integer()
 ))
 
 pauling_electronegativity <- read_csv('pauling_electronegativity.csv', col_types = cols(
@@ -25,8 +25,9 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     charge = col_double(),
     bader_charge = col_double(),
     cp2k_hirshfeld_charge = col_double(),
+    weight_function_derivative = col_double(),
     structure_id = col_character(),
-    field_number = col_double(),
+    field_number = col_integer(),
     field_value = col_double(),
     total_energy = col_double(),
     cdft = col_logical(),
@@ -44,6 +45,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     lagged_first_iteration_charge = col_double(),
     lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double(),
+    electronegativity_field_analytic = col_double(),
     unscaled_structure_id = col_character(),
     scale_number = col_integer(),
     scale = col_double()
@@ -104,38 +106,35 @@ for (category_structure_pair in category_structure_pairs)
         left_join(atomic_numbers, by = 'symbol') |>
         group_by(donor_or_acceptor) |>
         filter(atomic_number == min(atomic_number)) |>
-        distinct(formula) |>
-        # Also add a scale number that I'm going to use as a reference. Only
-        # the interaction terms with that scale number need to be removed
-        mutate(scale_number = 1)
+        distinct(formula)
     write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
 
     electronegativity_terms <- cdft_charges |>
+        # Remove electronegativity of an arbitrary element to use it as a
+        # reference
+        filter(symbol != reference_element) |>
         # Electronegativity terms correspond to an element
         # Also make them dependent on scale
         mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
-        select(combination_id, category, variable_contribution) |>
-        # Remove electronegativity of an arbitrary element to use it as a
-        # reference
-        filter(category != reference_element)
+        select(combination_id, category, variable_contribution)
     
     hardness_terms <- cdft_charges |>
-        # Same as electronegativity: each term corresponds to an element, also
-        # dependent on scale
-        mutate(category = glue('{symbol}_S{scale_number}'),
-               variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
-                                              1, -1) * charge) |>
-        select(combination_id, category, variable_contribution) |>
-        # Remove hardness of an arbitrary element to use it as a
+        # Remove electronegativity of an arbitrary element to use it as a
         # reference
         # This is harder to explain, but since all that matters is total
         # hardness, and there's always a cation and an anion, you can "move"
         # hardness from all cations to all anions without changing any of the
         # totals. So we decide in advance how much to "move": whatever makes
         # the hardness of the reference element zero
-        filter(category != reference_element)
+        filter(symbol != reference_element) |>
+        # Same as electronegativity: each term corresponds to an element, also
+        # dependent on scale
+        mutate(category = glue('{symbol}_S{scale_number}'),
+               variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
+                                              1, -1) * charge) |>
+        select(combination_id, category, variable_contribution)
     
     interaction_terms <- cdft_charges |>
         # There's linear constraint on the interaction terms as well. Every
@@ -144,10 +143,7 @@ for (category_structure_pair in category_structure_pairs)
         # realized in practice. So you could just consider the smallest
         # interaction term to be zero, and the hardness to be the highest
         # achievable hardness
-        # I think this only needs to be done for one scale though, so the table
-        # actually also contains scale numbers, even though I haven't updated
-        # the name from "reference formulas"
-        anti_join(reference_formulas, by = c('formula', 'scale_number')) |>
+        anti_join(reference_formulas, by = 'formula') |>
         mutate(category = glue('{formula}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
@@ -218,9 +214,12 @@ for (category_structure_pair in category_structure_pairs)
         ylab('Regression electronegativity (V)') +
         xlab('Pauling electronegativity')
     
-    ggsave(glue('{category_structure_pair}_electronegativity_comparison_plot.png'),
+    electronegativity_comparison_base <- glue('{category_structure_pair}_electronegativity_comparison_plot')
+    ggsave(glue('{electronegativity_comparison_base}.png'),
            electronegativity_comparison_plot,
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
+    write_rds(electronegativity_comparison_plot,
+             glue('{electronegativity_comparison_base}.rds'))
     
     regression_plot_table <- hardness_terms |>
         mutate(
@@ -265,6 +264,8 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dotted') +
         geom_line() +
         xlab('Charge of acceptor group') +
-        ylab('Δpotential (V)')
-    ggsave(glue('{category_structure_pair}_hardness_regression_plot.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
+        ylab('Δelectronegativity (V)')
+    hardness_regression_base <- glue('{category_structure_pair}_hardness_regression_plot')
+    ggsave(glue('{hardness_regression_base}.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
+    write_rds(hardness_regression_plot, glue('{hardness_regression_base}.rds'))
 }

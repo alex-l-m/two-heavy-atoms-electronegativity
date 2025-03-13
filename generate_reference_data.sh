@@ -13,8 +13,12 @@ wolframscript atomic_numbers.wls
 # Create atomic references for Hirshfeld charge calculation
 mkdir -p single_atoms
 Rscript single_atom_simulation_table.R
+rm -f single_atoms/*.inp
 python make_single_atom_input_files.py
 # Simulate a single atom, for each selected element
+rm -f single_atoms/*.log
+rm -f single_atoms/*.wfn
+rm -f single_atoms/*_line.txt
 > gamess_jobs.sh
 > wavefunction_jobs.sh
 csvcut single_atom_simulations.csv -c job_id | tail +2 > job_ids.txt
@@ -33,3 +37,6 @@ parallel --jobs $NPROC < gamess_jobs.sh
 # include two commands per wavefunction, they can't be parallelized, I would
 # have to separate into two shell scripts
 sh wavefunction_jobs.sh
+# Make plots of the reference atoms
+python sample_single_atom_lines.py
+Rscript plot_single_atom_lines.R
