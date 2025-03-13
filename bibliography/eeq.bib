@@ -68,32 +68,6 @@ annotate="IQA studies of lithium hydride, and of a series basically identical to
   abstract={The bond critical point model is used to calculate the electronegativities of over 100 groups from ab initio wave functions. The data show that the electronegativity of a group is largely determined by the connecting atom: atoms that are one bond or more removed have very little effect on the electronegativity of a group. The small effect of atoms one bond or more removed, however, is consistent with qualitative predictions: the higher the electronegativity of B for a given A, the greater the electronegativity of group -AB. Two other trends of note are, firstly, that increasing unsaturation in the vicinal bond increases electronegativity and, secondly, that protonation increases electronegativity of a group while deprotonation decreases it.},
   annotate={Tests electronegativity of a group by how it withdraws electrons from hydrogen. So a methyl group will be tested by simulating methane. The bond critical point is the minimum of electron density along the bond path, so for a more electronegative group it should be closer to hydrogen. Formula 3 seems to say the opposite: electronegativity is proportional to the distance between the bond critical point and hydrogen. However, this "electronegativity factor" is raised to a negative power, so it should really be interpreted more as a chemical potential. Comparing a methyl and fluoromethyl group in table 1, the bond length is about the same, but the critical point is closer to hydrogen, resulting in a higher electronegativity for fluoromethyl (which means I read the formula wrong?). Critical point density also makes electronegativity higher (makes electronegativity factor smaller in formula 3), I guess because more electron density is pulled from hydrogen into the bond.}
 }
-@article{doi:10.1021/ja00275a013,
-author = {Mortier, Wilfried J. and Ghosh, Swapan K. and Shankar, S.},
-title = {Electronegativity-equalization method for the calculation of atomic charges in molecules},
-journal = {Journal of the American Chemical Society},
-volume = {108},
-number = {15},
-pages = {4315-4320},
-year = {1986},
-doi = {10.1021/ja00275a013},
-
-URL = {
-
-        https://doi.org/10.1021/ja00275a013
-
-
-
-},
-eprint = {
-
-        https://doi.org/10.1021/ja00275a013
-
-
-
-}
-
-}
 @article{ghanty1991electronegativity,
   title={Electronegativity and covalent binding in homonuclear diatomic molecules},
   author={Ghanty, Tapan K and Ghosh, Swapan K},
@@ -153,7 +127,7 @@ eprint = {
 
 }
 ,
-    abstract = { Current neural networks for predictions of molecular properties use quantum chemistry only as a source of training data. This paper explores models that use quantum chemistry as an integral part of the prediction process. This is done by implementing self-consistent-charge Density-Functional-Tight-Binding (DFTB) theory as a layer for use in deep learning models. The DFTB layer takes, as input, Hamiltonian matrix elements generated from earlier layers and produces, as output, electronic properties from self-consistent field solutions of the corresponding DFTB Hamiltonian. Backpropagation enables efficient training of the model to target electronic properties. Two types of input to the DFTB layer are explored, splines and feed-forward neural networks. Because overfitting can cause models trained on smaller molecules to perform poorly on larger molecules, regularizations are applied that penalize nonmonotonic behavior and deviation of the Hamiltonian matrix elements from those of the published DFTB model used to initialize the model. The approach is evaluated on 15 700 hydrocarbons by comparing the root-mean-square error in energy and dipole moment, on test molecules with eight heavy atoms, to the error from the initial DFTB model. When trained on molecules with up to seven heavy atoms, the spline model reduces the test error in energy by 60\% and in dipole moments by 42\%. The neural network model performs somewhat better, with error reductions of 67\% and 59\%, respectively. Training on molecules with up to four heavy atoms reduces performance, with both the spline and neural net models reducing the test error in energy by about 53\% and in dipole by about 25\%. 
+    abstract = { Current neural networks for predictions of molecular properties use quantum chemistry only as a source of training data. This paper explores models that use quantum chemistry as an integral part of the prediction process. This is done by implementing self-consistent-charge Density-Functional-Tight-Binding (DFTB) theory as a layer for use in deep learning models. The DFTB layer takes, as input, Hamiltonian matrix elements generated from earlier layers and produces, as output, electronic properties from self-consistent field solutions of the corresponding DFTB Hamiltonian. Backpropagation enables efficient training of the model to target electronic properties. Two types of input to the DFTB layer are explored, splines and feed-forward neural networks. Because overfitting can cause models trained on smaller molecules to perform poorly on larger molecules, regularizations are applied that penalize nonmonotonic behavior and deviation of the Hamiltonian matrix elements from those of the published DFTB model used to initialize the model. The approach is evaluated on 15700 hydrocarbons by comparing the root-mean-square error in energy and dipole moment, on test molecules with eight heavy atoms, to the error from the initial DFTB model. When trained on molecules with up to seven heavy atoms, the spline model reduces the test error in energy by 60\% and in dipole moments by 42\%. The neural network model performs somewhat better, with error reductions of 67\% and 59\%, respectively. Training on molecules with up to four heavy atoms reduces performance, with both the spline and neural net models reducing the test error in energy by about 53\% and in dipole by about 25\%. 
 }
 ,
 annotate = {Density functional tight binding in TensorFlow. At the end of the methods section, in section 3.4, it describes how self-consistent charge is handled. Training is done with fixed charges. However, periodically, charges are updated with self consistent charge using the current parameters. So only one set of charges is used per molecule, but these charges are not fixed using the training process, and instead of being obtained from an external source, they are produced using the model itself.}
@@ -190,3 +164,108 @@ annotate = {Density functional tight binding in TensorFlow. At the end of the me
   abstract = {Consider a system with an arbitrary constraint on its electron density (e.g., that there are N charges on a certain group of atoms). We show that in Kohn-Sham density functional theory, the minimum energy state consistent with the constraint is actually a maximum with respect to the constraint potential, and that this solution is unique. This leads us to an efficient algorithm for calculations on constrained systems. Illustrative studies are shown for charge transfer in the zincbacteriochlorin-bacteriochlorin complex, polyene and alkane chains.},
   annotate = {Section 2.1 has a good explanation of constrained DFT, in particular the relationship between the weight function used to define the partial charge and the potential applied.}
 }
+@article{SpiegelmanDFTBReview,
+author = {Fernand Spiegelman and Nathalie Tarrat and Jérôme Cuny and Leo Dontot and Evgeny Posenitskiy and Carles Martí and Aude Simon and Mathias Rapacioli},
+title = {Density-functional tight-binding: basic concepts and applications to molecules and clusters},
+journal = {Advances in Physics: X},
+volume = {5},
+number = {1},
+pages = {1710252},
+year = {2020},
+publisher = {Taylor \& Francis},
+doi = {10.1080/23746149.2019.1710252},
+
+    note ={PMID: 33154977},
+
+
+URL = { 
+    
+        https://doi.org/10.1080/23746149.2019.1710252
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1080/23746149.2019.1710252
+    
+    
+
+}
+,
+    abstract = { The scope of this article is to present an overview of the Density Functional based Tight Binding (DFTB) method and its applications. The paper introduces the basics of DFTB and its standard formulation up to second order. It also addresses methodological developments such as third order expansion, inclusion of non-covalent interactions, schemes to solve the self-interaction error, implementation of long-range short-range separation, treatment of excited states via the time-dependent DFTB scheme, inclusion of DFTB in hybrid high-level/low level schemes (DFT/DFTB or DFTB/MM), fragment decomposition of large systems, large scale potential energy landscape exploration with molecular dynamics in ground or excited states, non-adiabatic dynamics. A number of applications are reviewed, focusing on -(i)- the variety of systems that have been studied such as small molecules, large molecules and biomolecules, bare or functionalized clusters, supported or embedded systems, and -(ii)- properties and processes, such as vibrational spectroscopy, collisions, fragmentation, thermodynamics or non-adiabatic dynamics. Finally outlines and perspectives are given. },
+    annotate = {Was reading this to see if I could support the idea that SCC-DFTB is in a sense equalizing electronegativity. Formula 3 is the Kohn-Sham potential, demonstrating the circularity where we need the density to define the potential. Formula 21 shows the appearance of partial charges in the tight binding Hamiltonian, setting up a similar circularity. However, it doesn't seem to be complete, because in the two atom special case the partial charges do not appear. This is clarified somewhat by considering the "on-site" integrals defined in equation 29, though it's not really clear to me where are they appear in the Hamiltonian. The review also covers chemical potential equalization. Aside from all that though, one of the most interesting observations is that because of the way the repulsive energy is defined, the first-order correction is precisely what I would consider an expectation value of the electronegativity.}
+}
+@article{ReaxFFOriginal,
+author = {Mortier, Wilfried J. and Ghosh, Swapan K. and Shankar, S.},
+title = {Electronegativity-equalization method for the calculation of atomic charges in molecules},
+journal = {Journal of the American Chemical Society},
+volume = {108},
+number = {15},
+pages = {4315-4320},
+year = {1986},
+doi = {10.1021/ja00275a013},
+
+URL = { 
+    
+        https://doi.org/10.1021/ja00275a013
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1021/ja00275a013
+    
+    
+
+},
+abstract = {To make practical the molecular dynamics simulation of large scale reactive chemical systems (1000s of atoms), we developed ReaxFF, a force field for reactive systems. ReaxFF uses a general relationship between bond distance and bond order on one hand and between bond order and bond energy on the other hand that leads to proper dissociation of bonds to separated atoms. Other valence terms present in the force field (angle and torsion) are defined in terms of the same bond orders so that all these terms go to zero smoothly as bonds break. In addition, ReaxFF has Coulomb and Morse (van der Waals) potentials to describe nonbond interactions between all atoms (no exclusions). These nonbond interactions are shielded at short range so that the Coulomb and van der Waals interactions become constant as Rij → 0. We report here the ReaxFF for hydrocarbons. The parameters were derived from quantum chemical calculations on bond dissociation and reactions of small molecules plus heat of formation and geometry data for a number of stable hydrocarbon compounds. We find that the ReaxFF provides a good description of these data. Generally, the results are of an accuracy similar or better than PM3, while ReaxFF is about 100 times faster. In turn, the PM3 is about 100 times faster than the QC calculations. Thus, with ReaxFF we hope to be able to study complex reactions in hydrocarbons.},
+annotate = {The original ReaxFF paper. Energy decomposition in equation one includes Coulomb energy. Definition of the colon term is in equation 13, shows it depends on an estimate of the partial charges. Right after that it says that it depends on EEM, Electron Equilibration Method. It says that it's not the same as electronegativity equalization but to me it looks like a variant that I would not consider a different method. Or more specifically it distinguishes itself from charge equilibration as defined by Rappé and Goddard 1991. Since this force field is widely used, it's worth citing as an example of the importance of partial charge estimation generally and electronegativity equalization in particular in enabling fast calculations.}
+}
+
+@article{KadukConstrainedDFTReview,
+author = {Kaduk, Benjamin and Kowalczyk, Tim and Van Voorhis, Troy},
+title = {Constrained Density Functional Theory},
+journal = {Chemical Reviews},
+volume = {112},
+number = {1},
+pages = {321-370},
+year = {2012},
+doi = {10.1021/cr200148b},
+    note ={PMID: 22077560},
+
+URL = { 
+    
+        https://doi.org/10.1021/cr200148b
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1021/cr200148b
+    
+    
+
+},
+annotate={This is a very important reference because of equation 27, containing the so-called thermodynamic relations. One of the thermodynamic relations says that the derivative of energy with respect to electron population is the negative of the imposed potential, which is the special case of the relation I use, holding when the weight function does not depend on the density.}
+
+}
+@article{FeynmanForcesInMolecules,
+  title = {Forces in Molecules},
+  author = {Feynman, R. P.},
+  journal = {Phys. Rev.},
+  volume = {56},
+  issue = {4},
+  pages = {340--343},
+  numpages = {0},
+  year = {1939},
+  month = {Aug},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRev.56.340},
+  url = {https://link.aps.org/doi/10.1103/PhysRev.56.340},
+  abstract = {Formulas have been developed to calculate the forces in a molecular system directly, rather than indirectly through the agency of energy. This permits an independent calculation of the slope of the curves of energy vs. position of the nuclei, and may thus increase the accuracy, or decrease the labor involved in the calculation of these curves. The force on a nucleus in an atomic system is shown to be just the classical electrostatic force that would be exerted on this nucleus by other nuclei and by the electrons' charge distribution. Qualitative implications of this are discussed.},
+  annotate = {Feynman's paper containing the Feynman-Hellman theorem. Shows how to avoid the discrete difference method in differentiating energy with respect to nuclear positions to obtain forces. This is actually analogous to what is achieved by using one of the thermodynamic relations of constrained density functional theory to relate the derivative of energy with respect to an atomic electron population to the magnitude of the imposed potential. I generalized this to include partial charge definitions where the weight function depends on the density, which ends up requiring a expectation using the computed density, but does not require varying electron populations, so it's analogous to Feynman's goal in this paper, at least from the computational perspective. Feynman's perspective was really more conceptual than computational, which suggests the challenge of finding some classical physics here that the quantum mechanics is disguising.}
+}
+
