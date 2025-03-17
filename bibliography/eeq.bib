@@ -196,7 +196,7 @@ eprint = {
     abstract = { The scope of this article is to present an overview of the Density Functional based Tight Binding (DFTB) method and its applications. The paper introduces the basics of DFTB and its standard formulation up to second order. It also addresses methodological developments such as third order expansion, inclusion of non-covalent interactions, schemes to solve the self-interaction error, implementation of long-range short-range separation, treatment of excited states via the time-dependent DFTB scheme, inclusion of DFTB in hybrid high-level/low level schemes (DFT/DFTB or DFTB/MM), fragment decomposition of large systems, large scale potential energy landscape exploration with molecular dynamics in ground or excited states, non-adiabatic dynamics. A number of applications are reviewed, focusing on -(i)- the variety of systems that have been studied such as small molecules, large molecules and biomolecules, bare or functionalized clusters, supported or embedded systems, and -(ii)- properties and processes, such as vibrational spectroscopy, collisions, fragmentation, thermodynamics or non-adiabatic dynamics. Finally outlines and perspectives are given. },
     annotate = {Was reading this to see if I could support the idea that SCC-DFTB is in a sense equalizing electronegativity. Formula 3 is the Kohn-Sham potential, demonstrating the circularity where we need the density to define the potential. Formula 21 shows the appearance of partial charges in the tight binding Hamiltonian, setting up a similar circularity. However, it doesn't seem to be complete, because in the two atom special case the partial charges do not appear. This is clarified somewhat by considering the "on-site" integrals defined in equation 29, though it's not really clear to me where are they appear in the Hamiltonian. The review also covers chemical potential equalization. Aside from all that though, one of the most interesting observations is that because of the way the repulsive energy is defined, the first-order correction is precisely what I would consider an expectation value of the electronegativity.}
 }
-@article{ReaxFFOriginal,
+@article{conceptualDFTElectronegativityOriginal,
 author = {Mortier, Wilfried J. and Ghosh, Swapan K. and Shankar, S.},
 title = {Electronegativity-equalization method for the calculation of atomic charges in molecules},
 journal = {Journal of the American Chemical Society},
@@ -216,6 +216,32 @@ URL = {
 eprint = { 
     
         https://doi.org/10.1021/ja00275a013
+    
+    
+
+},
+    annotate = {Electronegativity equalization from the perspective of conceptual DFT. Definition of chemical potential of an atom is implicitly in equation eight. The electron populations of all other atoms are held fixed.}
+}
+@article{ReaxFFOriginal,
+author = {van Duin, Adri C. T. and Dasgupta, Siddharth and Lorant, Francois and Goddard, William A.},
+title = {ReaxFF: A Reactive Force Field for Hydrocarbons},
+journal = {The Journal of Physical Chemistry A},
+volume = {105},
+number = {41},
+pages = {9396-9409},
+year = {2001},
+doi = {10.1021/jp004368u},
+
+URL = { 
+    
+        https://doi.org/10.1021/jp004368u
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1021/jp004368u
     
     
 
@@ -268,4 +294,77 @@ annotate={This is a very important reference because of equation 27, containing 
   abstract = {Formulas have been developed to calculate the forces in a molecular system directly, rather than indirectly through the agency of energy. This permits an independent calculation of the slope of the curves of energy vs. position of the nuclei, and may thus increase the accuracy, or decrease the labor involved in the calculation of these curves. The force on a nucleus in an atomic system is shown to be just the classical electrostatic force that would be exerted on this nucleus by other nuclei and by the electrons' charge distribution. Qualitative implications of this are discussed.},
   annotate = {Feynman's paper containing the Feynman-Hellman theorem. Shows how to avoid the discrete difference method in differentiating energy with respect to nuclear positions to obtain forces. This is actually analogous to what is achieved by using one of the thermodynamic relations of constrained density functional theory to relate the derivative of energy with respect to an atomic electron population to the magnitude of the imposed potential. I generalized this to include partial charge definitions where the weight function depends on the density, which ends up requiring a expectation using the computed density, but does not require varying electron populations, so it's analogous to Feynman's goal in this paper, at least from the computational perspective. Feynman's perspective was really more conceptual than computational, which suggests the challenge of finding some classical physics here that the quantum mechanics is disguising.}
 }
+@article{sTDAxTB,
+    author = {Grimme, Stefan and Bannwarth, Christoph},
+    title = {Ultra-fast computation of electronic spectra for large systems by tight-binding based simplified Tamm-Dancoff approximation (sTDA-xTB)},
+    journal = {The Journal of Chemical Physics},
+    volume = {145},
+    number = {5},
+    pages = {054103},
+    year = {2016},
+    month = {08},
+    abstract = { The computational bottleneck of the extremely fast simplified Tamm-Dancoff approximated (sTDA) time-dependent density functional theory procedure [S. Grimme, J. Chem. Phys. 138, 244104 (2013)] for the computation of electronic spectra for large systems is the determination of the ground state Kohn-Sham orbitals and eigenvalues. This limits such treatments to single structures with a few hundred atoms and hence, e.g., sampling along molecular dynamics trajectories for flexible systems or the calculation of chromophore aggregates is often not possible. The aim of this work is to solve this problem by a specifically designed semi-empirical tight binding (TB) procedure similar to the well established self-consistent-charge density functional TB scheme. The new special purpose method provides orbitals and orbital energies of hybrid density functional character for a subsequent and basically unmodified sTDA procedure. Compared to many previous semi-empirical excited state methods, an advantage of the ansatz is that a general eigenvalue problem in a non-orthogonal, extended atomic orbital basis is solved and therefore correct occupied/virtual orbital energy splittings as well as Rydberg levels are obtained. A key idea for the success of the new model is that the determination of atomic charges (describing an effective electron-electron interaction) and the one-particle spectrum is decoupled and treated by two differently parametrized Hamiltonians/basis sets. The three-diagonalization-step composite procedure can routinely compute broad range electronic spectra (0-8 eV) within minutes of computation time for systems composed of 500-1000 atoms with an accuracy typical of standard time-dependent density functional theory (0.3-0.5 eV average error). An easily extendable parametrization based on coupled-cluster and density functional computed reference data for the elements H–Zn including transition metals is described. The accuracy of the method termed sTDA-xTB is first benchmarked for vertical excitation energies of open- and closed-shell systems in comparison to other semi-empirical methods and applied to exemplary problems in electronic spectroscopy. As side products of the development, a robust and efficient valence electron TB method for the accurate determination of atomic charges as well as a more accurate calculation scheme of dipole rotatory strengths within the Tamm-Dancoff approximation is proposed. },
+    issn = {0021-9606},
+    doi = {10.1063/1.4959605},
+    url = {https://doi.org/10.1063/1.4959605},
+    eprint = {https://pubs.aip.org/aip/jcp/article-pdf/doi/10.1063/1.4959605/15516084/054103\_1\_online.pdf},
+    annotate = {Interesting multistep approach that shows the importance of partial charges computation of excitation energies. The importances stated in section E.1. It says "Already at this point, it is important to mention that the computed sTDA-xTB excitation energies are sensitive to the quality of the input atomic charges. We speculate that the relative large excitation energy errors of many semi-empirical methods (see below) are directly related to errors in the charge distribution."}
+}
+@article{gfn0xtb,
+author = {Pracht, Philipp and Caldeweyher, Eike and Ehlert, Sebastian and Grimme, Stefan},
+year = {2019},
+month = {06},
+pages = {},
+title = {A Robust Non-Self-Consistent Tight-Binding Quantum Chemistry Method for large Molecules},
+doi = {10.26434/chemrxiv.8326202},
+abstract = {We propose a semiempirical quantum chemical method, designed for the fast calculation of molecular Geometries, vibrational Frequencies and Non-covalent interaction energies (GFN) of systems with up to a few thousand atoms. Like its predecessors GFN-xTB and GFN2-xTB, the new method termed GFN0-xTB is parameterized for all elements up to radon (Z = 86) and mostly shares well-known density functional tight-binding approximations as well as basis set and integral approximations. The main new feature is the avoidance of the self-consistent charge iterations leading to speed-ups of a factor of 2-20 depending on the size and electronic complexity of the system. This is achieved by including only quantum mechanical contributions up to first-order which are incorporated similar to the previous versions without any pair-specific parameterization. The essential electrostatic electronic interaction is treated by a classical electronegativity equilibration charge model yielding atomic partial charges that enter the electronic Hamiltonian indirectly. Furthermore, the atomic charge-dependent D4 dispersion correction is included to account for long range London correlation effects. Formulas for analytical total energy gradients with respect to nuclear displacements are derived and implemented in the xtb code allowing numerically very precise structure optimizations. The neglect of self-consistent energy terms not only leads to a large gain in computational speed but also can increase robustness in electronically difficult situations because ill-convergence or artificial charge-transfer (CT) is avoided. The comparison of GFN0-xTB and GFN/GFN2-xTB allows dissection of quantum electronic polarization and CT effects thereby improving our understanding of chemical bonding. Compared to the most sophisticated multipole-based GFN2-xTB model (which approaches DFT accuracy for the target properties closely), GFN0-xTB performs slightly worse for non-covalent interactions and molecular structures, while very good results are observed for conformational energies. Vibrational frequencies are obtained less accurately than with GFN/GFN2-xTB but they may still be useful for various purposes like estimating relative thermostatistical reaction energies. Most exceptional is the fact that even relatively complicated transition metal complex structures can be accurately optimized with a non-self-consistent quantum approach. The new method bridges the gap between force-fields and traditional semiempirical methods with its excellent computational cost to accuracy ratio and is intended to explore the chemical space of large molecular systems and solids.},
+annotate = {Important because it uses election negativity utilization to avoid SCC. Makes it clear to people who don't quite understand SCC that estimation of partial charges is involved.}
+}
+@article{parrcdftelectronegativity,
+    author = {Parr, Robert G. and Donnelly, Robert A. and Levy, Mel and Palke, William E.},
+    title = {Electronegativity: The density functional viewpoint},
+    journal = {The Journal of Chemical Physics},
+    volume = {68},
+    number = {8},
+    pages = {3801-3807},
+    year = {1978},
+    month = {04},
+    abstract = {Precision is given to the concept of electronegativity. It is the negative of the chemical potential (the Lagrange multiplier for the normalization constraint) in the Hohenberg–Kohn density functional theory of the ground state [unicode left out]. Electronegativity is constant throughout an atom or molecule, and constant from orbital to orbital within an atom or molecule. Definitions are given of the concepts of an atom in a molecule and of a valence state of an atom in a molecule, and it is shown how valence‐state electronegativity differences drive charge transfers on molecule formation. An equation of Gibbs–Duhem type is given for the change of electronegativity from one situation to another, and some discussion is given of certain relations among energy components discovered by Fraga.},
+    issn = {0021-9606},
+    doi = {10.1063/1.436185},
+    url = {https://doi.org/10.1063/1.436185},
+    eprint = {https://pubs.aip.org/aip/jcp/article-pdf/68/8/3801/18911560/3801\_1\_online.pdf},
+    annotate = {Definition of the electronegativity of a system, in equation 12.I don't really see a definition of atomic electronegativity here.}
+}
+@article{parrAbsoluteHardness,
+author = {Parr, Robert G. and Pearson, Ralph G.},
+title = {Absolute hardness: companion parameter to absolute electronegativity},
+journal = {Journal of the American Chemical Society},
+volume = {105},
+number = {26},
+pages = {7512-7516},
+year = {1983},
+doi = {10.1021/ja00364a005},
+
+URL = { 
+    
+        https://doi.org/10.1021/ja00364a005
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1021/ja00364a005
+    
+    
+
+},
+annotate = {Hardness of a system, defined in equation four. Not really atomic hardness, doesn't really address electronegativity equalization.}
+}
+
+
+
+
+
 
