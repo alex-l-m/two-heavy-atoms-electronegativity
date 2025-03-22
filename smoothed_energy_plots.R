@@ -142,10 +142,12 @@ for (category_structure_pair in category_structure_pairs)
         arrange(atomic_number_cation, atomic_number_anion) |>
         distinct(formula) |>
         pull(formula)
-    energy_smoothing_validation_plot <- smoothed_energy |>
+    energy_smoothing_validation_tbl <- smoothed_energy |>
         filter(donor_or_acceptor == 'acceptor') |>
         mutate(formula = factor(formula, levels = formula_order)) |>
-        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)
+
+    energy_smoothing_validation_plot <- energy_smoothing_validation_tbl |>
         ggplot(mapping = aes(x = charge, y = total_energy)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
         geom_line() +
@@ -156,9 +158,9 @@ for (category_structure_pair in category_structure_pairs)
         this_theme
     ggsave(glue('{category_structure_pair}_energy_smoothing_validation.png'), energy_smoothing_validation_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-    
+
     # Plotting the smoothed energy, with points to indicate the no-field simulations
-    energy_with_nofield <- smoothed_energy |>
+    energy_with_nofield_tbl <- smoothed_energy |>
         left_join(nofield_energies, by =
                       c('crystal_structure', 'category', 'structure_id',
                         'symbol_anion', 'symbol_cation', 'formula',
@@ -166,18 +168,36 @@ for (category_structure_pair in category_structure_pairs)
                   suffix = c('', '_nofield'), relationship = 'many-to-one') |>
         mutate(energy_above_nofield = total_energy - total_energy_nofield) |>
         filter(donor_or_acceptor == 'acceptor') |>
-        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)
+    energy_with_nofield_facet_plot <- energy_with_nofield_tbl |>
         ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
-        geom_smooth(method = lmrob, formula = y ~ x + I(x^2), se = FALSE) +
         geom_line() +
         geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)) +
         acceptor_charge_label +
         this_theme +
         ylab('Energy above no field (eV)')
-    
-    ggsave(glue('{category_structure_pair}_energy_with_nofield.png'), energy_with_nofield, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
+    ggsave(glue('{category_structure_pair}_energy_with_nofield.png'), energy_with_nofield_facet_plot, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     computation_levels <- c('dE/dq', 'correction * Lam')
+
+    # Same plots, but as a list of individual plots rather than as a facet
+    energy_with_nofield_plot_tbl <- energy_with_nofield_tbl |>
+        group_by(formula) |>
+        nest() |>
+        mutate(plot = lapply(data, function(data) {
+        data |>
+            ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
+            geom_line() +
+            acceptor_charge_label +
+            this_theme +
+            ylab('Energy above no field (eV)')
+        }))
+    energy_with_nofield_plot_list <- energy_with_nofield_plot_tbl$plot
+    names(energy_with_nofield_plot_list) <- energy_with_nofield_plot_tbl$formula
+    # Save as rds using readr
+    readr::write_rds(energy_with_nofield_plot_list, glue('{category_structure_pair}_energy_with_nofield_plots.rds'))
+
     
     energy_derivatives_with_nofield <- smoothed_energy_derivative |>
         filter(donor_or_acceptor == 'acceptor') |>
@@ -248,9 +268,10 @@ for (category_structure_pair in category_structure_pairs)
         mutate(`correction * Lam` = electronegativity_difference_from_field,
                `dE/dq` = total_energy) |>
         pivot_longer(c(`correction * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
-    lam_plot <- lam_values |>
+    lam_facet_plot_tbl <- lam_values |>
         mutate(formula = factor(formula, levels = formula_order)) |>
-        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair) |>
+        filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)
+    lam_facet_plot <- lam_facet_plot_tbl |>
         ggplot(aes(x = charge, y = electronegativity, color = computation)) +
         facet_wrap(~ formula, ncol = 3) +
         # Put a vertical line to indicate 0
@@ -263,8 +284,30 @@ for (category_structure_pair in category_structure_pairs)
         geom_line() +
         acceptor_charge_label +
         this_theme
-    ggsave(glue('{category_structure_pair}_lam_comparison.png'), lam_plot,
+    ggsave(glue('{category_structure_pair}_lam_comparison.png'), lam_facet_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+    
+    # Same thing but a list of plots instead of facets
+    lam_plot_tbl <- lam_facet_plot_tbl |>
+        group_by(formula) |>
+        nest() |>
+        mutate(plot = lapply(data, function(data) {
+            data |>
+                ggplot(aes(x = charge, y = electronegativity, color = computation)) +
+                # Put a vertical line to indicate 0
+                geom_vline(xintercept = 0, linetype = 'dashed') +
+                # Put a horizontal line to indicate zero
+                geom_hline(yintercept = 0, linetype = 'dashed')+
+                ylab('electronegativity difference (V)') +
+                # Remove the title from the legend
+                guides(color = guide_legend(title = NULL)) +
+                geom_line() +
+                acceptor_charge_label
+        }))
+    lam_plot_list <- lam_plot_tbl$plot
+    names(lam_plot_list) <- lam_plot_tbl$formula
+    # Save as rds using readr
+    readr::write_rds(lam_plot_list, glue('{category_structure_pair}_lam_plots.rds'))
 
     # Make a plot like the lam comparison plot but instead of comparing lam to
     # derivative, show just derivative, but with various kinds of charge
