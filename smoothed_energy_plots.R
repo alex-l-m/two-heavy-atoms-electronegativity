@@ -209,7 +209,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_point(data = mutate(filter(nofield_derivatives,
                                         donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
         acceptor_charge_label +
-        ylab('electronegativity difference (V)') +
+        ylab('Δelectronegativity (V)') +
         # Put a vertical line to indicate 0
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
@@ -278,7 +278,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
         geom_hline(yintercept = 0, linetype = 'dashed')+
-        ylab('electronegativity difference (V)') +
+        ylab('Δelectronegativity (V)') +
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
         geom_line() +
@@ -298,7 +298,7 @@ for (category_structure_pair in category_structure_pairs)
                 geom_vline(xintercept = 0, linetype = 'dashed') +
                 # Put a horizontal line to indicate zero
                 geom_hline(yintercept = 0, linetype = 'dashed')+
-                ylab('electronegativity difference (V)') +
+                ylab('Δelectronegativity (V)') +
                 # Remove the title from the legend
                 guides(color = guide_legend(title = NULL)) +
                 geom_line() +
@@ -381,7 +381,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
         geom_hline(yintercept = 0, linetype = 'dashed')+
-        ylab('electronegativity difference (V)') +
+        ylab('Δelectronegativity (V)') +
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
         geom_line() +

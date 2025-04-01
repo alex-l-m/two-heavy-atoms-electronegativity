@@ -6,7 +6,7 @@ library(grid)
 library(png)
 library(glue)
 library(cowplot)
-theme_set(theme_cowplot())
+theme_set(theme_cowplot(font_size = 12))
 
 # Load my circuit diagram image as a raster grob
 circuit_diagram_path <- 'da_circuit.png'
@@ -40,14 +40,14 @@ energy_curve_plot_list <- readr::read_rds('3-5:zincblende:0_energy_with_nofield_
 # Example for a figure
 example_energy_curve_plot <- energy_curve_plot_list[['GaP']] +
             geom_line(color = 'black') +
-            ggtitle('GaP energy (in nuclear potential)')
+            ggtitle('GaP energy')
 ggsave('example_energy_curve_plot.png', example_energy_curve_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))
 
 # Same thing for energy derivative plots
 electronegativity_plot_list <- readr::read_rds('3-5:zincblende:0_lam_plots.rds')
 example_electronegativity_plot <- electronegativity_plot_list[['GaP']] +
-            ggtitle('GaP electronegativity difference') +
+            ggtitle('GaP Δelectronegativity') +
             theme(legend.position = 'bottom')
 ggsave('example_electronegativity_plot.png', example_electronegativity_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))

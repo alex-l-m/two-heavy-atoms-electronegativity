@@ -263,8 +263,14 @@ for (category_structure_pair in category_structure_pairs)
         geom_hline(yintercept = 0, linetype = 'dotted') +
         geom_vline(xintercept = 0, linetype = 'dotted') +
         geom_line() +
-        xlab('Charge of acceptor group') +
-        ylab('Δelectronegativity (V)')
+        scale_x_continuous(breaks = seq(-1, 1, 0.5), name = 'Charge of acceptor group') +
+        scale_y_continuous(name = 'Δelectronegativity (V)') +
+        theme(legend.position = 'bottom',
+              # Settings for facet panels so they're sufficiently well spaced
+              # https://stackoverflow.com/questions/28652284/how-to-change-color-of-facet-borders-when-using-facet-grid
+              panel.spacing = unit(.1, 'lines'),
+              panel.border = element_rect(color = 'grey', fill = NA, size = 1)
+        )
     hardness_regression_base <- glue('{category_structure_pair}_hardness_regression_plot')
     ggsave(glue('{hardness_regression_base}.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
     write_rds(hardness_regression_plot, glue('{hardness_regression_base}.rds'))
