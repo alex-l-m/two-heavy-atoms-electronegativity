@@ -1,39 +1,36 @@
-\documentclass[tikz,border=5pt]{standalone}
+\documentclass{standalone}
+\usepackage{tikz}
 \usepackage{circuitikz}
 
 \begin{document}
-\begin{tikzpicture}[font=\small]
+\begin{tikzpicture}[
+    atom/.style={circle, draw=black, minimum size=1.2cm, thick}
+]
 
-  % Define an "atom" style
-  \tikzset{atom/.style={
-    circle, draw, minimum size=1cm, inner sep=0pt
-  }}
+  % Define variables for better adjustability
+  \def\atomSep{3}         % Separation between atoms (horizontal distance)
+  \def\rowSep{1.5}        % Base vertical spacing unit
+  \def\batteryWidth{2}    % Width of the battery
 
-  % 1) Place the atoms
+  % Place the atoms (D for donor, A for acceptor)
   \node[atom] (D) at (0,0) {D};
-  \node[atom] (A) at (4,0) {A};
+  \node[atom] (A) at (\atomSep,0) {A};
 
-  % 2) Quantum capacitor between the atoms
-  \draw (D) to [C] (A);
+  % Battery placement
+  \coordinate (BatLeft) at  (\atomSep/2 - \batteryWidth/2, -\rowSep);
+  \coordinate (BatRight) at (\atomSep/2 + \batteryWidth/2, -\rowSep);
 
-  % 3) Battery in the middle, horizontally from (1,-2) to (3,-2).
-  %    By default, short line is on the right (negative).
-  \coordinate (BatLeft)  at (1,-2);
-  \coordinate (BatRight) at (3,-2);
+  % Draw the battery
+  \draw[thick] (BatLeft) to[battery1, name=Bat] (BatRight);
 
-  \draw (BatLeft)
-    to [battery1, l_=$\lambda$, name=Bat] (BatRight);
-
-  % Explicit + and - above the battery terminals
+  % Add + and - labels above battery terminals
   \node[above] at (BatLeft)  {$+$};
   \node[above] at (BatRight) {$-$};
 
-  % 4) Connect Donor -> left battery node
-  %    L-shaped wire: go vertically down to y=-2, then horizontally to (BatLeft).
-  \draw (D) |- (BatLeft);
-
-  % 5) Connect Acceptor -> right battery node
-  \draw (A) |- (BatRight);
+  % Connect atoms to battery terminals
+  \draw[thick] (D) |- (BatLeft);
+  \draw[thick] (A) |- (BatRight);
 
 \end{tikzpicture}
 \end{document}
+
