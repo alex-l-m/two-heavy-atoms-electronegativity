@@ -60,7 +60,10 @@ design <- "
 "
 panels <- circuit_diagram_patchwork_element + example_energy_curve_plot + example_electronegativity_plot +
     hardness_regression_plot + electronegativity_comparison_plot +
-    patchwork::plot_layout(design = design)
+    patchwork::plot_layout(design = design) +
+    # Label each panel with capital letters
+    patchwork::plot_annotation(tag_levels = 'A')
+
 ggsave('figure_transparent.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
 # Use ImageMagick to make the background white
 system('convert figure_transparent.png -background white -alpha remove -alpha off figure.png')
