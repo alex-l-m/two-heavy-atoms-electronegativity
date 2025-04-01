@@ -35,16 +35,6 @@ ggsave('electronegativity_comparison_plot_powerpoint.png', electronegativity_com
 ggsave('hardness_regression_plot_powerpoint.png', hardness_regression_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
-# Combine in this layout:
-# circuit diagram | empty space
-# hardness regression (full row)
-# electronegativity comparison | empty space
-panels <- (circuit_diagram_patchwork_element | electronegativity_comparison_plot) / 
-  hardness_regression_plot
-ggsave('figure_transparent.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
-# Use ImageMagick to make the background white
-system('convert figure_transparent.png -background white -alpha remove -alpha off figure.png')
-
 # List of energy curve plots
 energy_curve_plot_list <- readr::read_rds('3-5:zincblende:0_energy_with_nofield_plots.rds')
 # Example for a figure
@@ -61,3 +51,16 @@ example_electronegativity_plot <- electronegativity_plot_list[['GaP']] +
             theme(legend.position = 'bottom')
 ggsave('example_electronegativity_plot.png', example_electronegativity_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))
+
+
+# Plot layout design so that the hardness regression plot takes up two "slots"
+design <- "
+    ABC
+    DDE
+"
+panels <- circuit_diagram_patchwork_element + example_energy_curve_plot + example_electronegativity_plot +
+    hardness_regression_plot + electronegativity_comparison_plot +
+    patchwork::plot_layout(design = design)
+ggsave('figure_transparent.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
+# Use ImageMagick to make the background white
+system('convert figure_transparent.png -background white -alpha remove -alpha off figure.png')
