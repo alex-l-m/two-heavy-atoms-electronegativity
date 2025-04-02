@@ -1,7 +1,6 @@
 library(broom)
 library(tidyverse)
 library(cowplot)
-library(ggdark)
 library(robustbase)
 library(glue)
 library(ggrepel)
@@ -70,7 +69,7 @@ this_theme <-
         axis.text.x = element_text(angle = 90)
     )
 
-theme_set(dark_mode(theme_cowplot(font_size = 24)) + this_theme)
+theme_set(theme_cowplot(font_size = 24) + this_theme)
 
 category_structure_pairs <- charge_energy |>
     mutate(category_structure_pair = glue('{category}:{crystal_structure}')) |>
