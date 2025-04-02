@@ -1,0 +1,16 @@
+# Discussion
+
+In this work, we have exploited the relationship between electronegativity of an atom in a material and an applied potential in order to fit a model that maps charges to electronegativities.
+Since the model was linear, this yielded a parameterization of EEq, which could be used to predict charges given geometries as input.
+
+More sophisticated models such as SCC-DFTB could also be considered as mapping from charge to electronegativity, and still used to predict based on geometry alone by finding the charges through SCC cycles.
+
+At the stationary point where methods like SCC-DFTB terminate the iterative process, electronegativity in the sense of conceptual DFT is equal for each atom.
+Therefore all methods that predict atomic partial charges by iteration could be considered "electronegativity equalization" methods, with classical EEq corresponding to generalized EEq with a linear ansatz.
+Training with given charges but predicting with given geometries by using stationary charges is analogous to current practice in which models are trained on forces and subequently used to predict geometries.
+
+For tight binding models in particular, the main advantage of such a procedure may not be more accurate parameterization, but simply that it is possible to avoid iterative charge production during the training step, and thus substantially increase the speed of each epoch.
+However, the self-consistent style does not have to be limited to tight binding models and may also be promising for machine learning models.
+Prediction of partial charge is important for prediction of band gaps, so getting the right is important for predicting optical properties.
+A generalized concept of "electronegativity equalization" may be useful in training fast models that can be used in virtual screens of large spaces of candidate molecules or materials.
+

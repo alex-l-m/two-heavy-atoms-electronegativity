@@ -1,0 +1,36 @@
+% preamble.tex - LaTeX macros for quantum chemistry document
+
+% Energy terms
+\newcommand{\energyNuc}{E_\text{nuc}}
+\newcommand{\energyTot}{E_\text{tot}}
+
+% Position
+\newcommand{\position}{r}
+
+% Potentials and chemical potentials
+\newcommand{\imposedPotential}{V_\text{ext}} % Potential applied to system
+\newcommand{\imposedPotentialValue}{\imposedPotential(\position)} % Evaluated at a point
+
+% Electron density and related
+\newcommand{\electronDensity}{\rho} % Electron density
+\newcommand{\electronDensityValue}{\electronDensity(\position)} % Evaluated
+
+% Population and charge changes
+\newcommand{\popChange}[1]{dN_{#1}}  % Change in electron population
+\newcommand{\popChangeFixed}[1]{dN^0_{#1}}  % Change with fixed weight function
+\newcommand{\chargeChange}[1]{dq_{#1}}  % Change in atomic charge
+\newcommand{\chargeChangeFixed}[1]{dq^0_{#1}}  % Change with fixed weight function
+\newcommand{\correctionFactorCharge}[1]{\frac{dq^0_{#1}}{dq_{#1}}}  % Correction factor for charge changes
+\newcommand{\correctionFactorPop}[1]{\frac{dN^0_{#1}}{dN_{#1}}}  % Correction factor expressed with population changes
+
+% Derivatives and operators
+\newcommand{\funcDeriv}[2]{\frac{\delta #1}{\delta #2}}  % Functional derivative
+\newcommand{\funcDerivValue}[2]{\frac{\delta #1}{\delta #2(\position)}}  % Functional derivative evaluated
+\newcommand{\partDeriv}[2]{\frac{\partial #1}{\partial #2}}  % Partial derivative 
+\newcommand{\constDeriv}[3]{\left(\frac{\partial #1}{\partial #2}\right)_{#3}}  % Constrained derivative
+
+% Mathematical operations
+\newcommand{\spaceIntegral}[1]{\int #1 \, dr}  % Integration over space
+
+% Vectors for systems of atoms
+\newcommand{\vect}[1]{\vec{#1}}  % Vector notation, easily changeable

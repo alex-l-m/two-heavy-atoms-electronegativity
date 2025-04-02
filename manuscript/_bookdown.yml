@@ -1,0 +1,9 @@
+book_filename: "electronegativity_paper"
+delete_merged_file: true
+rmd_files:
+  - index.Rmd
+  - introduction.Rmd
+  - results.Rmd
+  - discussion.Rmd
+  - theory.Rmd
+  - computation.Rmd

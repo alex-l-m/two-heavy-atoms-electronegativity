@@ -66,4 +66,4 @@ panels <- circuit_diagram_patchwork_element + example_energy_curve_plot + exampl
 
 ggsave('figure_transparent.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
 # Use ImageMagick to make the background white
-system('convert figure_transparent.png -background white -alpha remove -alpha off figure.png')
+system('convert figure_transparent.png -background white -alpha remove -alpha off manuscript/figure.png')

@@ -1,0 +1,30 @@
+# Results
+
+```{r my-figure, echo=FALSE, fig.cap="A Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. B In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. C The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations. D  Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. E Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.", out.width="100%"}
+knitr::include_graphics("figure.png")
+```
+
+In a set of binary crystals, a series of DFT simulations were performed, imposing successively larger electrical potentials, negative at the cation and positive at the anion (Figure \@ref(fig:my-figure)A).
+At each step, charges $q_A$ and $q_D$ were computed using the Hirshfeld-I method, and the energy the system was recomputed in the absence of the imposed potential to obtain $\energyNuc$ (Figure \@ref(fig:my-figure)B).
+The potential at each step was defined in terms of the weight functions $w_A(r)$ and $w_D(r)$ obtained from the Hirshfeld-I analysis:
+
+$$\imposedPotentialValue = \lambda (w_A(r) - w_D(r))$$
+
+Defining the electronegativity of an atom as the negative of its chemical potential, the difference in electronnegativities between the two atoms is the derivative of this energy curve:
+$$\Delta \chi = \chi_A - \chi_D = \constDeriv{\energyNuc}{q_A}{N}$$
+This can be obtained by numerical differentiation.
+However, as a consequence of the form of the potential (reference formula here), the derivative can also be obtained from the strength of the field:
+$$\constDeriv{\energyNuc}{q_D}{N} = 2 \correctionFactorPop{A} \lambda$$
+where $\correctionFactorPop{A}$ corrects for the shift in the boundary between the atoms.
+The two methods for obtaining the electronegativity difference match closely( Figure \@ref(fig:my-figure)C)
+
+The DFT simulations were used to train a model from charges to eelctronegativities.
+Any such model corresponds to a function mapping a vector of atomic charges $\vect{q}$ to a vector of atomic electronegativities $\vect{\chi}(\vect{q})$.
+During training, a model $\vect{\chi}(\vect{q})$ must reproduce the relationship between charge and electronegativity observed in the simulations.
+For the binary materials, the trend is shown in Figure \@ref(fig:my-figure)D.
+The simplest choice of model for $\vect{\chi}(\vect{q})$ is a linear model.
+This \emph{ansatz} is equivalent to the classical electronegativity equalization method (EEq),The parameter estimates will differ due to the different loss function.
+For two atoms and for fixed total charge, the model can be simplified to
+$$\chi_A - \chi_D = (\chi_A^0 - \chi_D^0) + (\eta_A + \eta_D - 2 c_{AD}) q_{AD}$$
+where $q_A$ is the charge of the acceptor atom, $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the acceptor and donor atoms when neutral, $\eta_A$ and $\eta_D$ are hardnesses, and $c_{AD}$ is an interaction parameter.
+Fitting this model using a standard linear regression package results in $\chi^0_A$ parameters that reproduce familiar trends in electronegativity (Figure \@ref(fig:my-figure)E).
