@@ -17,7 +17,7 @@ ggsave('circuit_diagram_patchwork_element.png', circuit_diagram_patchwork_elemen
 
 # Load my electronegativity plots that I serialized
 category_structure_pair <- '3-5:zincblende'
-electronegativity_comparison_plot_path <- glue('{category_structure_pair}_electronegativity_comparison_plot.rds')
+electronegativity_comparison_plot_path <- glue('{category_structure_pair}_electronegativity_comparison_plot_eq.rds')
 electronegativity_comparison_plot <- readr::read_rds(electronegativity_comparison_plot_path)
 hardness_regression_plot_path <- glue('{category_structure_pair}_hardness_regression_plot.rds')
 hardness_regression_plot <- readr::read_rds(hardness_regression_plot_path) +

@@ -212,12 +212,27 @@ for (category_structure_pair in category_structure_pairs)
         geom_label_repel() +
         ylab('Regression electronegativity (V)') +
         xlab('Pauling electronegativity')
-    
-    electronegativity_comparison_base <- glue('{category_structure_pair}_electronegativity_comparison_plot')
-    ggsave(glue('{electronegativity_comparison_base}.png'),
+
+    ggsave(glue('{category_structure_pair}_electronegativity_comparison_plot.png'),
            electronegativity_comparison_plot,
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
-    write_rds(electronegativity_comparison_plot,
+
+    # Same plot, but for just the equilibrium geometry
+    electronegativity_comparison_plot_eq <- electronegativity_comparison_tbl |>
+        filter(scale_number == 0) |>
+        ggplot(aes(x = pauling_electronegativity, y = regression_electronegativity,
+                   label = symbol)) +
+        geom_point() +
+        geom_smooth(method = lmrob, se = FALSE) +
+        geom_label_repel() +
+        ylab('Regression electronegativity (V)') +
+        xlab('Pauling electronegativity')
+    
+    electronegativity_comparison_base <- glue('{category_structure_pair}_electronegativity_comparison_plot_eq')
+    ggsave(glue('{electronegativity_comparison_base}.png'),
+           electronegativity_comparison_plot_eq,
+           height = unit(4.76, 'in'), width = unit(5.67, 'in'))
+    write_rds(electronegativity_comparison_plot_eq,
              glue('{electronegativity_comparison_base}.rds'))
     
     regression_plot_table <- hardness_terms |>
