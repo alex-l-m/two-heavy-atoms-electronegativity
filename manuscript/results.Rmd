@@ -1,6 +1,8 @@
 # Results
 
-```{r my-figure, echo=FALSE, fig.cap="A Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. B In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. C The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations. D  Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. E Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.", out.width="100%"}
+(ref:fig1caption) **A** Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations. **D** Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. **E** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.
+
+```{r my-figure, echo=FALSE, fig.cap="(ref:fig1caption)", out.width="100%"}
 knitr::include_graphics("figure.png")
 ```
 
