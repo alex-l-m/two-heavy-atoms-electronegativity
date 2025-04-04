@@ -1,16 +1,21 @@
 # Discussion
 
-In this work, we have exploited the relationship between electronegativity of an atom in a material and an applied potential in order to fit a model that maps charges to electronegativities.
-Since the model was linear, this yielded a parameterization of EEq, which could be used to predict charges given geometries as input.
+In this work, we have extracted not just atomic charges but atomic electronegativities from density functional theory results.
+Following the approach of conceptual density functional theory we have identified the atomic electronegativity with the chemical potential, and, in the terminology of [@kittel1980thermal], measured this internal chemical potential using an external chemical potential from an imposed electric field.
+The core insight that makes this possible is the choice of a potential with a shape that is matched to the partial charge definition, according to a relation from the theory of constrained DFT.
+In addition, we have generalized this relation to include partial charge definitions in which the boundary between atoms is determined from the density, such as Hirshfeld-I.
 
-More sophisticated models such as SCC-DFTB could also be considered as mapping from charge to electronegativity, and still used to predict based on geometry alone by finding the charges through SCC cycles.
+Obtaining pairs of a charge and in an electronegativity opens up the possibility of training an empirical or machine learning model to map charge to electronegativity.
+We have demonstrated this by fitting a linear model, which yielded a parametrization of the electronegativity equalization method.
+Since the linear model is the simplest predictive model in machine learning, and electronegativity equalization is the simplest model in charge prediction, it is satisfying that in our framing they exactly coincide.
 
-At the stationary point where methods like SCC-DFTB terminate the iterative process, electronegativity in the sense of conceptual DFT is equal for each atom.
-Therefore all methods that predict atomic partial charges by iteration could be considered "electronegativity equalization" methods, with classical EEq corresponding to generalized EEq with a linear ansatz.
-Training with given charges but predicting with given geometries by using stationary charges is analogous to current practice in which models are trained on forces and subequently used to predict geometries.
+More sophisticated models could be fit to the same data, obtaining models of charge to electronegativity that are more accurate by including sensiivty to environment or the nonlinearities ignored by our linear model.
+Using such a model, charges can be equalized by solving for the charges that make the predicted electronegativities equal.
+This strategy could be considered a generalized electronegativity equalization, with classical electronegativity equalization as a special case with a linear _ansatz_.
 
-For tight binding models in particular, the main advantage of such a procedure may not be more accurate parameterization, but simply that it is possible to avoid iterative charge production during the training step, and thus substantially increase the speed of each epoch.
-However, the self-consistent style does not have to be limited to tight binding models and may also be promising for machine learning models.
-Prediction of partial charge is important for prediction of band gaps, so getting the right is important for predicting optical properties.
-A generalized concept of "electronegativity equalization" may be useful in training fast models that can be used in virtual screens of large spaces of candidate molecules or materials.
 
+The strategy of training on a derivative of energy in order to predict by solving for a stationary point is already familiar from training a force model with the ultimate goal of predicting equilibrium geometries.
+Machine learning datasets such as ANI2 [@isayevani2] include continuous deformations of geometry, analogous to our continuous deformations of charge.
+It is hoped that datasets like this will in the future include atomic electron negativities as well as atomic forces, to enable the fitting of sophisticated electronegativity models that can be used for prediction of charge.
+Such models will be useful in molecular dynamics, as well as virtual screening for molecules and materials.
+Besides dynamics, semiempirical prediction of excitation energy requires careful prediction of charges [@sTDAxTB], so screening for optical materials may be another application.
