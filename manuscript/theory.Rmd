@@ -3,86 +3,136 @@
 We will probe electronegativity by imposing an external electric field that adds a potential $\imposedPotential$.
 Let $\energyTot$ be the energy of the ground state in this potential.
 It is stationary with respect to variations in the density:
-$$\funcDerivValue{\energyTot}{\electronDensity} = \mu$$
+
+\begin{equation}
+  \funcDerivValue{\energyTot}{\electronDensity} = \mu
+  (\#eq:StationaryCondition)
+\end{equation}
+
 where $\mu$ is the chemical potential.
 Let $\energyNuc$ be the energy of the same state, but considering only the potential of the nuclei.
-Then:
-$$\funcDerivValue{\energyTot}{\electronDensity} 
-  = \funcDerivValue{\energyNuc}{\electronDensity} + \imposedPotentialValue$$
-Combining these yields a relationship between the functional derivative of energy and the imposed potential:
-$$\funcDerivValue{\energyNuc}{\electronDensity} 
-  = \mu - \imposedPotentialValue$$
+Then,
+
+\begin{equation}
+  \funcDerivValue{\energyTot}{\electronDensity}
+    = \funcDerivValue{\energyNuc}{\electronDensity} + \imposedPotentialValue
+  (\#eq:EnergySplit)
+\end{equation}
+
+Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yields a relationship between the functional derivative of the nuclear energy and the imposed potential:
+
+\begin{equation}
+  \funcDerivValue{\energyNuc}{\electronDensity}
+    = \mu - \imposedPotentialValue
+  (\#eq:RelateNucPotential)
+\end{equation}
+
 The negative of $\funcDerivValue{\energyNuc}{\electronDensity}$ is like an electronegativity of a point in space.
 
 To transition to considering individual atoms, we will begin with a definition of the electron population $N_k$ of atom $k$ in terms of a weight function $w_k(\position)$:
-$$
-N_k = \spaceIntegral{w_k(\position) \electronDensityValue}
-$$
+
+\begin{equation}
+  N_k = \spaceIntegral{w_k(\position) \electronDensityValue}
+  (\#eq:AtomicPopulation)
+\end{equation}
+
 Following the approach of conceptual density functional theory, the electronegativity of an atom will be defined in terms of the chemical potential.
-The chemical potential of an atom will be defined as the derivative of the energy of the system, considering only the potential of the nuclei, with respect to the electron population of that atom, while holding the electron populations of all other atoms constant:
-$$
-\mu_k 
-  = \constDeriv{\energyNuc}{N_k}{N_1,\cdots,N_{k-1},N_{k+1},\cdots}
-$$
+The chemical potential of an atom will be defined the derivative of the energy of the system (considering only the potential of the nuclei) with respect to the electron population of that atom, while holding the electron populations of all other atoms constant:
+
+\begin{equation}
+  \mu_k
+    = \constDeriv{\energyNuc}{N_k}{N_1,\cdots,N_{k-1},N_{k+1},\cdots}
+  (\#eq:ChemicalPotentialDef)
+\end{equation}
+
 Atomic electronegativity is $\chi_k = - \mu_k$.
 
 To obtain a formula for the atomic electronegativity, it is necessary to consider an important complication that arises when the weight function depends on the density itself.
-Given a density fluctuation $\delta\electronDensityValue$, to find the change in electron population of atom $k$ while holding the weight function fixed as
-$$
-\popChangeFixed{k} 
-  = \spaceIntegral{w_k(\position) \delta\electronDensityValue}
-$$
-However, since the density fluctuation also changes the weight function, this will differ from the change in electron population $\popChange{k}$, which can be defined in terms of a variation in density to the formula for $N_k$:
-$$
-\popChange{k} 
-  = \spaceIntegral{w_k(\position)\delta\electronDensityValue} 
-  + \spaceIntegral{\delta w_k(\position)\electronDensityValue}
-$$
+Given a density fluctuation $\delta\electronDensityValue$, we define the change in electron population of atom $k$ while holding the weight function fixed:
+
+\begin{equation}
+  \popChangeFixed{k}
+    = \spaceIntegral{w_k(\position) \delta\electronDensityValue}
+  (\#eq:PopChangeFixedK)
+\end{equation}
+
+However, since the density fluctuation also changes the weight function, this will differ from the change in electron population $\popChange{k}$:
+
+\begin{equation}
+  \popChange{k}
+    = \spaceIntegral{w_k(\position)\delta\electronDensityValue}
+      + \spaceIntegral{\delta w_k(\position)\electronDensityValue}
+  (\#eq:PopChangeFullK)
+\end{equation}
+
 Besides the part $\popChangeFixed{k}$ which depends on the electron flow, there is also a part that depends on the change in partition:
-$$
-\delta w_k(\position) 
-  = \partDeriv{w_k}{N_k}(\position)\popChange{k}
-$$
+
+\begin{equation}
+  \delta w_k(\position)
+    = \partDeriv{w_k}{N_k}(\position)\popChange{k}
+  (\#eq:DeltaWk)
+\end{equation}
+
 The atomic population differential is the sum of these two parts:
-$$
-\popChange{k} 
-  = \popChange{k} \spaceIntegral{\partDeriv{w_k}{N_k}(\position)\electronDensityValue} 
-  + \popChangeFixed{k}
-$$
-Rearranging, we obtain a derivative which will be important for expressing the atomic electronegativity:
-$$
-\correctionFactorPop{k} 
-  = 1 
-  - \spaceIntegral{\partDeriv{w_k(\position)}{N_k}\electronDensityValue}
-$$
+
+\begin{equation}
+  \popChange{k}
+    = \popChange{k} \spaceIntegral{\partDeriv{w_k}{N_k}(\position)\electronDensityValue}
+      + \popChangeFixed{k}
+  (\#eq:PopChangeSum)
+\end{equation}
+
+Rearranging yields a derivative which is required for expressing the atomic electronegativity when the weight function depends on the electron population:
+
+\begin{equation}
+  \correctionFactorPop{k}
+    = 1
+      - \spaceIntegral{\partDeriv{w_k(\position)}{N_k}\electronDensityValue}
+  (\#eq:PopCorrFactor)
+\end{equation}
+
 Importantly, this derivative just involves an integral against the density, and therefore can be computed from simulation output.
 
-In order to obtain a relationship between the atomic chemical potential and the imposed potential analogous to the previous, we will also require that the imposed potential has a shape defined by the weight functions:
-$$
-\imposedPotentialValue 
-  = \sum_{k} \lambda_k w_k(\position)
-$$
+In order to obtain a relationship between the atomic chemical potential and the imposed potential analogous to Equation \@ref(eq:RelateNucPotential), we will also require that the imposed potential has a shape defined by the weight functions:
+
+\begin{equation}
+  \imposedPotentialValue
+    = \sum_{k} \lambda_k w_k(\position)
+  (\#eq:ImposedPotential)
+\end{equation}
+
 Then, considering a change in energy $d\energyNuc$ associated with a density variation $\delta\electronDensityValue$:
-$$
-d\energyNuc 
-  = \spaceIntegral{\funcDerivValue{\energyNuc}{\electronDensity} \delta\electronDensityValue}
-$$
-Substituting, we obtain a total differential:
-$$
-d\energyNuc 
-  = \mu dN 
-  + \sum_{k}(-\lambda_k) \popChangeFixed{k}
-$$
+
+\begin{equation}
+  d\energyNuc
+    = \spaceIntegral{\funcDerivValue{\energyNuc}{\electronDensity} \delta\electronDensityValue}
+  (\#eq:EnergyNucVariation)
+\end{equation}
+
+Substituting, we obtain the total differential:
+
+\begin{equation}
+  d\energyNuc
+    = \mu dN
+      + \sum_{k}(-\lambda_k) \popChangeFixed{k}
+  (\#eq:ThermoRelationConstant)
+\end{equation}
+
 This is all that is required for a constant weight function, and is typically referred to as a "thermodynamic relation" in the context of constrained DFT [@KadukConstrainedDFTReview].
 For a weight function that depends on the density:
-$$
-d\energyNuc 
-  = \mu dN 
-  + \sum_{k}(-\lambda_k) \correctionFactorPop{k} \popChange{k}
-$$
-Since an increase to the electron population of a single atom while holding the others constant increases the total, the atomic chemical potential as defined previously must include two terms of this total differential:
-$$
-\mu_k 
-  = \mu 
-  - \lambda_k \correctionFactorPop{k}
-$$
+
+\begin{equation}
+  d\energyNuc
+    = \mu dN
+      + \sum_{k}(-\lambda_k) \correctionFactorPop{k} \popChange{k}
+  (\#eq:ThermoRelationDensity)
+\end{equation}
+
+Since an increase to the electron population of a single atom while holding the others constant increases the total, the atomic chemical potential as defined in Equation \@ref(eq:ChemicalPotentialDef) must include two terms of this total differential:
+
+\begin{equation}
+  \mu_k
+    = \mu
+      - \lambda_k \correctionFactorPop{k}
+  (\#eq:MuK)
+\end{equation}
