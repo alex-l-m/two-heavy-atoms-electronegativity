@@ -1,11 +1,11 @@
 # Discussion
 
 In this work, we have extracted not just atomic charges but atomic electronegativities from density functional theory results.
-Following the approach of conceptual density functional theory we have identified the atomic electronegativity with the chemical potential, and, in the terminology of [@kittel1980thermal], measured this internal chemical potential using an external chemical potential from an imposed electric field.
+Following the approach of conceptual density functional theory, we have identified the atomic electronegativity with the chemical potential, and, in the terminology of @kittelthermalphysics, measured this internal chemical potential using an external chemical potential from an imposed electric field.
 The core insight that makes this possible is the choice of a potential with a shape that is matched to the partial charge definition, according to a relation from the theory of constrained DFT.
 In addition, we have generalized this relation to include partial charge definitions in which the boundary between atoms is determined from the density, such as Hirshfeld-I.
 
-Obtaining pairs of a charge and in an electronegativity opens up the possibility of training an empirical or machine learning model to map charge to electronegativity.
+Obtaining pairs of a charge and an electronegativity opens up the possibility of training an empirical or machine learning model to map charge to electronegativity.
 We have demonstrated this by fitting a linear model, which yielded a parametrization of the electronegativity equalization method.
 Since the linear model is the simplest predictive model in machine learning, and electronegativity equalization is the simplest model in charge prediction, it is satisfying that in our framing they exactly coincide.
 
