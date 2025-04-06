@@ -1,7 +1,8 @@
 # Introduction
 
 Estimation of partial charge of atoms is an important subtask in fast computational methods for simulating molecules and crystals.
-The electronegativity equalization method (EEq) provides fast estimates of atomic charges which are used routinely in polarizable force fields, and have been proposed as a means of avoiding iteration in tight binding [@gfn0xtb].
+The electronegativity equalization method (EEq) provides fast estimates of atomic charges, and variants on the method are used routinely in polarizable force fields, as first proposed by @rappe1991charge.
+EEq has also been proposed as a means of avoiding iteration in semiempirical quantum mechanics [@gfn0xtb].
 EEq is founded in conceptual density functional theory, in which the electronegativity of an atom has been defined as the negative chemical potential of the atom, which is equal throughout space in the ground state [@parrcdftelectronegativity]
 In this framework, EEq follows from a model in which electronegativity of the atom is assumed to depend linearly upon its charge, enabling fast computation by solving a linear system [@conceptualDFTElectronegativityOriginal].
 
