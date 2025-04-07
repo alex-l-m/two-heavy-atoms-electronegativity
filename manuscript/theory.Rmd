@@ -1,5 +1,7 @@
 # Theory
 
+## Functional derivative of energy
+
 We will probe electronegativity by imposing an external electric field that adds a potential $\imposedPotential$.
 Let $\energyTot$ be the energy of the ground state in this potential.
 It is stationary with respect to variations in the density:
@@ -19,7 +21,7 @@ Then,
   (\#eq:EnergySplit)
 \end{equation}
 
-Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yields a relationship between the functional derivative of the nuclear energy and the imposed potential:
+Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yields a relationship between the functional derivative of $E_{nuc}$ and the imposed potential:
 
 \begin{equation}
   \funcDerivValue{\energyNuc}{\electronDensity}
@@ -28,6 +30,8 @@ Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yiel
 \end{equation}
 
 The negative of $\funcDerivValue{\energyNuc}{\electronDensity}$ is like an electronegativity of a point in space.
+
+## Definition of atomic electronegativity
 
 To transition to considering individual atoms, we will begin with a definition of the electron population $N_k$ of atom $k$ in terms of a weight function $w_k(\position)$:
 
@@ -47,51 +51,7 @@ The chemical potential of an atom will be defined the derivative of the energy o
 
 Atomic electronegativity is $\chi_k = - \mu_k$.
 
-To obtain a formula for the atomic electronegativity, it is necessary to consider an important complication that arises when the weight function depends on the density itself.
-Given a density fluctuation $\delta\electronDensityValue$, we define the change in electron population of atom $k$ while holding the weight function fixed:
-
-\begin{equation}
-  \popChangeFixed{k}
-    = \spaceIntegral{w_k(\position) \delta\electronDensityValue}
-  (\#eq:PopChangeFixedK)
-\end{equation}
-
-However, since the density fluctuation also changes the weight function, this will differ from the change in electron population $\popChange{k}$:
-
-\begin{equation}
-  \popChange{k}
-    = \spaceIntegral{w_k(\position)\delta\electronDensityValue}
-      + \spaceIntegral{\delta w_k(\position)\electronDensityValue}
-  (\#eq:PopChangeFullK)
-\end{equation}
-
-Besides the part $\popChangeFixed{k}$ which depends on the electron flow, there is also a part that depends on the change in partition:
-
-\begin{equation}
-  \delta w_k(\position)
-    = \partDeriv{w_k}{N_k}(\position)\popChange{k}
-  (\#eq:DeltaWk)
-\end{equation}
-
-The atomic population differential is the sum of these two parts:
-
-\begin{equation}
-  \popChange{k}
-    = \popChange{k} \spaceIntegral{\partDeriv{w_k}{N_k}(\position)\electronDensityValue}
-      + \popChangeFixed{k}
-  (\#eq:PopChangeSum)
-\end{equation}
-
-Rearranging yields a derivative which is required for expressing the atomic electronegativity when the weight function depends on the electron population:
-
-\begin{equation}
-  \correctionFactorPop{k}
-    = 1
-      - \spaceIntegral{\partDeriv{w_k(\position)}{N_k}\electronDensityValue}
-  (\#eq:PopCorrFactor)
-\end{equation}
-
-Importantly, this derivative just involves an integral against the density, and therefore can be computed from simulation output.
+## Measuring atomic electronegativity by imposing a potential
 
 In order to obtain a relationship between the atomic chemical potential and the imposed potential analogous to Equation \@ref(eq:RelateNucPotential), we will also require that the imposed potential has a shape defined by the weight functions:
 
@@ -118,7 +78,54 @@ Substituting, we obtain the total differential:
   (\#eq:ThermoRelationConstant)
 \end{equation}
 
+where $\popChangeFixed{k}$ is the change in electron population of atom $k$ while holding the weight function fixed:
+
+\begin{equation}
+  \popChangeFixed{k}
+    = \spaceIntegral{w_k(\position) \delta\electronDensityValue}
+  (\#eq:PopChangeFixedK)
+\end{equation}
+
 This is all that is required for a constant weight function, and is typically referred to as a "thermodynamic relation" in the context of constrained DFT [@KadukConstrainedDFTReview].
+
+To use Hirshfeld-I charges, it is necessary to consider an important complication that arises when the weight function depends on the density itself.
+In this case, the change in electron population $\popChange{k}$ the change due to electron flow, plus a term representing the change in partition:
+
+\begin{equation}
+  \popChange{k}
+    = \spaceIntegral{w_k(\position)\delta\electronDensityValue}
+      + \spaceIntegral{\delta w_k(\position)\electronDensityValue}
+  (\#eq:PopChangeFullK)
+\end{equation}
+
+Since
+
+\begin{equation}
+  \delta w_k(\position)
+    = \partDeriv{w_k}{N_k}(\position)\popChange{k}
+  (\#eq:DeltaWk)
+\end{equation}
+
+and using the definition of $\popChangeFixed{k}$ (Equation \@ref(eq:PopChangeFixedK)), we can express the change in electron population as:
+
+\begin{equation}
+  \popChange{k}
+    = \popChange{k} \spaceIntegral{\partDeriv{w_k}{N_k}(\position)\electronDensityValue}
+      + \popChangeFixed{k}
+  (\#eq:PopChangeSum)
+\end{equation}
+
+Rearranging yields a derivative which is required for expressing the atomic electronegativity when the weight function depends on the electron population:
+
+\begin{equation}
+  \correctionFactorPop{k}
+    = 1
+      - \spaceIntegral{\partDeriv{w_k(\position)}{N_k}\electronDensityValue}
+  (\#eq:PopCorrFactor)
+\end{equation}
+
+Importantly, this derivative just involves an integral against the density, and therefore can be computed from simulation output.
+
 For a weight function that depends on the density:
 
 \begin{equation}
@@ -136,3 +143,5 @@ Since an increase to the electron population of a single atom while holding the 
       - \lambda_k \correctionFactorPop{k}
   (\#eq:MuK)
 \end{equation}
+
+This can be regarded as an atom-condensed analogue of Equation \@ref(eq:RelateNucPotential).
