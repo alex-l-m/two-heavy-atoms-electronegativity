@@ -6,48 +6,53 @@
 knitr::include_graphics("figure.png")
 ```
 
-In a set of binary crystals, a series of DFT simulations were performed, imposing successively larger electrical potentials, negative at the cation and positive at the anion (Figure \@ref(fig:my-figure)A).
-At each step, charges \(q_A\) and \(q_D\) were computed using the Hirshfeld-I method, and the energy of the system was recomputed in the absence of the imposed potential to obtain \(\energyNuc\) (Figure \@ref(fig:my-figure)B).
-The potential at each step was defined in terms of the weight functions \(w_A(r)\) and \(w_D(r)\) obtained from the Hirshfeld-I analysis:
+To fit a $\chi$-prediction model, a training dataset is required that contains both $q$ and $\chi$ for each atom.
+We construct a minimal example of such a dataset, consisting of binary materials, specifically 3-5 zincblendes, a class of semiconductor materials that includes the solar cell material gallium arsenide and the LED material gallium nitride.
 
+Materials were simulated with DFT to obtain both energy and atomic charge, computed with the Hirshfeld-I method.
+An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:my-figure)A).
+The potential was of the form
 \begin{equation}
   \imposedPotentialValue = \lambda \bigl(w_A(r) - w_D(r)\bigr)
   (\#eq:ImposedPotentialTwoAtom)
 \end{equation}
+where \(w_A(r)\) and \(w_D(r)\) are the weight functions defining the boundaries of the atoms, obtained from the Hirshfeld-I analysis.
+For each material, a series of simulations were performed with successively stronger potentials until both atoms were neutral.
+In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \eqref{eq:ImposedPotentialTwoAtom}.
 
-Defining the electronegativity of an atom as the negative of its chemical potential, the difference in electronegativities between the two atoms is the derivative of this energy curve:
-
+The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:my-figure)B for gallium phosphide.
+The electronegativity difference is the derivative of this curve:
 \begin{equation}
   \Delta \chi = \chi_A - \chi_D = \constDeriv{\energyNuc}{q_A}{N}
   (\#eq:DeltaChi)
 \end{equation}
+$\Delta \chi$ can be obtained numerically by discrete differences, as shown in Figure \@ref(fig:my-figure)C.
 
-This can be obtained by numerical differentiation.
-However, as a consequence of the form of the potential in Equation \@ref(eq:ImposedPotentialTwoAtom), the derivative can also be obtained from the strength of the field:
-
+$\Delta \chi$ can also be obtained from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
+If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could the read off from the input settings of the simulations without even looking at the output.
+Since the boundary between the atoms is shifting, an extra factor is required:
 \begin{equation}
-  \constDeriv{\energyNuc}{q_D}{N} = 2 \correctionFactorPop{A} \lambda
+  \constDeriv{\energyNuc}{q_A}{N} = 2 \correctionFactorPop{A} \lambda
   (\#eq:DerivativePotential)
 \end{equation}
-
-where \(\correctionFactorPop{A}\) corrects for the shift in the boundary between the atoms.
+Since the factor $\correctionFactorPop{A}$ can be computed as an integral against the electron density, $\Delta \chi$ can still be obtained from a single frame without numerical differentiation.
 The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:my-figure)C).
+Electronegativity differences for all materials are shown in Figure \@ref(fig:my-figure)D.
 
-The DFT simulations were used to train a model from charges to electronegativities.
-Any such model corresponds to a function mapping a vector of atomic charges \(\vect{q}\) to a vector of atomic electronegativities \(\vect{\chi}(\vect{q})\).
-During training, a model \(\vect{\chi}(\vect{q})\) must reproduce the relationship between charge and electronegativity observed in the simulations.
-For the binary materials, the trend is shown in Figure \@ref(fig:my-figure)D.
-The simplest choice of model for \(\vect{\chi}(\vect{q})\) is a linear model.
-This \emph{ansatz} is equivalent to the classical electronegativity equalization method (EEq).
-The parameter estimates will differ due to the different loss function.
-For two atoms and for fixed total charge, the model can be simplified to
-
+The simplest possible model $\chi$-prediction model would be a linear model:
 \begin{equation}
   \chi_A - \chi_D
     = \bigl(\chi_A^0 - \chi_D^0\bigr)
-      + \bigl(\eta_A + \eta_D - 2\,c_{AD}\bigr)\,q_{AD}
+      + \bigl(\eta_A + \eta_D - 2\,c_{AD}\bigr)\,q_{A}
   (\#eq:LinearModel)
 \end{equation}
+This is the _ansatz_ assumed in EEq, and the EEq parameters appear as regression coefficients: electronegativities of the neutral donor atom $\chi_D^0$ and acceptor atom $\chi_A^0$, hardnesses $\eta_D$ and $\eta_A$, and an interaction parameter $c_{AD}$.
+The parameters were estimated using least squares linear regression.
+As a sanity check, the $\chi^0$ parameters were compared to Pauling electronegativities, with which they correlated closely, except for boron (Figure \@ref(fig:my-figure)E).
 
-where \(q_A\) is the charge of the acceptor atom, \(\chi_A^0\) and \(\chi_D^0\) are the electronegativities of the acceptor and donor atoms when neutral, \(\eta_A\) and \(\eta_D\) are hardnesses, and \(c_{AD}\) is an interaction parameter.
-Fitting this model using a standard linear regression package results in \(\chi^0_A\) parameters that reproduce familiar trends in electronegativity (Figure \@ref(fig:my-figure)E).
+With the parameters in hand, $q$-prediction can be accomplished by setting the electronegativity difference $\chi_A - \chi_D$ to zero and solving \eqref{eq:LinearModel} for $q_A$:
+\begin{equation}
+  -q_A = \frac{\chi_A^0 - \chi_D^0}{\eta_A + \eta_D - 2\,c_{AD}}
+  (\#eq:EEqPred)
+\end{equation}
+This is the familiar electronegativity equalization equation.
