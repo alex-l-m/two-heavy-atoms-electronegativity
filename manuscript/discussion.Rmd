@@ -44,4 +44,4 @@ Machine learning datasets such as ANI2 [@isayevani2] include continuous deformat
 
 Fast models based on monopole approximations will be key to progress on two frontiers of computational chemistry: computing predictions for larger systems, and for larger numbers of systems.
 As long as partial charge prediction is an essential subproblem in computational chemistry we will have to face the problem of how to fit the parameters of these charge models.
-Although we have not definitely established the advantages of $\chi$-prediction, it is important to raise the question to determine if the next generation of open machine learning datasets should include not just forces and charges, but also electronegativities.
+Although we have not definitively established the advantages of $\chi$-prediction, it is important to raise the question to determine if the next generation of open machine learning datasets should include not just forces and charges, but also electronegativities.
