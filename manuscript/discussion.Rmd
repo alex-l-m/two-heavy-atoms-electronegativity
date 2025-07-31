@@ -5,29 +5,29 @@ We then used it to fit the parameters of a model predicting $\Delta \chi$, and s
 $\Delta \chi$ was obtained as the strength of an external electric field, an instance of measuring an internal chemical potential with an external chemical potential, in the terminology of @kittel1980thermal.
 Due to the arbitrary constant in the potential, only the difference between the two atomic $chi$ values was obtained.
 
-Although a continuous series of frames were created with incrementally increasing $\Delta \chi$, the value could be obtained from a single frame.
+Although a continuous series of frames was created with incrementally increasing $\Delta \chi$, the value could be obtained from a single frame.
 This observation is analogous to the observation that Feynman-Hellman forces could be computed without numerical differentiation [@FeynmanForcesInMolecules].
 In fact, with constrained DFT [@KadukConstrainedDFTReview], it is possible to specify particular charges, for example skipping directly to the neutral atoms that constituted our final frame.
-From a constrained DFT calculations, the electronegativities can be obtained directly as the Lagrange multipliers of the constraint.
+From a constrained DFT calculation, the electronegativities can be obtained directly as the Lagrange multipliers of the constraint.
 Although exact equality between the potential and $\chi$ is broken by shifts in the weight function in the partial charge definition, this could be corrected for using a simple integral against the density.
 
 The model we fit was linear, enabling us to obtain EEq parameters using linear regression.
 Since EEq is the simplest empirical model of partial charge, it is satisfying that in our framing as $\chi$-prediction it is equivalent to the simplest predictive model in machine learning, the linear model.
 With the parameters of a $\chi$-prediction model in hand, $q$ could be predicted by solving for equal electronegativities, analogous to predicting geometries by solving for zero force.
-In the case of the linear model this produced the familiar formula for predicted charge from EEq.
+In the case of the linear model, this produced the familiar formula for predicted charge from EEq.
 
 The usual method for fitting EEq parameters is to minimize error directly with this formula for $q$ [@verstraelenElectronegativityParameters].
 Contrasting this to our method of fitting parameters with $\chi$-prediction reveals an advantage of $\chi$-prediction that may hold more generally than in the simple model analyzed here.
-In formula \eqref{eq:LinearModel} for $\Delta \chi$, considered as a linear regression model with the partial charges as independent variables, each EEq parameter appears as separately as a regression coefficient.
+In formula \eqref{eq:LinearModel} for $\Delta \chi$, considered as a linear regression model with the partial charges as independent variables, each EEq parameter appears separately as a regression coefficient.
 Formula \eqref{eq:EEqPred} for $q_A$ is also linear, in the electronegativity parameters $\chi_A^0$ and $\chi_D^0$, but the coefficients are non-linear combinations of parameters describing multiple atoms.
 Even setting the interaction parameters $c_{AD}$ to zero, the formula for $q$-prediction for one atom depends on the hardness of both atoms.
-This is reflective of an element of non-locality induced by the total charge constraint, since even atoms that are not in physical contact with each other in a system still compete for fixed pool of charge.
+This is reflective of an element of non-locality induced by the total charge constraint, since even atoms that are not in physical contact with each other in a system still compete for a fixed pool of charge.
 This observation about EEq is suggestive that atomic electronegativity is a more local property, and may be more learnable, than atomic charge.
 
 Besides the linear model, more sophisticated predictive models from machine learning can be fit to datasets of atomic electronegativities like the one demonstrated here.
 These models can then be used to predict charge by solving for the input charges that would equalize output electronegativities, a process that could be considered generalized EEq.
 Unlike in classical EEq, generalized EEq would require iterative solution, which adds to runtime computational cost.
-However, this is is no different than the cost involved in iteratively solving for zero force, and machine learning of forces has generally been found to be easier than machine learning of final geometries.
+However, this is no worse the cost involved in iteratively solving for zero force, and machine learning of forces has generally been found to be easier than machine learning of final geometries.
 
 Besides machine learning models, more physically motivated models can be fit on the $\chi$-prediction problem as well, including semiempirical quantum chemistry models.
 This may require implementing a new kind of analytic gradient: the derivative of energy with respect to electron density.
@@ -35,8 +35,8 @@ This may provide an alternative means of parameter fitting, by minimizing $\chi$
 However, it raises the difficult question of whether electronegativities computed from DFT and from the semiempirical model can be meaningfully compared.
 
 We have shown how a dataset including $\chi$ can be constructed, including non-equilibrium electron densities.
-Just as forces have been included in many datasets for training machine learning models, it is possible to include electronegativity is as well.
-Using constrained density functional theory it is possible to include interesting special cases like a molecules or material in which all atoms are neutral.
+Just as forces have been included in many datasets for training machine learning models, it is possible to include electronegativity as well.
+Using constrained density functional theory it is possible to include interesting special cases like molecules or material in which all atoms are neutral.
 However, it may be desirable to include a continuous series of non-equilibrium charges, as we have done here.
 Machine learning datasets such as ANI2 [@isayevani2] include continuous deformations of geometry, analogous to our continuous deformations of charge.
 

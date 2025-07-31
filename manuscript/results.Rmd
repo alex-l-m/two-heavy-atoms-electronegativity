@@ -17,7 +17,7 @@ The potential was of the form
   (\#eq:ImposedPotentialTwoAtom)
 \end{equation}
 where \(w_A(r)\) and \(w_D(r)\) are the weight functions defining the boundaries of the atoms, obtained from the Hirshfeld-I analysis.
-For each material, a series of simulations were performed with successively stronger potentials until both atoms were neutral.
+For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
 In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \eqref{eq:ImposedPotentialTwoAtom}.
 
 The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:my-figure)B for gallium phosphide.
@@ -29,7 +29,7 @@ The electronegativity difference is the derivative of this curve:
 $\Delta \chi$ can be obtained numerically by discrete differences, as shown in Figure \@ref(fig:my-figure)C.
 
 $\Delta \chi$ can also be obtained from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
-If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could the read off from the input settings of the simulations without even looking at the output.
+If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could be read off from the input settings of the simulations without even looking at the output.
 Since the boundary between the atoms is shifting, an extra factor is required:
 \begin{equation}
   \constDeriv{\energyNuc}{q_A}{N} = 2 \correctionFactorPop{A} \lambda
