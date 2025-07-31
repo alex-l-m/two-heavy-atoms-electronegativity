@@ -34,10 +34,10 @@ This may require implementing a new kind of analytic gradient: the derivative of
 This may provide an alternative means of parameter fitting, by minimizing $\chi$-prediction error.
 However, it raises the difficult question of whether electronegativities computed from DFT and from the semiempirical model can be meaningfully compared.
 
-The we have shown how a dataset including $\chi$ can be constructed, including non-equilibrium electron densities.
+We have shown how a dataset including $\chi$ can be constructed, including non-equilibrium electron densities.
 Just as forces have been included in many datasets for training machine learning models, it is possible to include electronegativity is as well.
 Using constrained density functional theory it is possible to include interesting special cases like a molecules or material in which all atoms are neutral.
-The however it may be desirable to include a continuous series of non-equilibrium charges, as we have done here.
+However, it may be desirable to include a continuous series of non-equilibrium charges, as we have done here.
 Machine learning datasets such as ANI2 [@isayevani2] include continuous deformations of geometry, analogous to our continuous deformations of charge.
 
 Fast models based on monopole approximations will be key to progress on two frontiers of computational chemistry: computing predictions for larger systems, and for larger numbers of systems.
