@@ -34,14 +34,14 @@ This may require implementing a new kind of analytic gradient: the derivative of
 This may provide an alternative means of parameter fitting, by minimizing $\chi$-prediction error.
 However, it raises the difficult question of whether electronegativities computed from DFT and from the semiempirical model can be meaningfully compared.
 
-We have shown how a dataset including $\chi$ can be constructed, including non-equilibrium electron densities.
+We have shown that, even if the ultimate purpose of a model is $q$-prediction, an alternative method of parametrization, minimizing training loss on the $\chi$-prediction problem, is feasible.
 Just as forces have been included in many datasets for training machine learning models, it is possible to include electronegativity as well.
+It may be that the $\chi$-prediction problem is more learnable, just as force is more learnable than final geometry, and examination of EEq was suggestive that $\chi$-prediction may avoid an element of non-locality induced by the total charge constraint.
+
 Using constrained density functional theory it is possible to include interesting special cases like molecules or material in which all atoms are neutral.
 However, it may be desirable to include a continuous series of non-equilibrium charges, as we have done here.
 Machine learning datasets such as ANI2 [@isayevani2] include continuous deformations of geometry, analogous to our continuous deformations of charge.
 
 Fast models based on monopole approximations will be key to progress on two frontiers of computational chemistry: computing predictions for larger systems, and for larger numbers of systems.
 As long as partial charge prediction is an essential subproblem in computational chemistry we will have to face the problem of how to fit the parameters of these charge models.
-We have shown that, even if the ultimate purpose of a model is $q$-prediction, an alternative method of parametrization, minimizing training loss on the $\chi$-prediction problem, is feasible.
-It may be that the $\chi$-prediction problem is more learnable, just as force is more learnable than final geometry, and examination of EEq was suggestive that $\chi$-prediction may avoid an element of non-locality induced by the total charge constraint.
 Although we have not definitely established the advantages of $\chi$-prediction, it is important to raise the question to determine if the next generation of open machine learning datasets should include not just forces and charges, but also electronegativities.
