@@ -1,0 +1,4 @@
+linters: linters_with_tags(tags = c("correctness", "common_mistakes", "robustness", "efficiency"), undesirable_function_linter = NULL)
+encoding: "UTF-8"
+
+
