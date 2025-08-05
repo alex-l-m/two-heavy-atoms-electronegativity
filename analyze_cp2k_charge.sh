@@ -10,7 +10,8 @@ Rscript smoothed_energy_plots.R
 Rscript plot_everything.R
 
 # Model fitting and analysis of parameters
-Rscript electronegativity_regression.R
+Rscript regression_terms.R
+Rscript regression_parameters.R
 Rscript regression_plots.R
 Rscript compare_structure_params.R
 Rscript plot_interaction_terms.R

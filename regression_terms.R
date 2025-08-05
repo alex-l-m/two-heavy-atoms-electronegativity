@@ -1,4 +1,3 @@
-library(broom)
 library(tidyverse)
 library(glue)
 
@@ -88,6 +87,9 @@ for (category_structure_pair in category_structure_pairs)
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
         select(combination_id, category, variable_contribution)
+
+    write_csv(electronegativity_terms,
+              glue('{category_structure_pair}_electronegativity_terms.csv.gz'))
     
     hardness_terms <- cdft_charges |>
         # Remove electronegativity of an arbitrary element to use it as a
@@ -105,8 +107,6 @@ for (category_structure_pair in category_structure_pairs)
                                               1, -1) * charge) |>
         select(combination_id, category, variable_contribution)
 
-    # The hardness terms have to be written because the table gets used in
-    # plotting
     write_csv(hardness_terms, glue('{category_structure_pair}_hardness_terms.csv.gz'))
     
     interaction_terms <- cdft_charges |>
@@ -121,6 +121,8 @@ for (category_structure_pair in category_structure_pairs)
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
         select(combination_id, category, variable_contribution)
+
+    write_csv(interaction_terms, glue('{category_structure_pair}_interaction_terms.csv.gz'))
     
     electronegativity_differences <- cdft_charges |>
         # Sum the electronegativities for each atom to get the derivative of
@@ -129,35 +131,6 @@ for (category_structure_pair in category_structure_pairs)
         summarize(variable_contribution = sum(electronegativity_field_discrete),
                   .groups = 'drop') |>
         select(combination_id, variable_contribution)
-    # Also gets used in plotting, also has to be saved
     write_csv(electronegativity_differences,
               glue('{category_structure_pair}_electronegativity_differences.csv.gz'))
-    
-    regression_terms <- bind_rows(
-            electronegativity_difference = electronegativity_differences,
-            electronegativity = electronegativity_terms,
-            hardness = hardness_terms,
-            interaction = interaction_terms,
-            .id = 'variable_type') |>
-        # The categories are all {formula}_S{scale_number} or {symbol}_S{scale_number}
-        # Therefore variable names will consist of three parts: type, group, scale number
-        # (where group is either formula or scale number)
-        mutate(variable_name = ifelse(is.na(category), variable_type,
-                                      glue('{variable_type}_{category}')))
-    
-    pre_regression_table <- regression_terms |>
-        group_by(combination_id, variable_name) |>
-        summarize(variable_value = sum(variable_contribution), .groups = 'drop') |>
-        pivot_wider(names_from = variable_name, values_from = variable_value,
-                    values_fill = 0)
-    
-    regression_table <- pre_regression_table |>
-        select(-combination_id) |>
-        as.data.frame()
-    rownames(regression_table) <- pre_regression_table$combination_id
-    
-    linear_model <- lm(electronegativity_difference ~ . + 0,
-                       data = regression_table)
-    estimates <- tidy(linear_model)
-    write_csv(estimates, glue('{category_structure_pair}_electronegativity_regression_estimates.csv.gz'))
 }
