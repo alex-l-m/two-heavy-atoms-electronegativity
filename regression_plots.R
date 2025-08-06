@@ -50,8 +50,7 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
 ))
 
 unique_scale_numbers <- charge_energy |>
-    distinct(scale_number) |>
-    pull(scale_number)
+    distinct(scale_number)
 
 scale_numbers <- charge_energy |>
     select(combination_id, scale_number) |>
@@ -67,16 +66,7 @@ category_structure_pairs <- charge_energy |>
     pull(category_structure_pair)
 for (category_structure_pair in category_structure_pairs)
 {
-    # Read which element is being used as the reference for the
-    # electronegativities
-    reference_element <- read_csv(glue('{category_structure_pair}_reference_element.csv'),
-                                  col_types = cols(symbol = col_character())) |>
-        pull(symbol)
-
-    # Read which formulas are being used as references for the interaction term
-    reference_formulas <- read_csv(glue('{category_structure_pair}_reference_formulas.csv'),
-                                   col_types = cols(formula = col_character()))
-
+    # 
     # Read the previously saved parameter estimates from regression
     estimates <- read_csv(glue('{category_structure_pair}_electronegativity_regression_estimates.csv.gz'),
              col_types = cols(
@@ -86,24 +76,21 @@ for (category_structure_pair in category_structure_pairs)
                  statistic = col_double(),
                  p.value = col_double()
              )) |>
-        mutate(category_structure_pair = category_structure_pair)
-    electronegativity_param_regex <- '([^_]*)_([^_]*)_S(\\d+)'
-    regression_electronegativity <- estimates |>
-        mutate(
-            term_type = str_match(term, electronegativity_param_regex)[, 2],
-            symbol = str_match(term, electronegativity_param_regex)[, 3],
-            scale_number = as.integer(str_match(term, electronegativity_param_regex)[, 4])
-        ) |>
-        filter(term_type == 'electronegativity') |>
-        select(symbol, scale_number, estimate) |>
-        rename(regression_electronegativity = estimate) |>
-        bind_rows(tibble(symbol = reference_element,
-                         regression_electronegativity = 0,
-                         scale_number = unique_scale_numbers))
-    
-    electronegativity_comparison_tbl <- left_join(regression_electronegativity,
-                                                  pauling_electronegativity,
-                                                  by = 'symbol')
+        select(term, estimate)
+
+    electronegativity_comparison_tbl <- pauling_electronegativity |>
+        cross_join(unique_scale_numbers) |>
+        # Create a column with the name of the term corresponding to the
+        # regression electronegativity of the element
+        mutate(term = glue('electronegativity_{symbol}_S{scale_number}')) |>
+        # Retrieve the regression electronegativity by joining with the
+        # parameter table
+        left_join(estimates, by = 'term', relationship = 'one-to-one') |>
+        # If a symbol is missing that means there wasn't a parameter estimate
+        # for it which means I implicitly set it to zero by leaving it out of
+        # the regression model. So replace missing values with zero
+        mutate(regression_electronegativity = replace_na(estimate, 0)) |>
+        select(-term, -estimate)
 
     electronegativity_comparison_plot <- electronegativity_comparison_tbl |>
         ggplot(aes(x = pauling_electronegativity, y = regression_electronegativity,

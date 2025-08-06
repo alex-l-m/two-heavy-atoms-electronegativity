@@ -55,57 +55,70 @@ for (category_structure_pair in category_structure_pairs)
     
     # Order elements by atomic number, to select the least for use as a
     # reference for electronegativity and hardness
-    ordered_selected_elements <- cdft_charges |>
+    ranked_elements <- cdft_charges |>
         select(symbol) |>
         distinct() |>
         left_join(atomic_numbers, by = 'symbol') |>
-        arrange(atomic_number) |>
-        pull(symbol)
-    write_csv(tibble(symbol = ordered_selected_elements),
-              glue('{category_structure_pair}_ordered_selected_elements.csv'))
-    reference_element <- ordered_selected_elements[1]
-    write_csv(tibble(symbol = reference_element),
-              glue('{category_structure_pair}_reference_element.csv'))
+        # Ranks
+        # Choosing a deterministic ties method with integer output, but there
+        # shouldn't be any ties, so it doesn't matter
+        mutate(element_rank = rank(atomic_number, ties.method = 'first'))
 
     # As a reference for the interaction terms, all formulas with the "minimum"
     # (by atomic number) cation or anion
-    reference_formulas <- cdft_charges |>
-        distinct(formula, symbol, other_symbol, donor_or_acceptor) |>
+    ranked_formulas <- cdft_charges |>
+        distinct(formula, symbol, donor_or_acceptor) |>
         left_join(atomic_numbers, by = 'symbol') |>
         group_by(donor_or_acceptor) |>
-        filter(atomic_number == min(atomic_number)) |>
-        distinct(formula)
-    write_csv(reference_formulas, glue('{category_structure_pair}_reference_formulas.csv'))
+        # Ranks
+        # This time, multiple formulas can be the minimum, I need a method
+        # for handling ties that doesn't give unique ranks
+        # Therefore, using the 'min' method, which gives output like:
+        # > rank(c(15, 15, 20), ties.method = 'min')
+        # [1] 1 1 3
+        mutate(formula_rank = rank(atomic_number, ties.method = 'min')) |>
+        select(formula, donor_or_acceptor, formula_rank) |>
+        # For each formula there should be two distinct rank columns, one for
+        # the donor and one for the acceptor
+        pivot_wider(
+            names_from = donor_or_acceptor,
+            values_from = formula_rank,
+            names_prefix = 'formula_rank_'
+        )
 
     electronegativity_terms <- cdft_charges |>
-        # Remove electronegativity of an arbitrary element to use it as a
-        # reference
-        filter(symbol != reference_element) |>
+        # Add the rank column for referencing
+        left_join(ranked_elements, by = 'symbol') |>
+        rename(electronegativity_term_rank = element_rank) |>
         # Electronegativity terms correspond to an element
         # Also make them dependent on scale
         mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
-        select(combination_id, category, variable_contribution)
+        select(combination_id, category, variable_contribution, 
+               electronegativity_term_rank)
 
     write_csv(electronegativity_terms,
               glue('{category_structure_pair}_electronegativity_terms.csv.gz'))
     
     hardness_terms <- cdft_charges |>
-        # Remove electronegativity of an arbitrary element to use it as a
+        # Hardness for one arbitrary element has to be removed to use it as a
         # reference
         # This is harder to explain, but since all that matters is total
         # hardness, and there's always a cation and an anion, you can "move"
         # hardness from all cations to all anions without changing any of the
         # totals. So we decide in advance how much to "move": whatever makes
         # the hardness of the reference element zero
-        filter(symbol != reference_element) |>
+        # Add the rank column for later removal
+        left_join(ranked_elements, by = 'symbol') |>
+        rename(hardness_term_rank = element_rank) |>
         # Same as electronegativity: each term corresponds to an element, also
         # dependent on scale
         mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
-        select(combination_id, category, variable_contribution)
+        select(combination_id, category, variable_contribution,
+               hardness_term_rank)
 
     write_csv(hardness_terms, glue('{category_structure_pair}_hardness_terms.csv.gz'))
     
@@ -116,11 +129,14 @@ for (category_structure_pair in category_structure_pairs)
         # realized in practice. So you could just consider the smallest
         # interaction term to be zero, and the hardness to be the highest
         # achievable hardness
-        anti_join(reference_formulas, by = 'formula') |>
+        left_join(ranked_formulas, by = 'formula') |>
+        rename(interaction_term_donor_rank = formula_rank_donor,
+               interaction_term_acceptor_rank = formula_rank_acceptor) |>
         mutate(category = glue('{formula}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
-        select(combination_id, category, variable_contribution)
+        select(combination_id, category, variable_contribution,
+               interaction_term_donor_rank, interaction_term_acceptor_rank)
 
     write_csv(interaction_terms, glue('{category_structure_pair}_interaction_terms.csv.gz'))
     

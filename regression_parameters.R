@@ -43,25 +43,41 @@ category_structure_pairs <- charge_energy |>
     mutate(category_structure_pair = glue('{category}:{crystal_structure}')) |>
     distinct(category_structure_pair) |>
     pull(category_structure_pair)
+
+# Function for filtering on one of the reference ranking columns. It's a
+# predicate that means "above the minimum rank", but missing values are
+# also counted as true, since that means it isn't the right term for this
+# kind of referencing
+not_reference <- function(x)
+{
+    minimum_rank <- min(x, na.rm = TRUE)
+    is_minimum_rank <- sapply(x == minimum_rank, isTRUE)
+    return(!is_minimum_rank)
+}
+
 for (category_structure_pair in category_structure_pairs)
 {
     electronegativity_terms <- read_csv(glue('{category_structure_pair}_electronegativity_terms.csv.gz'),
         col_types = cols(
             combination_id = col_character(),
             category = col_character(),
-            variable_contribution = col_double()
+            variable_contribution = col_double(),
+            electronegativity_term_rank = col_integer()
         ))
     hardness_terms <- read_csv(glue('{category_structure_pair}_hardness_terms.csv.gz'),
         col_types = cols(
             combination_id = col_character(),
             category = col_character(),
-            variable_contribution = col_double()
+            variable_contribution = col_double(),
+            hardness_term_rank = col_integer()
         ))
     interaction_terms <- read_csv(glue('{category_structure_pair}_interaction_terms.csv.gz'),
         col_types = cols(
             combination_id = col_character(),
             category = col_character(),
-            variable_contribution = col_double()
+            variable_contribution = col_double(),
+            interaction_term_donor_rank = col_integer(),
+            interaction_term_acceptor_rank = col_integer()
         ))
 
     electronegativity_differences <- read_csv(glue('{category_structure_pair}_electronegativity_differences.csv.gz'),
@@ -82,7 +98,19 @@ for (category_structure_pair in category_structure_pairs)
         mutate(variable_name = ifelse(is.na(category), variable_type,
                                       glue('{variable_type}_{category}')))
     
+    # Table for regression, including design matrix, response, and an
+    # identifier for each row
     pre_regression_table <- regression_terms |>
+        # Filter out the lowest ranked terms according to each of the reference
+        # rank columns and then remove those columns
+        filter(not_reference(electronegativity_term_rank) &
+               not_reference(hardness_term_rank) &
+               not_reference(interaction_term_donor_rank) &
+               not_reference(interaction_term_acceptor_rank)) |>
+        select(-electronegativity_term_rank,
+               -hardness_term_rank,
+               -interaction_term_donor_rank,
+               -interaction_term_acceptor_rank) |>
         group_by(combination_id, variable_name) |>
         summarize(variable_value = sum(variable_contribution), .groups = 'drop') |>
         pivot_wider(names_from = variable_name, values_from = variable_value,
