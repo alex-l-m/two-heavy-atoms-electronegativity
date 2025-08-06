@@ -38,7 +38,8 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
 
 # Charge of the acceptor atoms in ground state structures
 acceptor_charge <- charge_energy |>
-    filter(donor_or_acceptor == 'acceptor' & scale_number == 0 & !cdft) |>
+    filter(donor_or_acceptor == 'acceptor' & scale_number == 0 &
+           crystal_structure == 'zincblende' & !cdft) |>
     select(formula, charge) |>
     rename(acceptor_charge = charge)
 
