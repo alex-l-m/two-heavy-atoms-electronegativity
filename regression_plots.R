@@ -66,9 +66,8 @@ category_structure_pairs <- charge_energy |>
     pull(category_structure_pair)
 for (category_structure_pair in category_structure_pairs)
 {
-    # 
     # Read the previously saved parameter estimates from regression
-    estimates <- read_csv(glue('{category_structure_pair}_electronegativity_regression_estimates.csv.gz'),
+    estimates <- read_csv(glue('{category_structure_pair}_regression_estimates.csv.gz'),
              col_types = cols(
                  term = col_character(),
                  estimate = col_double(),

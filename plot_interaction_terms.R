@@ -55,7 +55,7 @@ regression_estimate_coltypes <- cols(
     p.value = col_double()
 )
 
-regression_estimates <- read_csv('3-5:zincblende_electronegativity_regression_estimates.csv', col_types = regression_estimate_coltypes)
+regression_estimates <- read_csv('3-5:zincblende_regression_estimates.csv.gz', col_types = regression_estimate_coltypes)
 
 # Regular expression for recognizing interaction terms and extracting the formula and scale number
 # Example: interaction_GaP_S3

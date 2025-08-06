@@ -44,10 +44,8 @@ category_structure_pairs <- charge_energy |>
     pull(category_structure_pair)
 for (category_structure_pair in category_structure_pairs)
 {
-    # I used to filter for only those where a charge was applied, and those
-    # were computed with constrained DFT. I don't do that anymore but the name
-    # remains
-    cdft_charges <- charge_energy |>
+    # Charges which will be used in this iteration of the loop
+    these_charges <- charge_energy |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
         select(combination_id, formula, symbol, other_symbol, donor_or_acceptor,
                charge, electronegativity_field_discrete,
@@ -55,7 +53,7 @@ for (category_structure_pair in category_structure_pairs)
     
     # Order elements by atomic number, to select the least for use as a
     # reference for electronegativity and hardness
-    ranked_elements <- cdft_charges |>
+    ranked_elements <- these_charges |>
         select(symbol) |>
         distinct() |>
         left_join(atomic_numbers, by = 'symbol') |>
@@ -66,7 +64,7 @@ for (category_structure_pair in category_structure_pairs)
 
     # As a reference for the interaction terms, all formulas with the "minimum"
     # (by atomic number) cation or anion
-    ranked_formulas <- cdft_charges |>
+    ranked_formulas <- these_charges |>
         distinct(formula, symbol, donor_or_acceptor) |>
         left_join(atomic_numbers, by = 'symbol') |>
         group_by(donor_or_acceptor) |>
@@ -86,7 +84,7 @@ for (category_structure_pair in category_structure_pairs)
             names_prefix = 'formula_rank_'
         )
 
-    electronegativity_terms <- cdft_charges |>
+    electronegativity_terms <- these_charges |>
         # Add the rank column for referencing
         left_join(ranked_elements, by = 'symbol') |>
         rename(electronegativity_term_rank = element_rank) |>
@@ -101,7 +99,7 @@ for (category_structure_pair in category_structure_pairs)
     write_csv(electronegativity_terms,
               glue('{category_structure_pair}_electronegativity_terms.csv.gz'))
     
-    hardness_terms <- cdft_charges |>
+    hardness_terms <- these_charges |>
         # Hardness for one arbitrary element has to be removed to use it as a
         # reference
         # This is harder to explain, but since all that matters is total
@@ -122,7 +120,7 @@ for (category_structure_pair in category_structure_pairs)
 
     write_csv(hardness_terms, glue('{category_structure_pair}_hardness_terms.csv.gz'))
     
-    interaction_terms <- cdft_charges |>
+    interaction_terms <- these_charges |>
         # There's linear constraint on the interaction terms as well. Every
         # atom can be thought of as having an "adjusted hardness", which is the
         # hardness minus the interaction term. So the "true" hardness is never
@@ -140,7 +138,7 @@ for (category_structure_pair in category_structure_pairs)
 
     write_csv(interaction_terms, glue('{category_structure_pair}_interaction_terms.csv.gz'))
     
-    electronegativity_differences <- cdft_charges |>
+    electronegativity_differences <- these_charges |>
         # Sum the electronegativities for each atom to get the derivative of
         # energy as one atom gains charge and the other loses it
         group_by(combination_id) |>

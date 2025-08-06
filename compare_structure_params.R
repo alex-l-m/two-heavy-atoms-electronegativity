@@ -13,7 +13,7 @@ combination <- '3-5'
 reference_element <- read_csv('3-5:zincblende_reference_element.csv', col_types = cols(symbol = col_character()))
 reference_formulas <- read_csv('3-5:zincblende_reference_formulas.csv', col_types = cols(formula = col_character()))
 
-infiles <- Sys.glob(glue('{combination}:*_electronegativity_regression_estimates.csv'))
+infiles <- Sys.glob(glue('{combination}:*_regression_estimates.csv.gz'))
 regression_estimate_coltypes <- cols(
     term = col_character(),
     estimate = col_double(),
@@ -21,7 +21,7 @@ regression_estimate_coltypes <- cols(
     statistic = col_double(),
     p.value = col_double()
 )
-filename_regex <- '(.*):(.*)_electronegativity_regression_estimates.csv'
+filename_regex <- '(.*):(.*)_regression_estimates.csv.gz'
 term_regex <- '([^_]*)_(.*)'
 regression_estimates <- tibble(infile = infiles) |>
     group_by(infile) |>

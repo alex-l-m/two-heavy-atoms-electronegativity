@@ -124,5 +124,5 @@ for (category_structure_pair in category_structure_pairs)
     linear_model <- lm(electronegativity_difference ~ . + 0,
                        data = regression_table)
     estimates <- tidy(linear_model)
-    write_csv(estimates, glue('{category_structure_pair}_electronegativity_regression_estimates.csv.gz'))
+    write_csv(estimates, glue('{category_structure_pair}_regression_estimates.csv.gz'))
 }
