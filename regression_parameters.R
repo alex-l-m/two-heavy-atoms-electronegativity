@@ -2,12 +2,6 @@ library(broom)
 library(tidyverse)
 library(glue)
 
-# Atomic numbers, for ordering
-atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
-    symbol = col_character(),
-    atomic_number = col_integer()
-))
-
 charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     combination_id = col_character(),
     symbol = col_character(),
@@ -113,6 +107,7 @@ for (category_structure_pair in category_structure_pairs)
                -interaction_term_acceptor_rank) |>
         group_by(combination_id, variable_name) |>
         summarize(variable_value = sum(variable_contribution), .groups = 'drop') |>
+        # Convert from a tidy table to a design matrix
         pivot_wider(names_from = variable_name, values_from = variable_value,
                     values_fill = 0)
     
