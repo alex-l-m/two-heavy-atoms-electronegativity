@@ -67,6 +67,12 @@ category_structure_pairs <- charge_energy |>
     pull(category_structure_pair)
 for (category_structure_pair in category_structure_pairs)
 {
+    ranked_elements <-
+        read_csv(glue('{category_structure_pair}_ranked_elements.csv.gz'), col_types = cols(
+            symbol = col_character(),
+            atomic_number = col_double(),
+            element_rank = col_double()
+        ))
     # Read the previously saved parameter estimates from regression
     estimates <- read_csv(glue('{category_structure_pair}_regression_estimates.csv.gz'),
              col_types = cols(
@@ -78,7 +84,10 @@ for (category_structure_pair in category_structure_pairs)
              )) |>
         select(term, estimate)
 
-    electronegativity_comparison_tbl <- pauling_electronegativity |>
+    electronegativity_comparison_tbl <- ranked_elements |>
+        select(symbol) |>
+        left_join(pauling_electronegativity, by = 'symbol',
+                  relationship = 'one-to-one') |>
         cross_join(unique_scale_numbers) |>
         # Create a column with the name of the term corresponding to the
         # regression electronegativity of the element
@@ -164,12 +173,6 @@ for (category_structure_pair in category_structure_pairs)
                   relationship = 'many-to-one')
 
     # Make plots showing the data underlying the regression
-    ranked_elements <-
-        read_csv('3-5:zincblende_ranked_elements.csv.gz', col_types = cols(
-            symbol = col_character(),
-            atomic_number = col_double(),
-            element_rank = col_double()
-        ))
     # Make a vector of elements ordered by their rank to use as factor levels
     ordered_selected_elements <- ranked_elements |>
         arrange(element_rank) |>
