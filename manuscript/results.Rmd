@@ -1,16 +1,22 @@
 # Results
 
-(ref:fig1caption) **A** Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations. **D** Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. **E** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.
+(ref:dataset-illustration-figure-caption) **A** Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations. **D** Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. **E** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.
 
-```{r my-figure, echo=FALSE, fig.cap="(ref:fig1caption)", out.width="100%"}
-knitr::include_graphics("figure.png")
+```{r dataset-illustration-figure, echo=FALSE, fig.cap="(ref:dataset-illustration-figure-caption)", out.width="100%"}
+knitr::include_graphics("figure1.png")
+```
+
+(ref:linear-model-figure-caption) **A** Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. **B** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.
+
+```{r linear-model-figure, echo=FALSE, fig.cap="(ref:linear-model-figure-caption)", out.width="100%"}
+knitr::include_graphics("figure2.png")
 ```
 
 To fit a $\chi$-prediction model, a training dataset is required that contains both $q$ and $\chi$ for each atom.
 We construct a minimal example of such a dataset, consisting of binary materials, specifically 3-5 zincblendes, a class of semiconductor materials that includes the solar cell material gallium arsenide and the LED material gallium nitride.
 
 Materials were simulated with DFT to obtain both energy and atomic charge, computed with the Hirshfeld-I method.
-An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:my-figure)A).
+An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A).
 The potential was of the form
 \begin{equation}
   \imposedPotentialValue = \lambda \bigl(w_A(r) - w_D(r)\bigr)
@@ -20,13 +26,13 @@ where \(w_A(r)\) and \(w_D(r)\) are the weight functions defining the boundaries
 For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
 In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \eqref{eq:ImposedPotentialTwoAtom}.
 
-The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:my-figure)B for gallium phosphide.
+The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
 The electronegativity difference is the derivative of this curve:
 \begin{equation}
   \Delta \chi = \chi_A - \chi_D = \constDeriv{\energyNuc}{q_A}{N}
   (\#eq:DeltaChi)
 \end{equation}
-$\Delta \chi$ can be obtained numerically by discrete differences, as shown in Figure \@ref(fig:my-figure)C.
+$\Delta \chi$ can be obtained numerically by discrete differences, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
 
 $\Delta \chi$ can also be obtained from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
 If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could be read off from the input settings of the simulations without even looking at the output.
@@ -36,8 +42,8 @@ Since the boundary between the atoms is shifting, an extra factor is required:
   (\#eq:DerivativePotential)
 \end{equation}
 Since the factor $\correctionFactorPop{A}$ can be computed as an integral against the electron density, $\Delta \chi$ can still be obtained from a single frame without numerical differentiation.
-The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:my-figure)C).
-Electronegativity differences for all materials are shown in Figure \@ref(fig:my-figure)D.
+The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C).
+Electronegativity differences for all materials are shown in Figure \@ref(fig:linear-model-figure)A.
 
 The simplest possible model $\chi$-prediction model would be a linear model:
 \begin{equation}
@@ -48,7 +54,7 @@ The simplest possible model $\chi$-prediction model would be a linear model:
 \end{equation}
 This is the _ansatz_ assumed in EEq, and the EEq parameters appear as regression coefficients: electronegativities of the neutral donor atom $\chi_D^0$ and acceptor atom $\chi_A^0$, hardnesses $\eta_D$ and $\eta_A$, and an interaction parameter $c_{AD}$.
 The parameters were estimated using least squares linear regression.
-As a sanity check, the $\chi^0$ parameters were compared to Pauling electronegativities, with which they correlated closely, except for boron (Figure \@ref(fig:my-figure)E).
+As a sanity check, the $\chi^0$ parameters were compared to Pauling electronegativities, with which they correlated closely, except for boron (Figure \@ref(fig:linear-model-figure)B).
 
 With the parameters in hand, $q$-prediction can be accomplished by setting the electronegativity difference $\chi_A - \chi_D$ to zero and solving \eqref{eq:LinearModel} for $q_A$:
 \begin{equation}

@@ -52,16 +52,33 @@ example_electronegativity_plot <- electronegativity_plot_list[['GaP']] +
 ggsave('example_electronegativity_plot.png', example_electronegativity_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))
 
+# The comparison between the estimated charges from the leave-one-out and the
+# charges from first principles
+loo_charge_comparison_plot <- readr::read_rds(glue('{category_structure_pair}_loo_charge_comparison_plot.rds'))
 
-# Plot layout design so that the hardness regression plot takes up two "slots"
-design <- "
+fig1_design <- "
     ABC
-    DDE
 "
-panels <- circuit_diagram_patchwork_element + example_energy_curve_plot + example_electronegativity_plot +
-    hardness_regression_plot + electronegativity_comparison_plot +
-    patchwork::plot_layout(design = design) +
+# Plot layout design so that the hardness regression plot takes up multiple "slots"
+fig2_design <- "
+    AAA
+    BCD
+"
+fig1_panels <-
+    circuit_diagram_patchwork_element + example_energy_curve_plot +
+    example_electronegativity_plot +
+    patchwork::plot_layout(design = fig1_design) +
     # Label each panel with capital letters
     patchwork::plot_annotation(tag_levels = 'A')
 
-ggsave('manuscript/figure.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
+fig2_panels <- 
+    hardness_regression_plot + electronegativity_comparison_plot +
+    loo_charge_comparison_plot +
+    patchwork::plot_layout(design = fig2_design) +
+    # Label each panel with capital letters
+    patchwork::plot_annotation(tag_levels = 'A')
+
+#ggsave('manuscript/figure.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
+# Save each of the figure to the manuscripts folder
+ggsave('manuscript/figure1.png', fig1_panels, width = unit(10, 'in'), height = unit(5, 'in'))
+ggsave('manuscript/figure2.png', fig2_panels, width = unit(10, 'in'), height = unit(7.5, 'in'))

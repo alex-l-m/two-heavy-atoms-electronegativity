@@ -118,6 +118,8 @@ for (category_structure_pair in category_structure_pairs)
         coord_obs_pred()
     ggsave(glue('{category_structure_pair}_loo_charge_comparison_plot.png'),
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
+    write_rds(loo_charge_comparison_plot,
+              glue('{category_structure_pair}_loo_charge_comparison_plot.rds'))
 
     ranked_elements <-
         read_csv(glue('{category_structure_pair}_ranked_elements.csv.gz'), col_types = cols(
