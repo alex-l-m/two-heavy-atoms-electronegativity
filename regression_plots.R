@@ -61,12 +61,41 @@ elements <- charge_energy |>
     select(combination_id, symbol, other_symbol) |>
     distinct()
 
+# All formulas, with "symbol" as the anion and "other_symbol" as the cation
+formula_symbols <- charge_energy |>
+    filter(donor_or_acceptor == 'acceptor') |>
+    distinct(formula, symbol, other_symbol)
 category_structure_pairs <- charge_energy |>
     mutate(category_structure_pair = glue('{category}:{crystal_structure}')) |>
     distinct(category_structure_pair) |>
     pull(category_structure_pair)
 for (category_structure_pair in category_structure_pairs)
 {
+    loo <- read_csv(glue('{category_structure_pair}_loo.csv.gz'),
+                    col_types = cols(
+        formula = col_character(),
+        electronegativity_donor = col_double(),
+        electronegativity_acceptor = col_double(),
+        hardness_donor = col_double(),
+        hardness_acceptor = col_double(),
+        eeq_acceptor_charge = col_double()
+    ))
+    # Lines indicating the regression fits from leave one out
+    # y intercept is the difference between electronegativities, slope is the
+    # sum of the hardnesses
+    loo_lines <- loo |>
+        select(formula, electronegativity_donor, electronegativity_acceptor,
+               hardness_donor, hardness_acceptor) |>
+        mutate(
+            # The slope is the sum of the hardnesses
+            slope = hardness_donor + hardness_acceptor,
+            # The y intercept is the difference between the electronegativities
+            y_intercept = electronegativity_acceptor - electronegativity_donor) |>
+        select(-electronegativity_donor, -electronegativity_acceptor,
+               -hardness_donor, -hardness_acceptor) |>
+        left_join(formula_symbols, by = 'formula',
+                  relationship = 'one-to-one')
+
     ranked_elements <-
         read_csv(glue('{category_structure_pair}_ranked_elements.csv.gz'), col_types = cols(
             symbol = col_character(),
@@ -190,6 +219,11 @@ for (category_structure_pair in category_structure_pairs)
         geom_hline(yintercept = 0, linetype = 'dotted') +
         geom_vline(xintercept = 0, linetype = 'dotted') +
         geom_line() +
+        # I want this plot to also include the theoretical lines
+        geom_abline(data = loo_lines,
+                    mapping = aes(slope = slope, intercept = y_intercept,
+                                  color = other_symbol),
+                    linetype = 'dashed') +
         scale_x_continuous(breaks = seq(-1, 1, 0.5), name = 'Charge of acceptor group') +
         scale_y_continuous(name = 'Δelectronegativity (V)') +
         theme(legend.position = 'bottom',
