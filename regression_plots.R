@@ -3,6 +3,7 @@ library(cowplot)
 library(robustbase)
 library(glue)
 library(ggrepel)
+library(tune)
 
 this_theme <- 
     theme(
@@ -65,6 +66,14 @@ elements <- charge_energy |>
 formula_symbols <- charge_energy |>
     filter(donor_or_acceptor == 'acceptor') |>
     distinct(formula, symbol, other_symbol)
+
+# Charge of the acceptor atoms in ground state structures
+acceptor_charge <- charge_energy |>
+    filter(donor_or_acceptor == 'acceptor' & scale_number == 0 &
+           crystal_structure == 'zincblende' & !cdft) |>
+    select(formula, charge) |>
+    rename(acceptor_charge = charge)
+
 category_structure_pairs <- charge_energy |>
     mutate(category_structure_pair = glue('{category}:{crystal_structure}')) |>
     distinct(category_structure_pair) |>
@@ -95,6 +104,20 @@ for (category_structure_pair in category_structure_pairs)
                -hardness_donor, -hardness_acceptor) |>
         left_join(formula_symbols, by = 'formula',
                   relationship = 'one-to-one')
+    loo_charge_pred <- loo |>
+        select(formula, eeq_acceptor_charge)
+    loo_charge_comparison_table <- loo_charge_pred |>
+        left_join(acceptor_charge, by = 'formula')
+
+    loo_charge_comparison_plot <- loo_charge_comparison_table |>
+        ggplot(aes(x = acceptor_charge, y = eeq_acceptor_charge,
+                   label = formula)) +
+        geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+        geom_point() +
+        geom_label_repel() +
+        coord_obs_pred()
+    ggsave(glue('{category_structure_pair}_loo_charge_comparison_plot.png'),
+           height = unit(4.76, 'in'), width = unit(5.67, 'in'))
 
     ranked_elements <-
         read_csv(glue('{category_structure_pair}_ranked_elements.csv.gz'), col_types = cols(
