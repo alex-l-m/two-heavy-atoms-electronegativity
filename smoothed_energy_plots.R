@@ -171,7 +171,10 @@ for (category_structure_pair in category_structure_pairs)
     energy_with_nofield_facet_plot <- energy_with_nofield_tbl |>
         ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
-        geom_line() +
+        geom_smooth(mapping = aes(color = 'Quadratic fit'),
+                    formula = y ~ x + I(x^2),
+                    se = FALSE, method = lm) +
+        geom_line(mapping = aes(color = 'Energy')) +
         geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)) +
         acceptor_charge_label +
         this_theme +
@@ -187,7 +190,10 @@ for (category_structure_pair in category_structure_pairs)
         mutate(plot = lapply(data, function(data) {
         data |>
             ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
-            geom_line() +
+            geom_smooth(mapping = aes(color = 'Quadratic fit'),
+                        formula = y ~ x + I(x^2),
+                        se = FALSE, method = lm) +
+            geom_line(mapping = aes(color = 'Energy')) +
             acceptor_charge_label +
             this_theme +
             ylab('Energy above no field (eV)')
