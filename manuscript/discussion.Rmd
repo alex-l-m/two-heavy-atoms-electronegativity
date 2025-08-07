@@ -3,7 +3,7 @@
 We have created a dataset of binary materials containing not only atomic charges $q$ but atomic electronegativity differences $\Delta \chi$.
 We then used it to fit the parameters of a model predicting $\Delta \chi$, and shown that such a model once fit can be used to predict $q$ as well.
 $\Delta \chi$ was obtained as the strength of an external electric field, an instance of measuring an internal chemical potential with an external chemical potential, in the terminology of @kittel1980thermal.
-Due to the arbitrary constant in the potential, only the difference between the two atomic $chi$ values was obtained.
+Due to the arbitrary constant in the potential, only the difference between the two atomic $\chi$ values was obtained.
 
 Although a continuous series of frames was created with incrementally increasing $\Delta \chi$, the value could be obtained from a single frame.
 This observation is analogous to the observation that Feynman-Hellman forces could be computed without numerical differentiation [@FeynmanForcesInMolecules].
