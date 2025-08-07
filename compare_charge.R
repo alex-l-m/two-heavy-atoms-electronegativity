@@ -1,7 +1,7 @@
 library(tidyverse)
 library(cowplot)
 library(robustbase)
-theme_set(theme_cowplot())
+theme_set(theme_cowplot() + theme(plot.background = element_rect(fill = 'white')))
 library(glue)
 library(ggrepel)
 library(broom)

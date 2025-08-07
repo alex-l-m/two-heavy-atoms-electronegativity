@@ -6,7 +6,7 @@ library(grid)
 library(png)
 library(glue)
 library(cowplot)
-theme_set(theme_cowplot(font_size = 12))
+theme_set(theme_cowplot(font_size = 12) + theme(plot.background = element_rect(fill = 'white')))
 
 # Load my circuit diagram image as a raster grob
 circuit_diagram_path <- 'da_circuit.png'
@@ -64,6 +64,4 @@ panels <- circuit_diagram_patchwork_element + example_energy_curve_plot + exampl
     # Label each panel with capital letters
     patchwork::plot_annotation(tag_levels = 'A')
 
-ggsave('figure_transparent.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
-# Use ImageMagick to make the background white
-system('convert figure_transparent.png -background white -alpha remove -alpha off manuscript/figure.png')
+ggsave('manuscript/figure.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))

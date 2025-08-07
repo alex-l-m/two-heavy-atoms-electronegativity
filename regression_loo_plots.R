@@ -3,7 +3,7 @@ library(cowplot)
 library(ggrepel)
 library(tidymodels)
 
-theme_set(theme_cowplot(font_size = 24))
+theme_set(theme_cowplot(font_size = 24) + theme(plot.background = element_rect(fill = 'white')))
 
 charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     combination_id = col_character(),
@@ -64,7 +64,6 @@ comparison_plot <- comparison_table |>
     geom_point() +
     geom_label_repel() +
     geom_abline(slope = 1, intercept = 0, linetype = 'dashed', color = 'red') +
-    theme_cowplot(font_size = 24) +
     coord_obs_pred()
 
 ggsave('3-5:zincblende_loo_comparison_plot.png', comparison_plot,

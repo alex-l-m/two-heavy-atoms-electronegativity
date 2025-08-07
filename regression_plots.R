@@ -8,7 +8,8 @@ this_theme <-
     theme(
         # Usually x axis text is too crowded
         # But it depends on the font size I'm using and rotating loses vertical space
-        axis.text.x = element_text(angle = 90)
+        axis.text.x = element_text(angle = 90),
+        plot.background = element_rect(fill = 'white')
     )
 
 theme_set(theme_cowplot(font_size = 24) + this_theme)
