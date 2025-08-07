@@ -61,6 +61,8 @@ for (category_structure_pair in category_structure_pairs)
         # Choosing a deterministic ties method with integer output, but there
         # shouldn't be any ties, so it doesn't matter
         mutate(element_rank = rank(atomic_number, ties.method = 'first'))
+    write_csv(ranked_elements,
+              glue('{category_structure_pair}_ranked_elements.csv.gz'))
 
     # As a reference for the interaction terms, all formulas with the "minimum"
     # (by atomic number) cation or anion
@@ -83,6 +85,8 @@ for (category_structure_pair in category_structure_pairs)
             values_from = formula_rank,
             names_prefix = 'formula_rank_'
         )
+    write_csv(ranked_formulas,
+              glue('{category_structure_pair}_ranked_formulas.csv.gz'))
 
     electronegativity_terms <- these_charges |>
         # Add the rank column for referencing

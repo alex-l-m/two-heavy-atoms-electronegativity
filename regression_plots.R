@@ -162,12 +162,17 @@ for (category_structure_pair in category_structure_pairs)
                   by = c('combination_id', 'symbol'),
                   relationship = 'many-to-one')
 
-    
     # Make plots showing the data underlying the regression
-    ordered_selected_elements <- read_csv(glue('{category_structure_pair}_ordered_selected_elements.csv'),
-        col_types = cols(symbol = col_character())) |>
+    ranked_elements <-
+        read_csv('3-5:zincblende_ranked_elements.csv.gz', col_types = cols(
+            symbol = col_character(),
+            atomic_number = col_double(),
+            element_rank = col_double()
+        ))
+    # Make a vector of elements ordered by their rank to use as factor levels
+    ordered_selected_elements <- ranked_elements |>
+        arrange(element_rank) |>
         pull(symbol)
-    # I don't like having to rename here, needs refactoring upstream
     hardness_regression_plot <- regression_plot_table |>
         # Filter so that I'm only making plots where "symbol" corresponds to
         # the symbol of the acceptor
