@@ -39,7 +39,6 @@ ggsave('hardness_regression_plot_powerpoint.png', hardness_regression_plot,
 energy_curve_plot_list <- readr::read_rds('3-5:zincblende:0_energy_with_nofield_plots.rds')
 # Example for a figure
 example_energy_curve_plot <- energy_curve_plot_list[['GaP']] +
-            geom_line(color = 'black') +
             ggtitle('GaP energy')
 ggsave('example_energy_curve_plot.png', example_energy_curve_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))

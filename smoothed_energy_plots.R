@@ -172,8 +172,12 @@ for (category_structure_pair in category_structure_pairs)
         ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
         facet_wrap(~ formula, scales = 'free', ncol = 3) +
         geom_smooth(mapping = aes(color = 'Quadratic fit'),
+                    lwd = 2, lty = 'dashed',
                     formula = y ~ x + I(x^2),
                     se = FALSE, method = lm) +
+        # Don't show the name of the guide in the color legend (that is,
+        # display it, but without the label "color")
+        scale_color_discrete(guide = guide_legend(title = NULL)) +
         geom_line(mapping = aes(color = 'Energy')) +
         geom_point(data = filter(mutate(nofield_energies, energy_above_nofield = 0), donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)) +
         acceptor_charge_label +
@@ -191,9 +195,13 @@ for (category_structure_pair in category_structure_pairs)
         data |>
             ggplot(mapping = aes(x = charge, y = energy_above_nofield)) +
             geom_smooth(mapping = aes(color = 'Quadratic fit'),
+                        lwd = 2, lty = 'dashed',
                         formula = y ~ x + I(x^2),
                         se = FALSE, method = lm) +
             geom_line(mapping = aes(color = 'Energy')) +
+            # Don't show the name of the guide in the color legend (that is,
+            # display it, but without the label "color")
+            scale_color_discrete(guide = guide_legend(title = NULL)) +
             acceptor_charge_label +
             this_theme +
             ylab('Energy above no field (eV)')
