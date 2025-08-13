@@ -15,10 +15,20 @@ this_theme <-
 
 theme_set(theme_cowplot(font_size = 24) + this_theme)
 
+atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
+    symbol = col_character(),
+    atomic_number = col_double()
+))
+# Ordered vector to use as factor levels
+element_levels <- atomic_numbers |>
+    arrange(atomic_number) |>
+    pull(symbol)
+
 pauling_electronegativity <- read_csv('pauling_electronegativity.csv', col_types = cols(
     symbol = col_character(),
     pauling_electronegativity = col_double()
-))
+)) |>
+    mutate(symbol = factor(symbol, levels = element_levels))
 
 charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     combination_id = col_character(),
@@ -49,7 +59,11 @@ charge_energy <- read_csv('charge_energy.csv.gz', col_types = cols(
     lagged_last_iteration_charge = col_double(),
     electronegativity_field_discrete = col_double(),
     electronegativity_field_analytic = col_double()
-))
+)) |>
+    mutate(
+        symbol = factor(symbol, levels = element_levels),
+        other_symbol = factor(other_symbol, levels = element_levels)
+    )
 
 unique_scale_numbers <- charge_energy |>
     distinct(scale_number)
@@ -126,7 +140,9 @@ for (category_structure_pair in category_structure_pairs)
             symbol = col_character(),
             atomic_number = col_double(),
             element_rank = col_double()
-        ))
+        )) |>
+        mutate(symbol = factor(symbol, levels = element_levels))
+
     # Read the previously saved parameter estimates from regression
     estimates <- read_csv(glue('{category_structure_pair}_regression_estimates.csv.gz'),
              col_types = cols(
@@ -200,46 +216,19 @@ for (category_structure_pair in category_structure_pairs)
             combination_id = col_character(),
             variable_contribution = col_double()
         ))
-    regression_plot_table <- hardness_terms |>
-        mutate(
-               # Extract the symbol from the category
-               symbol = str_match(category, '([^_]*)_S\\d+')[, 2],
-               this_charge = variable_contribution) |>
-        select(-category, -variable_contribution) |>
-        left_join(elements, by = c('combination_id', 'symbol'), relationship = 'many-to-one') |>
-        # Join the scale numbers. I originally joined this because I was
-        # intending to use it as a grouping variable. It makes more sense, I
-        # realized, to just use the structure id. But there's no harm in having
-        # an extra variable in the table
-        left_join(scale_numbers, by = 'combination_id',
-                  relationship = 'many-to-one') |>
+    regression_plot_table <- charge_energy |>
+        select(combination_id, symbol, other_symbol, charge,
+               scale_number, structure_id, donor_or_acceptor) |>
+        filter(donor_or_acceptor == 'acceptor') |>
         left_join(rename(electronegativity_differences,
                          electronegativity_difference = variable_contribution),
-                  by = 'combination_id', relationship = 'many-to-one') |>
-        # Restore the information about structure id, for grouping on the plot
-        left_join(distinct(charge_energy, combination_id, structure_id),
-                  by = 'combination_id', relationship = 'many-to-one') |>
-        # Restore information about which is donor and which is acceptor
-        # This won't work for 4-4's
-        left_join(distinct(charge_energy, combination_id, symbol,
-                           donor_or_acceptor),
-                  by = c('combination_id', 'symbol'),
-                  relationship = 'many-to-one')
+                  by = 'combination_id', relationship = 'one-to-one')
 
-    # Make plots showing the data underlying the regression
-    # Make a vector of elements ordered by their rank to use as factor levels
-    ordered_selected_elements <- ranked_elements |>
-        arrange(element_rank) |>
-        pull(symbol)
     hardness_regression_plot <- regression_plot_table |>
         # Filter so that I'm only making plots where "symbol" corresponds to
         # the symbol of the acceptor
         filter(donor_or_acceptor == 'acceptor') |>
-        # Turn the symbols into factors based on the ordering implied by the
-        # atomic numbers
-        mutate(symbol = factor(symbol, levels = ordered_selected_elements),
-               other_symbol = factor(other_symbol, levels = ordered_selected_elements)) |>
-        ggplot(aes(x = this_charge, y = electronegativity_difference, color = other_symbol, group = structure_id)) +
+        ggplot(aes(x = charge, y = electronegativity_difference, color = other_symbol, group = structure_id)) +
         facet_wrap(~ symbol) +
         geom_hline(yintercept = 0, linetype = 'dotted') +
         geom_vline(xintercept = 0, linetype = 'dotted') +
