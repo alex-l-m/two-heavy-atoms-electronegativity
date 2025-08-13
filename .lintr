@@ -1,4 +1,8 @@
-linters: linters_with_tags(tags = c("correctness", "common_mistakes", "robustness", "efficiency"), undesirable_function_linter = NULL)
+linters: linters_with_tags(tags = c("correctness", "common_mistakes", "robustness", "efficiency"), undesirable_function_linter = NULL) |>
+  c(
+    unreachable_code_linter(),              # add explicit extras
+    implicit_assignment_linter()
+  )
 encoding: "UTF-8"
 
 
