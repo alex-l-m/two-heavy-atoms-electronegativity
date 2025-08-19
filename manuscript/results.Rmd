@@ -1,12 +1,12 @@
 # Results
 
-(ref:dataset-illustration-figure-caption) **A** Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations. **D** Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. **E** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.
+(ref:dataset-illustration-figure-caption) **A** Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations.
 
 ```{r dataset-illustration-figure, echo=FALSE, fig.cap="(ref:dataset-illustration-figure-caption)", out.width="100%"}
 knitr::include_graphics("figure1.png")
 ```
 
-(ref:linear-model-figure-caption) **A** Energy as a function of charge for all 3-5 semiconductor materials from rows 2 to 4. **B** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit.
+(ref:linear-model-figure-caption) **A** Electronegativity difference as a function of charge for all materials in the 3-5 zincblende dataset, separated into panels by anion element. Curves were colored according to the cation element. Dotted lines are predicted lines from the leave-one-out cross-validation. **B** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit. **C** Comparison of the charge of the anion in each material to the predicted charge from the leave-one-out cross-validation of the linear model.
 
 ```{r linear-model-figure, echo=FALSE, fig.cap="(ref:linear-model-figure-caption)", out.width="100%"}
 knitr::include_graphics("figure2.png")
@@ -56,9 +56,17 @@ This is the _ansatz_ assumed in EEq, and the EEq parameters appear as regression
 The parameters were estimated using least squares linear regression.
 As a sanity check, the $\chi^0$ parameters were compared to Pauling electronegativities, with which they correlated closely, except for boron (Figure \@ref(fig:linear-model-figure)B).
 
-With the parameters in hand, $q$-prediction can be accomplished by setting the electronegativity difference $\chi_A - \chi_D$ to zero and solving \eqref{eq:LinearModel} for $q_A$:
+The predictive performance of the model was tested using leave-one-out cross-validation.
+In each structure, the linear relationship \eqref{eq:LinearModel}, with parameters estimated from the dataset excluding that structure, is shown overlaid on the DFT results in Figure \@ref(fig:linear-model-figure)A.
+The y intercept shows the difference in electronegativity when both atoms are neutral, which in the leave-one-out analysis is the difference between the $\chi^0$ parameters for the two elements, estimated from the other structures containing those elements.
+The x intercept is the model's estimate of the charge of the acceptor atom.
+
+A formula for the charge estimate can be obtained by setting $\chi_A - \chi_D$ to zero and solving \eqref{eq:LinearModel} for $q_A$:
 \begin{equation}
   -q_A = \frac{\chi_A^0 - \chi_D^0}{\eta_A + \eta_D - 2\,c_{AD}}
   (\#eq:EEqPred)
 \end{equation}
 This is the familiar electronegativity equalization equation.
+
+Estimates of charge in the leave-one-out analysis are shown in Figure \@ref(fig:linear-model-figure)C, and correlated closely with the density functional theory results.
+In this way, the $\chi$-prediction model defined by \eqref{eq:LinearModel} was used to solve the $q$-prediction problem, in a manner analogous to the prediction of equilibrium geometry is from a force model.

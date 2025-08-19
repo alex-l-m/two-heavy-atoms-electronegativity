@@ -129,7 +129,9 @@ for (category_structure_pair in category_structure_pairs)
         geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
         geom_point() +
         geom_label_repel() +
-        coord_obs_pred()
+        coord_obs_pred() +
+        scale_x_continuous(name = 'Charge of anion') +
+        scale_y_continuous(name = 'Predicted charge of anion')
     ggsave(glue('{category_structure_pair}_loo_charge_comparison_plot.png'),
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
     write_rds(loo_charge_comparison_plot,
@@ -238,7 +240,7 @@ for (category_structure_pair in category_structure_pairs)
                     mapping = aes(slope = slope, intercept = y_intercept,
                                   color = other_symbol),
                     linetype = 'dashed') +
-        scale_x_continuous(breaks = seq(-1, 1, 0.5), name = 'Charge of acceptor group') +
+        scale_x_continuous(breaks = seq(-1, 1, 0.5), name = 'Charge of anion') +
         scale_y_continuous(name = 'Δelectronegativity (V)') +
         theme(legend.position = 'bottom',
               # Settings for facet panels so they're sufficiently well spaced

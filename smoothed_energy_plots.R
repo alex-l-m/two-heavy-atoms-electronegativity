@@ -116,7 +116,7 @@ this_theme <-
     )
 
 # Axis label for charge of the acceptor group, which I use in multiple plots
-acceptor_charge_label <- xlab('Charge of electron acceptor group')
+acceptor_charge_label <- xlab('Charge of anion')
 
 # Make separate plots for each category and crystal structure
 # Also the scale, although I'm not going to bother changing the variable name
