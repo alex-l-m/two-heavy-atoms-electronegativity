@@ -1,6 +1,6 @@
 # Results
 
-(ref:dataset-illustration-figure-caption) **A** Imposing an electrical potential to move electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations.
+(ref:dataset-illustration-figure-caption) **A** Circuit diagram, depicting an electrical potential that moves electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations.
 
 ```{r dataset-illustration-figure, echo=FALSE, fig.cap="(ref:dataset-illustration-figure-caption)", out.width="100%"}
 knitr::include_graphics("figure1.png")
@@ -12,8 +12,9 @@ knitr::include_graphics("figure1.png")
 knitr::include_graphics("figure2.png")
 ```
 
-To fit a $\chi$-prediction model, a training dataset is required that contains both $q$ and $\chi$ for each atom.
-We construct a minimal example of such a dataset, consisting of binary materials, specifically 3-5 zincblendes, a class of semiconductor materials that includes the solar cell material gallium arsenide and the LED material gallium nitride.
+A $\chi$-prediction model takes as input a structure (defined as positions and atomic numbers of each atom), along with a partial charge $q$ for each atom, and outputs an electronegativity $\chi$ for each atom.
+A training dataset for such a model requires structures annotated with both $q$ and $\chi$ for each atom.
+We construct a minimal example of such a dataset, consisting of crystal structures of binary materials.
 
 Materials were simulated with DFT to obtain both energy and atomic charge, computed with the Hirshfeld-I method.
 An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A).
@@ -33,6 +34,7 @@ The electronegativity difference is the derivative of this curve:
   (\#eq:DeltaChi)
 \end{equation}
 $\Delta \chi$ can be obtained numerically by discrete differences, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
+The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
 
 $\Delta \chi$ can also be obtained from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
 If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could be read off from the input settings of the simulations without even looking at the output.
