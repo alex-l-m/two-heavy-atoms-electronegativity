@@ -36,10 +36,18 @@ Since the term "electronegativity equalization" refers to the classical linear m
 
 However, even though EEq can be considered a linear $\chi$-prediction model, it is not trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
 This seems like a missed opportunity, since just as forces tend to be easier to learn than equilibrium geometries, it is possible that electronegativities may be more learnable than charges.
-One reason to expect this is that by providing non-equilibrium electron densities, it is possible to expand the dataset in the same way as non-equilibrium geometries expand the dataset used to train a force model.
-But also, due to the total charge constraint, electronegativities avoid a spurious long range dependence that comes from atoms competing for a fixed pool of charge.
-As we will show, in the linear model used in EEq, this corresponds to a mixing of parameters from different atoms in the linear transformation.
 
-Training on the $\chi$-prediction task requires a dataset with paired atomic charges and atomic electronegativities, including for "non-equilibrium" electron densities with unequal electronegativities.
-In this work we will demonstrate how to construct such a dataset by applying potentials to individual atoms.
+However, the dataset that would be required for a $\chi$-prediction model currently does not exist.
+A typical machine learning dataset contains molecular or crystal structures, each present in multiple geometries, including non-equilibrium geometries.
+Each atom in the geometry is annotated with a force, as well as an atomic partial charge.
+Because the partial charges are derived from the minimum energy electron density, the atoms implicitly have equal electronegativity.
+Our proposal is, just as datasets include non-equilibrium geometries, to also include non-equilibrium electron densities.
+And just as these datasets are annotated with a force for each atom, to include electronegativities for each atom.
+Just as the forces are non-zero for a non-equilibrium structure, the electronegativity would be non-equalized for the non-equilibrium electron densities.
+
+Training on the $\chi$-prediction task requires a dataset with paired atomic charges and atomic electronegativities, including for non-equilibrium electron densities with unequal electronegativities.
+It has not been clearly explained in the literature how to construct such a dataset, which requires operationalizing and computing the atomic electronegativity as defined in conceptual DFT.
+In fact, the requisite theory is already well-developed in the context of constrained DFT.
+In this work, we will demonstrate how to construct such a dataset by applying potentials to individual atoms.
+Though we do not directly use constrained DFT, related theory will be used to explain how the potential applied is related to the electronegativity.
 To demonstrate fitting a model to the $\chi$-prediction task, we will fit the simplest possible predictive model, the linear model, yielding an EEq parametrization.
