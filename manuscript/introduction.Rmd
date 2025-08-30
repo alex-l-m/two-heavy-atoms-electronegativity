@@ -31,8 +31,8 @@ Since this can be done quickly, electronegativity equalization and its variants 
 We will refer to the task of mapping $q$ to $\chi$ as "$\chi$-prediction", and prediction of the charges themselves as "$q$-prediction".
 Through electronegativity equalization, a model for the $\chi$-prediction task can also be used for $q$-prediction.
 This idea of equalizing electronegativity is more general than the specific linear method that goes by the name "electronegativity equalization".
-With a non-linear model, solving for equalized electronegativities is not as simple as solving the linear system from EEq, but it still can be accomplished by iterative root-finding methods such as Newton's method.
-Since the term "electronegativity equalization" refers to the classical linear method, this kind of prediction with a more sophisticated model could be regarded as generalized electronegativity equalization.
+With a non-linear model, solving for equalized electronegativities would not be as simple as solving the linear system from EEq, but it could still be accomplished by iterative root-finding methods such as Newton's method.
+Since the term "electronegativity equalization" refers to the classical linear method, this kind of prediction with a more sophisticated model might reasonably be called "generalized electronegativity equalization".
 
 However, even though EEq can be considered a linear $\chi$-prediction model, it is not trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
 This seems like a missed opportunity, since just as forces tend to be easier to learn than equilibrium geometries, it is possible that electronegativities may be more learnable than charges.
