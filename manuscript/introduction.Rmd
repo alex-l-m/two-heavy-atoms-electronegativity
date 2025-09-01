@@ -23,10 +23,10 @@ Then, prediction of charges can be achieved by solving for the vector of $q$ val
 This is analogous to predicting structure by solving for zero force.
 It is equalization because of the total charge constraint: the stationary condition is that moving charge from one atom to another does not change the energy.
 
-In fact, this idea of equalization of electronegativities is used in one of the oldest empirical models for partial charge, electronegativity equalization (EEq) [@rappe1991charge].
+In fact, this idea of equalization of electronegativities is used in one of the oldest empirical models of partial charge, electronegativity equalization (EEq) [@conceptualDFTElectronegativityOriginal].
 EEq is based on a modeling assumption that electronegativities vary linearly with the charge.
 In this model electronegativity equalization corresponds to solving a linear system.
-Since this can be done quickly, electronegativity equalization and its variants are used to estimate charges used in force fields and tight binding models.
+Since this can be done quickly, electronegativity equalization and its variants are used to estimate charges used in force fields [@rappe1991charge] and tight binding models [@gfn0xtb].
 
 We will refer to the task of mapping $q$ to $\chi$ as "$\chi$-prediction", and prediction of the charges themselves as "$q$-prediction".
 Through electronegativity equalization, a model for the $\chi$-prediction task can also be used for $q$-prediction.
