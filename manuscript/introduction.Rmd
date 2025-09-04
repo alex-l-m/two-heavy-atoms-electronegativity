@@ -8,12 +8,18 @@ This picture of spherically symmetric atoms underlies the monopole approximation
 The importance of the assignment of partial charges in these applications motivates the study of predictive models of charge.
 
 Fast predictive models of charge are trained to reproduce charges from first principles simulations.
-That is, the parameters, whether the dozens of parameters of a classical empirical method or billions of parameters of a modern machine learning model, are fit by minimizing a loss function, and the loss function is the error in charge prediction on a training dataset constructed from first principles simulations.
+That is, the parameters, whether the dozens of parameters of a classical empirical method or billions of parameters of a modern machine learning model, are fit by minimizing a loss function, and the loss function is the error in charge prediction on a training dataset constructed from simulations.
+
+There is no unique definition of the partial charge of an atom.
+Most definitions in use define partial charge in terms of the electron density, by associating with each atom a weight function.
+To produce a training dataset for a charge model, the charges are computed by integrating the weight functions against the electron density.
 
 While it may seem inevitable that charge models are trained by minimizing charge prediction error, an alternative is suggested by analogy to another prediction task, prediction of equilibrium geometries.
 The equilibrium geometry of a molecule or material is usually predicted using a force model, by solving for the geometry at which forces are zero.
 To suggest an analogous procedure for estimating charge, consider that the force is the negative derivative of energy with respect to nuclear position.
-If we instead take the negative derivative of energy with respect to the electron population of the atom, what we have is the electronegativity of that atom, as defined in conceptual density functional theory [@conceptualDFTElectronegativityOriginal].
+If we instead take the derivative of energy with respect to the electron population of the atom, what we have is the electronegativity of that atom, as defined in conceptual density functional theory [@conceptualDFTElectronegativityOriginal].
+Once a definition of partial charge has been chosen, it implies a precise definition of electronegativity as the derivative of energy with respect to that measure of charge.
+
 Electronegativity defined in this way is a function of charge.
 For example, while fluorine is very electronegative, a fluorine anion is not.
 The familiar notion that electronegativity is a property of an element is recovered by considering this to be the electronegativity of the neutral atom.
@@ -26,16 +32,24 @@ It is equalization because of the total charge constraint: the stationary condit
 In fact, this idea of equalization of electronegativities is used in one of the oldest empirical models of partial charge, electronegativity equalization (EEq) [@conceptualDFTElectronegativityOriginal].
 EEq is based on a modeling assumption that electronegativities vary linearly with the charge.
 In this model electronegativity equalization corresponds to solving a linear system.
-Since this can be done quickly, electronegativity equalization and its variants are used to estimate charges used in force fields [@rappe1991charge] and tight binding models [@gfn0xtb].
+Since this can be done quickly, electronegativity equalization and its variants are used to provide charge estimates for force fields [@rappe1991charge] and tight binding models [@gfn0xtb].
 
 We will refer to the task of mapping $q$ to $\chi$ as "$\chi$-prediction", and prediction of the charges themselves as "$q$-prediction".
 Through electronegativity equalization, a model for the $\chi$-prediction task can also be used for $q$-prediction.
 This idea of equalizing electronegativity is more general than the specific linear method that goes by the name "electronegativity equalization".
 With a non-linear model, solving for equalized electronegativities would not be as simple as solving the linear system from EEq, but it could still be accomplished by iterative root-finding methods such as Newton's method.
-Since the term "electronegativity equalization" refers to the classical linear method, this kind of prediction with a more sophisticated model might reasonably be called "generalized electronegativity equalization".
+
+The linear model, EEq, is good enough to illustrate the general principle of training the model on the $\chi$-prediction task.
+Since EEq is the simplest empirical model of partial charge, it is satisfying that in the $\chi$-prediction framing is equivalent to the simplest predictive model in machine learning, the linear model.
+That is, it is a linear model with atomic charges as the features, and atomic electronegativities as the response.
+As we will show, the parameters of the EEq model are the weights in this linear model, enabling us to fit the model with standard linear regression.
 
 However, even though EEq can be considered a linear $\chi$-prediction model, it is not trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
 This seems like a missed opportunity, since just as forces tend to be easier to learn than equilibrium geometries, it is possible that electronegativities may be more learnable than charges.
+
+Training on the $\chi$-prediction task requires a dataset with paired atomic charges and atomic electronegativities, including for non-equilibrium electron densities with unequal electronegativities.
+It has not been clearly explained in the literature how to construct such a dataset, which requires operationalizing and computing the atomic electronegativity as defined in conceptual DFT.
+In fact, the requisite theory is already well-developed in the context of constrained DFT.
 
 However, the dataset that would be required for a $\chi$-prediction model currently does not exist.
 A typical machine learning dataset contains molecular or crystal structures, each present in multiple geometries, including non-equilibrium geometries.
@@ -45,9 +59,6 @@ Our proposal is, just as datasets include non-equilibrium geometries, to also in
 And just as these datasets are annotated with a force for each atom, to include electronegativities for each atom.
 Just as the forces are non-zero for a non-equilibrium structure, the electronegativity would be non-equalized for the non-equilibrium electron densities.
 
-Training on the $\chi$-prediction task requires a dataset with paired atomic charges and atomic electronegativities, including for non-equilibrium electron densities with unequal electronegativities.
-It has not been clearly explained in the literature how to construct such a dataset, which requires operationalizing and computing the atomic electronegativity as defined in conceptual DFT.
-In fact, the requisite theory is already well-developed in the context of constrained DFT.
 In this work, we will demonstrate how to construct such a dataset by applying potentials to individual atoms.
 Though we do not directly use constrained DFT, related theory will be used to explain how the potential applied is related to the electronegativity.
 To demonstrate fitting a model to the $\chi$-prediction task, we will fit the simplest possible predictive model, the linear model, yielding an EEq parametrization.
