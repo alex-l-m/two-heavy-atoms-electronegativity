@@ -12,7 +12,6 @@ From a constrained DFT calculation, the electronegativities can be obtained dire
 Although exact equality between the potential and $\chi$ is broken by shifts in the weight function in the partial charge definition, this could be corrected for using a simple integral against the density.
 
 The model we fit was linear, enabling us to obtain EEq parameters using linear regression.
-Since EEq is the simplest empirical model of partial charge, it is satisfying that in our framing as $\chi$-prediction it is equivalent to the simplest predictive model in machine learning, the linear model.
 With the parameters of a $\chi$-prediction model in hand, $q$ could be predicted by solving for equal electronegativities, analogous to predicting geometries by solving for zero force.
 In the case of the linear model, this produced the familiar formula for predicted charge from EEq.
 
@@ -42,6 +41,5 @@ Using constrained density functional theory it is possible to include interestin
 However, it may be desirable to include a continuous series of non-equilibrium charges, as we have done here.
 Machine learning datasets such as ANI2 [@isayevani2] include continuous deformations of geometry, analogous to our continuous deformations of charge.
 
-Fast models based on monopole approximations will be key to progress on two frontiers of computational chemistry: computing predictions for larger systems, and for larger numbers of systems.
 As long as partial charge prediction is an essential subproblem in computational chemistry we will have to face the problem of how to fit the parameters of these charge models.
-Although we have not definitively established the advantages of $\chi$-prediction, it is important to raise the question to determine if the next generation of open machine learning datasets should include electronegativities, not just forces and charges.
+Therefore it is important to raise the question to determine if the next generation of open machine learning datasets should include electronegativities, not just forces and charges.

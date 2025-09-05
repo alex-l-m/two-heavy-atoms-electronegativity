@@ -2,25 +2,33 @@
 
 The frontiers of computational chemistry include the simulation of larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of structures.
 Fast predictive models that can advance these frontiers require drastic approximations.
-A significant simplifying approximation is possible because molecules and materials are made of atoms, and the electron density is, to a rough approximation, composed of spherically symmetric atomic densities.
-In this picture, each atom is describable by a single number, the electron population or partial charge of the atom.
-This picture of spherically symmetric atoms underlies the monopole approximation, often used in fast computational models such as force fields or tight binding models.
-The importance of the assignment of partial charges in these applications motivates the study of predictive models of charge.
+A significant simplifying approximation is possible because the electron density is, to a rough approximation, composed of spherically symmetric atomic densities, enabling a monopole approximation to the electrostatic potential.
 
-Fast predictive models of charge are trained to reproduce charges from first principles simulations.
-That is, the parameters, whether the dozens of parameters of a classical empirical method or billions of parameters of a modern machine learning model, are fit by minimizing a loss function, and the loss function is the error in charge prediction on a training dataset constructed from simulations.
+In the monopole approximation, the electron density is replaced with a vector of atomic electron populations or partial charges.
+Polarizable force fields include charge prediction in order to include a monopole component of the energy [@polarizableFFReviewJing].
+Among quantum mechanical models, SCC-DFTB and related methods including xTB use a monopole approximation, but with charges determined by iteration to a self-consistent solution [@SpiegelmanDFTBReview,@gfn1xtb].
+However, one xTB variant avoids this iteration by a charge prediction step, analogous to that in polarizable force fields [@gfn0xtb].
+Charges are also used in machine learning models to model long-range electrostatic effects [@longrangeNN].
 
-There is no unique definition of the partial charge of an atom.
-Most definitions in use define partial charge in terms of the electron density, by associating with each atom a weight function.
+Prediction of atomic partial charges as a subtask of other models necessitates fast predictive models of charge.
+One approach to developing these models is to train the model to reproduce charges from density functional theory (DFT).
+That is, the parameters of the model, whether the dozens of parameters of a classical empirical method or millions of parameters of a machine learning model, are fit by minimizing a loss function, and the loss function is the error in charge prediction on a training dataset constructed from DFT.
+
+Producing a training dataset for a charge model from DFT simulations requires a definition of partial charge, and there is no unique definition.
+Several partial charge definitions, including the Bader, Becke and Hirshfeld methods, define partial charge in terms of the electron density, by associating with each atom a weight function [@pendas2023atoms].
 To produce a training dataset for a charge model, the charges are computed by integrating the weight functions against the electron density.
 
 While it may seem inevitable that charge models are trained by minimizing charge prediction error, an alternative is suggested by analogy to another prediction task, prediction of equilibrium geometries.
-The equilibrium geometry of a molecule or material is usually predicted using a force model, by solving for the geometry at which forces are zero.
-To suggest an analogous procedure for estimating charge, consider that the force is the negative derivative of energy with respect to nuclear position.
+The equilibrium geometry of a molecule or material is usually predicted by solving for the geometry at which forces are zero.
+The distinction between predicting geometry directly, and indirectly by way of force, can be illustrated with the machine learning tasks in the Open Catalyst Project OCP challenge.
+OCP ranks models on a task in which a machine learning model predicts a relaxed geometry from an initial geometry, as well as a separate task in which a model predicts forces [@kolluru2022openchallengesdevelopinggeneralizable].
+
+In prediction of partial charges, the indirect approach uses atomic electronegativity.
+Consider that the force is the negative derivative of energy with respect to nuclear position.
 If we instead take the derivative of energy with respect to the electron population of the atom, what we have is the electronegativity of that atom, as defined in conceptual density functional theory [@conceptualDFTElectronegativityOriginal].
 Once a definition of partial charge has been chosen, it implies a precise definition of electronegativity as the derivative of energy with respect to that measure of charge.
 
-Electronegativity defined in this way is a function of charge.
+Electronegativity, as defined in conceptual DFT, is a function of charge.
 For example, while fluorine is very electronegative, a fluorine anion is not.
 The familiar notion that electronegativity is a property of an element is recovered by considering this to be the electronegativity of the neutral atom.
 
@@ -39,12 +47,12 @@ Through electronegativity equalization, a model for the $\chi$-prediction task c
 This idea of equalizing electronegativity is more general than the specific linear method that goes by the name "electronegativity equalization".
 With a non-linear model, solving for equalized electronegativities would not be as simple as solving the linear system from EEq, but it could still be accomplished by iterative root-finding methods such as Newton's method.
 
-The linear model, EEq, is good enough to illustrate the general principle of training the model on the $\chi$-prediction task.
-Since EEq is the simplest empirical model of partial charge, it is satisfying that in the $\chi$-prediction framing is equivalent to the simplest predictive model in machine learning, the linear model.
+We will focus on the linear model, EEq, to illustrate the $\chi$-prediction task.
+Since EEq is the simplest empirical model of partial charge, it is satisfying that in the $\chi$-prediction framing it is equivalent to the simplest predictive model in machine learning, the linear model.
 That is, it is a linear model with atomic charges as the features, and atomic electronegativities as the response.
 As we will show, the parameters of the EEq model are the weights in this linear model, enabling us to fit the model with standard linear regression.
 
-However, even though EEq can be considered a linear $\chi$-prediction model, it is not trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
+Even though EEq can be considered a linear $\chi$-prediction model, it has not been trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
 This seems like a missed opportunity, since just as forces tend to be easier to learn than equilibrium geometries, it is possible that electronegativities may be more learnable than charges.
 
 Training on the $\chi$-prediction task requires a dataset with paired atomic charges and atomic electronegativities, including for non-equilibrium electron densities with unequal electronegativities.
@@ -61,4 +69,4 @@ Just as the forces are non-zero for a non-equilibrium structure, the electronega
 
 In this work, we will demonstrate how to construct such a dataset by applying potentials to individual atoms.
 Though we do not directly use constrained DFT, related theory will be used to explain how the potential applied is related to the electronegativity.
-To demonstrate fitting a model to the $\chi$-prediction task, we will fit the simplest possible predictive model, the linear model, yielding an EEq parametrization.
+To demonstrate fitting a model to the $\chi$-prediction task, we will fit the simplest possible predictive model, the linear model, yielding an EEq parametrization through linear regression.
