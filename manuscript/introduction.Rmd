@@ -22,7 +22,7 @@ This $\chi(0)$ value is the $\chi^0$ parameter in charge equilibration.
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
 The QEq model must be trained to reference charges.
-That is, the parameters of the model, whether the element-specific $\chi^0$ and $\eta$ values, of a classical QEq model or the much larger number of parameters in a modern ML model, are determined by minimizing a loss function.
+That is, the parameters of the model, whether the element-specific $\chi^0$ and $\eta$ values of a classical QEq model or the much larger number of parameters in a modern ML model, are determined by minimizing a loss function.
 That loss function is the error of charge prediction on a training dataset, generated from density functional theory (DFT).
 
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
