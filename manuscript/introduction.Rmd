@@ -1,64 +1,61 @@
 # Introduction
 
+<!-- 1. Why charge? / Charge is important -->
 The frontiers of computational chemistry include the simulation of larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of structures.
 Fast predictive models that can advance these frontiers require drastic approximations.
 A significant simplifying approximation is possible because the electron density is, to a rough approximation, composed of spherically symmetric atomic densities, enabling a monopole approximation to the electrostatic potential.
-
 In the monopole approximation, the electron density is replaced with a vector of atomic electron populations or partial charges.
-Polarizable force fields include charge prediction in order to include a monopole component of the energy [@polarizableFFReviewJing].
-Among quantum mechanical models, SCC-DFTB and related methods including xTB use a monopole approximation, but with charges determined by iteration to a self-consistent solution [@SpiegelmanDFTBReview,@gfn1xtb].
-However, one xTB variant avoids this iteration by a charge prediction step, analogous to that in polarizable force fields [@gfn0xtb].
-Charges are also used in machine learning models to model long-range electrostatic effects [@longrangeNN].
 
-Prediction of atomic partial charges as a subtask of other models necessitates fast predictive models of charge.
-One approach to developing these models is to train the model to reproduce charges from density functional theory (DFT).
-That is, the parameters of the model, whether the dozens of parameters of a classical empirical method or millions of parameters of a machine learning model, are fit by minimizing a loss function, and the loss function is the error in charge prediction on a training dataset constructed from DFT.
+<!-- 2. Charge equilibration / You should get it from charge equilibration -->
+Charge equilibration (QEq) has been widely used to assign charges, due to its speed and performance.
+QEq assigns each atom an electronegativity $\chi^0$ and a hardness $\eta$, and using these parameters, solves a linear system to obtain atomic charges $q$.
+In the original formulation of QEq, these parameters depend only upon the element of the atom [@conceptualDFTElectronegativityOriginal], and this form has been widely used for polarizable force fields [@polarizableFFReviewJing].
+Recently, QEq has been incorporated into machine learning (ML) potentials, with $\chi^0$ and $\eta$ parameters predicted from local environment.
+The advantage is that while these parameters depend only on local environment, charge itself can be affected by distant parts of the molecule competing for the same fixed pool of charge [@Ko2021].
 
+<!-- 3. Conceptual DFT / Electronegativity is a real thing -->
+The derivative of energy with respect to the electron population of the atom is the electronegativity of that atom, as defined in conceptual density functional theory [@conceptualDFTElectronegativityOriginal].
+According to this definition, electronegativity is a function of charge, $\chi(q)$.
+For example, while fluorine is very electronegative (large $\chi(0)$), a fluorine anion is not (smaller $\chi(-1)$).
+The familiar notion that electronegativity is a property of an element is recovered by considering this to be the electronegativity of the neutral atom.
+This $\chi(0)$ value is the $\chi^0$ parameter in charge equilibration.
+
+<!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
+The QEq model must be trained to reference charges.
+That is, the parameters of the model, whether the element-specific $\chi^0$ and $\eta$ values, of a classical QEq model or the much larger number of parameters in a modern ML model, are determined by minimizing a loss function.
+That loss function is the error of charge prediction on a training dataset, generated from density functional theory (DFT).
+
+<!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
 Producing a training dataset for a charge model from DFT simulations requires a definition of partial charge, and there is no unique definition.
 Several partial charge definitions, including the Bader, Becke and Hirshfeld methods, define partial charge in terms of the electron density, by associating with each atom a weight function [@pendas2023atoms].
 To produce a training dataset for a charge model, the charges are computed by integrating the weight functions against the electron density.
+Once a definition of partial charge has been chosen, it implies a precise definition of electronegativity as the derivative of energy with respect to that measure of charge.
 
-While it may seem inevitable that charge models are trained by minimizing charge prediction error, an alternative is suggested by analogy to another prediction task, prediction of equilibrium geometries.
+<!-- 6. χ-prediction and the linear model / We should be doing χ-prediction instead -->
+We will refer to the task of mapping $q$ to $\chi$ as "$\chi$-prediction", and prediction of the charges themselves as "$q$-prediction".
+QEq is based on a modeling assumption that the electronegativities $\chi(q)$ vary linearly with the charge $q$, with $\chi^0$ as the intercept and the hardness $\eta$ as the slope.
+When used in the $\chi$-prediction task, it corresponds to a linear model with atomic charges as the features, and atomic electronegativities as the response.
+As we will show, in classical QEq with element-dependent parameters, the parameters are the weights in this linear model, enabling us to fit the model with standard linear regression.
+
+<!-- 7. Analogy to force / If force prediction is easier, probably so is χχ-prediction -->
+While it may seem inevitable that charge models are trained by minimizing error in the $q$-prediction task, the advantages of training with $\chi$-prediction is suggested by analogy to another prediction task, prediction of equilibrium geometries.
 The equilibrium geometry of a molecule or material is usually predicted by solving for the geometry at which forces are zero.
 The distinction between predicting geometry directly, and indirectly by way of force, can be illustrated with the machine learning tasks in the Open Catalyst Project OCP challenge.
 OCP ranks models on a task in which a machine learning model predicts a relaxed geometry from an initial geometry, as well as a separate task in which a model predicts forces [@kolluru2022openchallengesdevelopinggeneralizable].
-
 In prediction of partial charges, the indirect approach uses atomic electronegativity.
-Consider that the force is the negative derivative of energy with respect to nuclear position.
-If we instead take the derivative of energy with respect to the electron population of the atom, what we have is the electronegativity of that atom, as defined in conceptual density functional theory [@conceptualDFTElectronegativityOriginal].
-Once a definition of partial charge has been chosen, it implies a precise definition of electronegativity as the derivative of energy with respect to that measure of charge.
+Consider that the force is the negative derivative of energy with respect to nuclear position, just as electronegativity is the derivative of energy with respect to charge.
 
-Electronegativity, as defined in conceptual DFT, is a function of charge.
-For example, while fluorine is very electronegative, a fluorine anion is not.
-The familiar notion that electronegativity is a property of an element is recovered by considering this to be the electronegativity of the neutral atom.
-
-The alternative to a model that directly predicts charge is a model that takes the charge of each atom $q$ as input, and outputs the electronegativity of each atom, $\chi$.
-Then, prediction of charges can be achieved by solving for the vector of $q$ values that makes all $\chi$ values equal.
+<!-- 8. Training on the χ-prediction task is fine because we can still get q -->
+With a $\chi$-prediction model, prediction of charges can be achieved by solving for the vector of $q$ values that makes all $\chi$ values equal.
 This is analogous to predicting structure by solving for zero force.
 It is equalization because of the total charge constraint: the stationary condition is that moving charge from one atom to another does not change the energy.
-
-In fact, this idea of equalization of electronegativities is used in one of the oldest empirical models of partial charge, electronegativity equalization (EEq) [@conceptualDFTElectronegativityOriginal].
-EEq is based on a modeling assumption that electronegativities vary linearly with the charge.
-In this model electronegativity equalization corresponds to solving a linear system.
-Since this can be done quickly, electronegativity equalization and its variants are used to provide charge estimates for force fields [@rappe1991charge] and tight binding models [@gfn0xtb].
-
-We will refer to the task of mapping $q$ to $\chi$ as "$\chi$-prediction", and prediction of the charges themselves as "$q$-prediction".
 Through electronegativity equalization, a model for the $\chi$-prediction task can also be used for $q$-prediction.
 This idea of equalizing electronegativity is more general than the specific linear method that goes by the name "electronegativity equalization".
 With a non-linear model, solving for equalized electronegativities would not be as simple as solving the linear system from EEq, but it could still be accomplished by iterative root-finding methods such as Newton's method.
 
-We will focus on the linear model, EEq, to illustrate the $\chi$-prediction task.
-Since EEq is the simplest empirical model of partial charge, it is satisfying that in the $\chi$-prediction framing it is equivalent to the simplest predictive model in machine learning, the linear model.
-That is, it is a linear model with atomic charges as the features, and atomic electronegativities as the response.
-As we will show, the parameters of the EEq model are the weights in this linear model, enabling us to fit the model with standard linear regression.
-
-Even though EEq can be considered a linear $\chi$-prediction model, it has not been trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
-This seems like a missed opportunity, since just as forces tend to be easier to learn than equilibrium geometries, it is possible that electronegativities may be more learnable than charges.
-
+<!-- 9. Training on the χχ-prediction task is feasible because you can get the data -->
 Training on the $\chi$-prediction task requires a dataset with paired atomic charges and atomic electronegativities, including for non-equilibrium electron densities with unequal electronegativities.
-It has not been clearly explained in the literature how to construct such a dataset, which requires operationalizing and computing the atomic electronegativity as defined in conceptual DFT.
-In fact, the requisite theory is already well-developed in the context of constrained DFT.
-
+The requisite theory is already well-developed in the context of constrained DFT.
 However, the dataset that would be required for a $\chi$-prediction model currently does not exist.
 A typical machine learning dataset contains molecular or crystal structures, each present in multiple geometries, including non-equilibrium geometries.
 Each atom in the geometry is annotated with a force, as well as an atomic partial charge.
@@ -67,6 +64,9 @@ Our proposal is, just as datasets include non-equilibrium geometries, to also in
 And just as these datasets are annotated with a force for each atom, to include electronegativities for each atom.
 Just as the forces are non-zero for a non-equilibrium structure, the electronegativity would be non-equalized for the non-equilibrium electron densities.
 
+<!-- 10. Gap in knowledge: nobody has trained on the χ-prediction task / Despite all this, nobody has done it -->
+<!-- 11. What I do: train on the χ-prediction task / So I do it -->
+Even though EEq can be considered a linear $\chi$-prediction model, it has not been trained on the $\chi$-prediction task, but on the $q$-prediction task [@verstraelenElectronegativityParameters].
 In this work, we will demonstrate how to construct such a dataset by applying potentials to individual atoms.
 Though we do not directly use constrained DFT, related theory will be used to explain how the potential applied is related to the electronegativity.
 To demonstrate fitting a model to the $\chi$-prediction task, we will fit the simplest possible predictive model, the linear model, yielding an EEq parametrization through linear regression.
