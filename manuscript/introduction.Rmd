@@ -7,23 +7,30 @@ A significant simplifying approximation is possible because the electron density
 In the monopole approximation, the electron density is replaced with a vector of atomic electron populations or partial charges.
 
 <!-- 2. Charge equilibration / You should get it from charge equilibration -->
-Charge equilibration (QEq) has been widely used to assign charges, due to its speed and performance.
-QEq assigns each atom an electronegativity $\chi^0$ and a hardness $\eta$, and using these parameters, solves a linear system to obtain atomic charges $q$.
+Charge equilibration (QEq) has been widely used to assign charges for this purpose.
+QEq begins by assigning each atom $k$ an electronegativity $\chi^0_k$ and a hardness $\eta_k$, and using these parameters, solves a linear system to obtain atomic charges $q_k$.
 In the original formulation of QEq, these parameters depend only upon the element of the atom [@conceptualDFTElectronegativityOriginal], and this form has been widely used for polarizable force fields [@polarizableFFReviewJing].
-Recently, QEq has been incorporated into machine learning (ML) potentials, with $\chi^0$ and $\eta$ parameters predicted from local environment.
+Recently, QEq has been incorporated into machine learning (ML) potentials, with $\chi^0_k$ and $\eta_k$ parameters predicted from local environment.
 The advantage is that while these parameters depend only on local environment, charge itself can be affected by distant parts of the molecule competing for the same fixed pool of charge [@Ko2021].
 
 <!-- 3. Conceptual DFT / Electronegativity is a real thing -->
-The derivative of energy with respect to the electron population of the atom is the electronegativity of that atom, as defined in conceptual density functional theory [@conceptualDFTElectronegativityOriginal].
-According to this definition, electronegativity is a function of charge, $\chi(q)$.
-For example, while fluorine is very electronegative (large $\chi(0)$), a fluorine anion is not (smaller $\chi(-1)$).
-The familiar notion that electronegativity is a property of an element is recovered by considering this to be the electronegativity of the neutral atom.
-This $\chi(0)$ value is the $\chi^0$ parameter in charge equilibration.
+The theoretical foundation of charge equilibration began with defining the electronegativity $\chi$ of a system as the negative of the chemical potential of its electrons, or equivalently, the derivative of the energy with respect to the electric charge, $q$ [@parrcdftelectronegativity].
+Defined this way, it is an increasing function of charge, $\chi(q)$.
+For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
+A discrete difference approximation to $\chi(0)$ yields the familiar Mulliken electronegativity.
+@parrAbsoluteHardness also identified the derivative of the electronegativity with the hardness $\eta$ from the hard and soft acids and bases theory.
+This work became the basis of conceptual density functional theory, in which the concepts of chemistry are interpreted in terms of density functional theory (DFT) [@geerlingsconceptualDFTreview].
+
+The fundamental idea behind charge equilibration is to associate an electronegativity $\chi_k$ with an atom $k$ in a molecule or material, defined as the derivative of the total energy with respect to the charge $q_k$ of that atom, holding the other charges constant [@conceptualDFTElectronegativityOriginal].
+The $\chi^0_k$ parameter of charge equilibration is the electronegativity an atom would have if neutral, and the hardness parameter $\eta_k$ determines the rate at which electronegativity increases as it becomes more positive.
+At the equilibrium, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
+For example, while a neutral oxygen atom is more electronegative than a neutral carbon atom, in carbon monoxide, the negative oxygen and positive carbon have equal electronegativities.
+QEq, then, consists of solving for the vector of atomic charges $\vect{q}$ such that all atomic electronegativities are equal, yielding a prediction of the charges.
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
 The QEq model must be trained to reference charges.
-That is, the parameters of the model, whether the element-specific $\chi^0$ and $\eta$ values of a classical QEq model or the much larger number of parameters in a modern ML model, are determined by minimizing a loss function.
-That loss function is the error of charge prediction on a training dataset, generated from density functional theory (DFT).
+That is, the parameters of the model, whether the element-specific $\chi^0$ and $\eta$ values of a classical QEq model or the much larger number of parameters used by a modern ML model to assign environment-dependent $\chi^0$ and $\eta$, are determined by minimizing a loss function.
+That loss function is the error of charge prediction on a training dataset consisting of DFT simulations.
 
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
 Producing a training dataset for a charge model from DFT simulations requires a definition of partial charge, and there is no unique definition.
