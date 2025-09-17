@@ -2,22 +2,23 @@
 
 <!-- 1. Why charge? / Charge is important -->
 The frontiers of computational chemistry include the simulation of larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of structures.
-Fast predictive models that can advance these frontiers require drastic approximations.
-A significant simplifying approximation is possible because the electron density is, to a rough approximation, composed of spherically symmetric atomic densities, enabling a monopole approximation to the electrostatic potential.
-In the monopole approximation, the electron density is replaced with a vector of atomic electron populations or partial charges.
+The fast predictive models that can advance these frontiers require drastic approximations.
+A significant simplifying approximation is possible because the electron density is, to a rough approximation, composed of spherically symmetric atomic densities, thus enabling a monopole approximation to the electrostatic potential.
+In this monopole approximation, the electron density can be replaced with a vector of atomic electron populations or partial charges.
 
 <!-- 2. Charge equilibration / You should get it from charge equilibration -->
 Charge equilibration (QEq) has been widely used to assign charges for this purpose.
-QEq begins by assigning each atom $k$ an electronegativity $\chi^0_k$ and a hardness $\eta_k$, and using these parameters, solves a linear system to obtain atomic charges $q_k$.
+QEq begins by assigning each atom $k$ an electronegativity $\chi^0_k$ and a hardness $\eta_k$. 
+Using these parameters, a linear system can be solved to obtain atomic charges $q_k$.
 In the original formulation of QEq, these parameters depend only upon the element of the atom [@conceptualDFTElectronegativityOriginal], and this form has been widely used for polarizable force fields [@polarizableFFReviewJing].
 Recently, QEq has been incorporated into machine learning (ML) potentials, with $\chi^0_k$ and $\eta_k$ parameters predicted from local environment.
 The advantage is that while these parameters depend only on local environment, charge itself can be affected by distant parts of the molecule competing for the same fixed pool of charge [@Ko2021].
 
 <!-- 3. Conceptual DFT / Electronegativity is a real thing -->
 The theoretical foundation of charge equilibration began with defining the electronegativity $\chi$ of a system as the negative of the chemical potential of its electrons, or equivalently, the derivative of the energy with respect to the electric charge, $q$ [@parrcdftelectronegativity].
-Defined this way, it is an increasing function of charge, $\chi(q)$.
+Defined this way, electronegativity is an increasing function of charge, $\chi(q)$.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
-A discrete difference approximation to $\chi(0)$ yields the familiar Mulliken electronegativity.
+A discrete difference approximation to this $\chi(0)$ yields the familiar Mulliken electronegativity.
 @parrAbsoluteHardness also identified the derivative of the electronegativity with the hardness $\eta$ from the hard and soft acids and bases theory.
 This work became the basis of conceptual density functional theory, in which the concepts of chemistry are interpreted in terms of density functional theory (DFT) [@geerlingsconceptualDFTreview].
 
@@ -28,18 +29,19 @@ For example, while a neutral oxygen atom is more electronegative than a neutral 
 QEq, then, consists of solving for the vector of atomic charges $\vect{q}$ such that all atomic electronegativities are equal, yielding a prediction of the charges.
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
-The QEq model must be trained to reference charges.
+For practical use, the QEq model must be trained using a dataset of reference charges.
 That is, the parameters of the model, whether the element-specific $\chi^0_k$ and $\eta_k$ values of a classical QEq model or the much larger number of parameters used by a modern ML model to assign environment-dependent $\chi^0_k$ and $\eta_k$, are determined by minimizing a loss function.
 That loss function is the error of charge prediction on a training dataset consisting of DFT simulations.
 
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
-Producing a training dataset for a charge model from DFT simulations requires a definition of partial charge, and there is no unique definition.
+Producing a training dataset for a charge model from DFT simulations requires a definition of partial charge.
+However, there is no unique definition.
 Several partial charge definitions, including the Bader, Becke and Hirshfeld methods, define partial charge in terms of the electron density, by associating with each atom a weight function [@pendas2023atoms].
 To produce a training dataset for a charge model, the charges are computed by integrating the weight functions against the electron density.
 Once a definition of partial charge has been chosen, it implies a precise definition of electronegativity as the derivative of energy with respect to that measure of charge.
 
 <!-- 6. χ-prediction and the linear model / We should be doing χ-prediction instead -->
-QEq is based on a modeling assumption that the atomic electronegativities $\chi_k(q)$ vary linearly with the charge $q$, with $\chi^0_k$ as the intercept and the hardness $\eta_k$ as the slope.
+QEq is based on a modeling assumption that the atomic electronegativities $\chi_k(q)$ vary linearly with the charge $q$, with $\chi^0_k$ as the intercept and the hardness $\eta_k$ as the slope. <!-- consider adding the formulas here and referencing them in the theory section since they become relevant here. i.e. in theory you say here we can derive eqn (intro x) from blahblah -->
 There is thus a tension between its physical basis as a model for $\chi$, the training procedure by minimizing error in predicting $q$.
 Perhaps it is natural since prediction of the charges $q$ are the ultimate purpose of QEq, but it is worth considering framing the problem as prediction of $\chi$ instead, at least for the purposes of training.
 We will refer to prediction of the charges as "$q$-prediction".
