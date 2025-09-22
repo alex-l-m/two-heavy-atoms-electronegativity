@@ -47,7 +47,7 @@ Perhaps it is natural since prediction of the charges $q$ are the ultimate purpo
 We will refer to prediction of the charges as "$q$-prediction".
 The alternative is training the model in the $\chi$-prediction task, by minimizing the error in the predicted atomic electronegativities.
 
-So far, training of charge equilibration models has always preceded by minimizing error in the $q$-prediction task.
+So far, training of charge equilibration models has always proceeded by minimizing error in the $q$-prediction task.
 Both classical charge-equilibration models with element-specific QEq parameters [@verstraelenElectronegativityParameters] and ML methods with environment-dependent QEq parameters have been trained to minimize the same loss function, the error in $q$-prediction.
 
 <!-- Linear regression -->
@@ -57,7 +57,7 @@ When framed as $\chi$-prediction, these parameters appear as weights in a linear
 We will demonstrate for the first time that these parameters can be determined with standard linear regression.
 
 <!-- Training on the χ-prediction task is feasible because you can get the data -->
-Training on the $\chi$-prediction task requires a dataset with not only atomic charges $q_k$ but atomic electronegativity $\chi_k$ for each atom.
+Train on the $\chi$-prediction task requires a dataset with not only atomic charges $q_k$ but atomic electronegativity $\chi_k$ for each atom.
 When an external potential is applied to a system, atomic electronegativities are related to the strength of the potential, and can be computed up to a constant.
 Since $\chi_k$ is the negative of a chemical potential, the underlying principle is measuring an "internal" chemical potential with an "external" one from the applied field, in the terminology of @kittel1980thermal.
 Another way to compute atomic electronegativities is with constrained DFT, in which desired charges are given as input.
