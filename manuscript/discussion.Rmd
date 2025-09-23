@@ -3,11 +3,11 @@
 We have, for the first time, trained a QEq model by minimizing error in the $\chi$-prediction task.
 The model trained is the classical QEq model in which the parameters are $\chi^0_e$ and $\eta_e$ for each element $e$.
 These parameters were determined with standard least-squares linear regression, far simpler than the optimization procedures used previously to train the classical QEq model in the $q$-prediction task [@verstraelenElectronegativityParameters].
-Since classical QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction framework, it corresponds to training a linear model, the most basic model in machine learning.
+Since classical QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction problem it corresponds to training a linear model, the most basic model in machine learning.
 
 Training with linear regression was possible only in the $\chi$-prediction problem, not the $q$-prediction problem, and careful consideration of why contributes a new piece of evidence that $\chi$ is a more local property than $q$.
-$\chi$ is a linear function of $q$, given by \eqref{eq:LinearModel}.
-But the critical property required for linear regression is that $\chi$ is a linear function of the QEq parameters.
+The foundational physical approximation underlying the QEq method is that $\chi$ is a linear function of $q$, as given by \eqref{eq:LinearModel}.
+But the critical property of this formula that enables the use of least-squares linear regression is that $\chi$ is a linear function of the QEq parameters.
 This expresses locality in a certain sense, since the effect on $\chi_k$ of a change in $q_k$ depends only on the hardness $\eta_k$.
 $q$ can be considered to be a linear function of $\chi^0$, given by \eqref{eq:EEqPred}.
 But then the weights are nonlinear combinations of hardnesses of different atoms.
@@ -15,25 +15,27 @@ This expresses a certain non-locality, since the effect on $q_k$ of changing $\c
 This shows in a simple setting what has been empirically observed, which is that the charge of an atom in a molecule depends on distant atoms.
 The effect is not a true physical interaction but only the result of competition for a fixed pool of charge.
 
-To train in the $\chi$-prediction task, we created a dataset of binary materials annotated with $\Delta \chi$, by imposing an external electric field, determining $\Delta \chi$ through a relation with the strength of the electric field.
+To train in the $\chi$-prediction task, we created a dataset of binary materials annotated with $\Delta \chi$ by imposing an external electric field and determining $\Delta \chi$ through a relation with the strength of the electric field.
 An intuitive picture of the meaning of this calculation is provided by considering the final frame in each series, in which the charges of both atoms are zero.
 The atoms are being held in the neutral state by the electric field.
 The electronegativity difference $\Delta \chi^0$ is being measured according to the strength of the field required to prevent charge transfer.
 This intuitive picture is complicated by the fact that it is not sufficient to use a uniform electric field, but rather the shape of the field must correspond to the weight functions in the charge definition.
-The dataset could also have been constructed with constrained DFT, which can be interpreted as solving for the strength of the potential that achieves given charges.
+Another approach to constructing the dataset would have been constrained DFT, which can be interpreted as solving for the strength of the potential that achieves given charges.
+Either approach works, though applying potentials is easier to implement.
 
 Another complication was that the electronegativity difference is also not directly equal to the strength of the field, since it must be adjusted for the change in boundaries between the atoms.
 This correction can be done numerically in any dataset like ours with a continuous series of charges, just as a force can be calculated numerically in a continuous series of stretched bonds.
 Analogous to the analytical computation of Feynman-Hellmann forces [@FeynmanForcesInMolecules], we also computed these corrections and thus electronegativities from individual frames, but this required an analytic derivative of the weight function.
-Though this was available in the Hirshfeld-I case, it presents a complication in generalizing the method to other partial charge definitions.
+Though this was available in the Hirshfeld-I case, computing $\chi$ with other partial charge methods, such as Bader charges or MBIS, will require further work to analytically differentiate the weight functions.
 
-Besides the linear model, more sophisticated predictive models from machine learning can be fit to datasets of atomic electronegativities like the one demonstrated here.
+Besides the linear model, more sophisticated predictive models from machine learning can be trained using atomic electronegativities like the one demonstrated here.
 One generalization is the one already made, in which $\chi^0$ and $\eta$ parameters depend on the environment.
-The need for environment dependence of $\chi^0$ can be seen in our dataset, since in the leave-one-out analysis $\Delta \chi^0$ in a given structure was not perfectly predictable from the rest of the dataset.
-But also, since the $\Delta \chi(q_A)$ trends were not perfectly linear, another important generalization would be to replace the linear model underlying QEq with a more flexible one.
-The downside would be that electronegativity equalization could no longer be accomplished simply by solving a linear system, and iterating to a solution would add computational time.
-However, the success of predicting equilibrium geometries by training force models is suggestive that this is worth trying.
+The need for environment dependence of $\chi^0$ can be seen in our dataset, since in the leave-one-out analysis $\Delta \chi^0$ in a given structure was not perfectly predictable from the rest of the dataset (Figure \@ref(fig:linear-model-figure)A).
+
+Our framing of QEq models as linear $\chi$-prediction models also raises the suggestion of using more sophisticated and flexible $\chi$-prediction models.
+The advantage of going beyond linear models is supported by the observation that the $\Delta \chi(q_A)$ trends were not perfectly linear (Figure \@ref(fig:linear-model-figure)A).
+However, the deviations from linearity were small, and the downside of a nonlinear model would be that electronegativity equalization could no longer be accomplished simply by solving a linear system, and iterating to a solution would add computational time.
 
 The current generation of machine learning datasets includes atomic partial charges, as well as non-equilibrium geometries and forces [@isayevani2].
 The current generation of machine learning models includes QEq, currently trained by minimizing the error of the equalized charges, rather than by minimizing the predictions of electronegativity used to obtain them.
-The next generation of datasets should include atomic $\chi$ values (up to an arbitrary constant), to enable training QEq on the $\chi$-prediction rather than $q$-prediction task.
+Our demonstration opens up the possibility of training these models instead using atomic $\chi$ values, using datasets that include electron densities perturbed by fields.
