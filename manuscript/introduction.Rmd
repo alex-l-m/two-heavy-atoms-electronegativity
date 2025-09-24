@@ -57,7 +57,7 @@ When framed as $\chi$-prediction, these parameters appear as weights in a linear
 We will demonstrate for the first time that these parameters can be determined with standard linear regression.
 
 <!-- Training on the χ-prediction task is feasible because you can get the data -->
-Train on the $\chi$-prediction task requires a dataset with not only atomic charges $q_k$ but atomic electronegativity $\chi_k$ for each atom.
+Training on the $\chi$-prediction task requires a dataset with not only atomic charges $q_k$ but atomic electronegativity $\chi_k$ for each atom.
 When an external potential is applied to a system, atomic electronegativities are related to the strength of the potential, and can be computed up to a constant.
 Since $\chi_k$ is the negative of a chemical potential, the underlying principle is measuring an "internal" chemical potential with an "external" one from the applied field, in the terminology of @kittel1980thermal.
 Another way to compute atomic electronegativities is with constrained DFT, in which desired charges are given as input.
@@ -68,7 +68,6 @@ Either by applying external potentials directly or with constrained DFT, a train
 Training a model to map $q$ to $\chi$ may seem to defeat the purpose, since we want $q$ as output, and do not have it available as input in real prediction tasks.
 However, through electronegativity equalization, a model for the $\chi$-prediction task can also be used for $q$-prediction.
 Although we will focus on the linear model underlying QEq, equalizing electronegativity could also be used with non-linear models.
-It would not be as simple as solving the linear system from QEq, but could still be accomplished by iterative root-finding methods such as Newton's method.
 
 <!-- Analogy to force / If force prediction is easier, probably so is χ-prediction -->
 The advantages of training with $\chi$-prediction is suggested by analogy to another prediction task, prediction of equilibrium geometries.

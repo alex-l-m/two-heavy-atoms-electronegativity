@@ -23,7 +23,7 @@ The potential was of the form
   \imposedPotentialValue = \lambda \bigl(w_A(r) - w_D(r)\bigr)
   (\#eq:ImposedPotentialTwoAtom)
 \end{equation}
-where \(w_A(r)\) and \(w_D(r)\) are the weight functions defining the boundaries of the atoms, obtained from the Hirshfeld-I analysis.
+where \(w_A(r)\) and \(w_D(r)\) are the weight functions defining the boundaries of the atoms of the acceptor and donor atoms respectively, obtained from the Hirshfeld-I analysis.
 For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
 In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \eqref{eq:ImposedPotentialTwoAtom}.
 
@@ -36,7 +36,7 @@ The electronegativity difference is the derivative of this curve:
 $\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
 The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
 
-$\Delta \chi$ can also be obtained from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
+We also obtained $\Delta \chi$ from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
 If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could be read off from the input settings of the simulations without even looking at the output.
 Since the boundary between the atoms is shifting, an extra factor is required:
 \begin{equation}
@@ -63,7 +63,7 @@ As a sanity check, the $\chi^0_e$ parameters were compared to Pauling electroneg
 The predictive performance of the model was tested using leave-one-out cross-validation.
 In each structure, the linear relationship \eqref{eq:LinearModel}, with parameters estimated from the dataset excluding that structure, is shown overlaid on the DFT results in Figure \@ref(fig:linear-model-figure)A.
 The y intercept shows the difference in electronegativity when both atoms are neutral, which in the leave-one-out analysis is the difference between the $\chi^0$ parameters for the two elements, estimated from the other structures containing those elements.
-The x intercept is the model's estimate of the charge of the acceptor atom.
+The x intercept is the charge of the acceptor atom without an imposed potential.
 
 A formula for the charge estimate can be obtained by setting $\chi_A - \chi_D$ to zero and solving \eqref{eq:LinearModel} for $q_A$:
 \begin{equation}
