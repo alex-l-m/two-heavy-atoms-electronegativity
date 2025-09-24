@@ -42,7 +42,7 @@ Once a definition of partial charge has been chosen, it implies a precise defini
 
 <!-- 6. χ-prediction and the linear model / We should be doing χ-prediction instead -->
 QEq is based on a modeling assumption that the atomic electronegativities $\chi_k(q)$ vary linearly with the charge $q$, with $\chi^0_k$ as the intercept and the hardness $\eta_k$ as the slope. <!-- consider adding the formulas here and referencing them in the theory section since they become relevant here. i.e. in theory you say here we can derive eqn (intro x) from blahblah -->
-There is thus a tension between its physical basis as a model for $\chi$, the training procedure by minimizing error in predicting $q$.
+There is thus a tension between its physical basis as a model for $\chi$, and the training procedure which minimizes error in predicting $q$.
 Perhaps it is natural since prediction of the charges $q$ are the ultimate purpose of QEq, but it is worth considering framing the problem as prediction of $\chi$ instead, at least for the purposes of training.
 We will refer to prediction of the charges as "$q$-prediction".
 The alternative is training the model in the $\chi$-prediction task, by minimizing the error in the predicted atomic electronegativities.

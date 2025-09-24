@@ -33,7 +33,7 @@ The electronegativity difference is the derivative of this curve:
   \Delta \chi = \chi_A - \chi_D = \constDeriv{\energyNuc}{q_A}{N}
   (\#eq:DeltaChi)
 \end{equation}
-$\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
+$\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
 The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
 
 $\Delta \chi$ can also be obtained from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
@@ -47,9 +47,9 @@ Since the factor $\correctionFactorPop{A}$ can be computed as an integral agains
 The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C).
 Electronegativity differences for all materials are shown in Figure \@ref(fig:linear-model-figure)A.
 
-Using these data as a training dataset, we fit the parameters of the electronegativity equalization method (EEq).
-EEq parameters include, for each element $\text{e}$, the electronegativity of a neutral atom of that element $\chi^0_{\text{e}}$, as well as the hardness $\eta_e$, which is the rate that its electronegativity increases as it becomes more positively charged.
-The modeling assumption underlying EEq is that the electronegativity of an atom depends linearly on the charges.
+Using these data as a training dataset, we fit the parameters of the classical charge equilibration (QEq) model.
+QEq parameters include, for each element $\text{e}$, the electronegativity of a neutral atom of that element $\chi^0_{\text{e}}$, as well as the hardness $\eta_e$, which is the rate that its electronegativity increases as it becomes more positively charged.
+The modeling assumption underlying QEq is that the electronegativity of an atom depends linearly on the charges.
 For a system with two atoms with zero total charge, this simplifies to a linear formula for the electronegativity difference:
 \begin{equation}
   \chi_A - \chi_D
@@ -57,7 +57,7 @@ For a system with two atoms with zero total charge, this simplifies to a linear 
       + \bigl(\eta_A + \eta_D - 2\,c_{AD}\bigr)\,q_{A}
   (\#eq:LinearModel)
 \end{equation}
-Because this formula for $\Delta \chi$ is linear in all of the EEq parameters, we estimate them by least squares linear regression.
+Because this formula for $\Delta \chi$ is linear in all of the QEq parameters, we estimate them by least squares linear regression.
 As a sanity check, the $\chi^0_e$ parameters were compared to Pauling electronegativities, with which they correlated closely, except for boron (Figure \@ref(fig:linear-model-figure)B).
 
 The predictive performance of the model was tested using leave-one-out cross-validation.
