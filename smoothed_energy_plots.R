@@ -292,7 +292,9 @@ for (category_structure_pair in category_structure_pairs)
                   by = c('combination_id', 'field_number')) |>
         mutate(`correction * Lam` = electronegativity_difference_from_field,
                `dE/dq` = total_energy) |>
-        pivot_longer(c(`correction * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity')
+        pivot_longer(c(`correction * Lam`, `dE/dq`), names_to = 'computation', values_to = 'electronegativity') |>
+        # Set levels
+        mutate(computation = factor(computation, levels = computation_levels))
     lam_facet_plot_tbl <- lam_values |>
         mutate(formula = factor(formula, levels = formula_order)) |>
         filter(glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair)
