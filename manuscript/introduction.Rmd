@@ -22,7 +22,8 @@ A discrete difference approximation to this $\chi(0)$ yields the familiar Mullik
 @parrAbsoluteHardness also identified the derivative of the electronegativity with the hardness $\eta$ from the hard and soft acids and bases theory.
 This work became the basis of conceptual density functional theory, in which the concepts of chemistry are interpreted in terms of density functional theory (DFT) [@geerlingsconceptualDFTreview].
 
-The fundamental idea behind charge equilibration is to associate an electronegativity $\chi_k$ with an atom $k$ in a molecule or material, defined as the derivative of the total energy with respect to the charge $q_k$ of that atom, holding the other charges constant [@conceptualDFTElectronegativityOriginal].
+Defining the electronegativity of a system is not sufficient to provide the theoretical basis of QEq.
+The first QEq method began by associating an electronegativity $\chi_k$ with an atom $k$ in the system, defined as the derivative of the total energy with respect to the charge $q_k$ of that atom, holding the other charges constant [@conceptualDFTElectronegativityOriginal].
 The $\chi^0_k$ parameter of charge equilibration is the electronegativity an atom would have if neutral, and the hardness parameter $\eta_k$ determines the rate at which electronegativity increases as it becomes more positive.
 At the equilibrium, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
 For example, while a neutral oxygen atom is more electronegative than a neutral carbon atom, in carbon monoxide, the negative oxygen and positive carbon have equal electronegativities.
