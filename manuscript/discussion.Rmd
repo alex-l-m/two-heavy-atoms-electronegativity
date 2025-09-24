@@ -5,15 +5,9 @@ The model trained is the classical QEq model in which the parameters are $\chi^0
 These parameters were determined with standard least-squares linear regression, far simpler than the optimization procedures used previously to train the classical QEq model in the $q$-prediction task [@verstraelenElectronegativityParameters].
 Since classical QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction problem it corresponds to training a linear model, the most basic model in machine learning.
 
-Training with linear regression was possible only in the $\chi$-prediction problem, not the $q$-prediction problem, and careful consideration of why contributes a new piece of evidence that $\chi$ is a more local property than $q$.
-The foundational physical approximation underlying the QEq method is that $\chi$ is a linear function of $q$, as given by \eqref{eq:LinearModel}.
-But the critical property of this formula that enables the use of least-squares linear regression is that $\chi$ is a linear function of the QEq parameters.
-This expresses locality in a certain sense, since the effect on $\chi_k$ of a change in $q_k$ depends only on the hardness $\eta_k$.
-$q$ can be considered to be a linear function of $\chi^0$, given by \eqref{eq:EEqPred}.
-But then the weights are nonlinear combinations of hardnesses of different atoms.
-This expresses a certain non-locality, since the effect on $q_k$ of changing $\chi^0_k$ depends on the hardnesses of both atoms.
-This shows in a simple setting what has been empirically observed, which is that the charge of an atom in a molecule depends on distant atoms.
-The effect is not a true physical interaction but only the result of competition for a fixed pool of charge.
+The framing of QEq training as linear regression is related to the physical hypothesis that electronegativity $\chi$ depends linearly on the charges $q$.
+However, the reason that training the classical QEq model with linear regression was possible in the $\chi$-prediction problem is not because electronegativities depend linearly on the charges, but because they depend linearly on the parameters, $\chi^0_e$ and $\eta_e$, as shown in formula \eqref{eq:LinearModel}.
+This mode of training is not possible in the $q$-prediction problem, because although equilibrium charges depend linearly on the electronegativity parameters $\chi^0_e$, the weights are a non-linear function of the hardnesses of both atoms, as shown in formula \eqref{eq:EEqPred}.
 
 To train in the $\chi$-prediction task, we created a dataset of binary materials annotated with $\Delta \chi$ by imposing an external electric field and determining $\Delta \chi$ through a relation with the strength of the electric field.
 An intuitive picture of the meaning of this calculation is provided by considering the final frame in each series, in which the charges of both atoms are zero.
