@@ -6,6 +6,13 @@ library(grid)
 library(png)
 library(glue)
 library(cowplot)
+library(latex2exp)
+library(showtext)
+# Needed so that greek letters don't overlap in latex expressions
+showtext_auto()
+# Needed to avoid tiny text output
+# https://forum.posit.co/t/font-gets-really-small-when-saving-to-png-using-ggsave-and-showtext/147029/6
+showtext_opts(dpi=300)
 theme_set(theme_cowplot(font_size = 12) + theme(plot.background = element_rect(fill = 'white')))
 
 # Load my circuit diagram image as a raster grob
@@ -46,7 +53,7 @@ ggsave('example_energy_curve_plot.png', example_energy_curve_plot,
 # Same thing for energy derivative plots
 electronegativity_plot_list <- readr::read_rds('3-5:zincblende:0_lam_plots.rds')
 example_electronegativity_plot <- electronegativity_plot_list[['GaP']] +
-            ggtitle('GaP Δelectronegativity') +
+            ggtitle('GaP Δχ') +
             theme(legend.position = 'bottom')
 ggsave('example_electronegativity_plot.png', example_electronegativity_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))

@@ -4,6 +4,16 @@ library(robustbase)
 library(glue)
 library(ggrepel)
 library(tune)
+library(latex2exp)
+library(showtext)
+# Needed so that greek letters don't overlap in latex expressions
+showtext_auto()
+# Needed to avoid tiny text output
+# https://forum.posit.co/t/font-gets-really-small-when-saving-to-png-using-ggsave-and-showtext/147029/6
+showtext_opts(dpi=300)
+
+delta_electronegativity_label <- TeX(r'($\Delta \chi$ (V))')
+regression_electronegativity_label <- TeX(r'($\chi_e^0$ from regression (V))')
 
 this_theme <- 
     theme(
@@ -181,7 +191,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_point() +
         geom_smooth(method = lmrob, se = FALSE) +
         geom_label_repel() +
-        ylab('Regression electronegativity (V)') +
+        ylab(regression_electronegativity_label) +
         xlab('Pauling electronegativity')
 
     ggsave(glue('{category_structure_pair}_electronegativity_comparison_plot.png'),
@@ -196,7 +206,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_point() +
         geom_smooth(method = lmrob, se = FALSE) +
         geom_label_repel() +
-        ylab('Regression electronegativity (V)') +
+        ylab(regression_electronegativity_label) +
         xlab('Pauling electronegativity')
     
     electronegativity_comparison_base <- glue('{category_structure_pair}_electronegativity_comparison_plot_eq')
@@ -241,7 +251,7 @@ for (category_structure_pair in category_structure_pairs)
                                   color = other_symbol),
                     linetype = 'dashed') +
         scale_x_continuous(breaks = seq(-1, 1, 0.5), name = 'Charge of anion') +
-        scale_y_continuous(name = 'Δelectronegativity (V)') +
+        scale_y_continuous(name = delta_electronegativity_label) +
         theme(legend.position = 'bottom',
               # Settings for facet panels so they're sufficiently well spaced
               # https://stackoverflow.com/questions/28652284/how-to-change-color-of-facet-borders-when-using-facet-grid

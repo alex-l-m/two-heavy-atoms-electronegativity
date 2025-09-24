@@ -1,12 +1,22 @@
 library(tidyverse)
 library(cowplot)
 library(robustbase)
-theme_set(theme_cowplot() + theme(plot.background = element_rect(fill = 'white')))
 library(glue)
 library(ggrepel)
 library(broom)
+library(latex2exp)
+library(showtext)
+# Needed so that greek letters don't overlap in latex expressions
+showtext_auto()
+# Needed to avoid tiny text output
+# https://forum.posit.co/t/font-gets-really-small-when-saving-to-png-using-ggsave-and-showtext/147029/6
+showtext_opts(dpi=300)
+theme_set(theme_cowplot() + theme(plot.background = element_rect(fill = 'white')))
 
 TO_EV <- 27.211386246
+
+delta_electronegativity_label <- TeX(r'($\Delta \chi$ (V))')
+energy_derivative_label_map <- c(`dE/dq` = TeX(r'(Numerical $\frac{dE}{dq_A}$)'), `correction * Lam` = TeX(r'($2 \frac{dN_A^0}{dN_A} \lambda$)'))
 
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
@@ -221,8 +231,9 @@ for (category_structure_pair in category_structure_pairs)
         geom_line() +
         geom_point(data = mutate(filter(nofield_derivatives,
                                         donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
+        scale_color_discrete(labels = energy_derivative_label_map) +
         acceptor_charge_label +
-        ylab('Δelectronegativity (V)') +
+        ylab(delta_electronegativity_label) +
         # Put a vertical line to indicate 0
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
@@ -248,6 +259,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_point(data = mutate(filter(nofield_derivatives,
                                         donor_or_acceptor == 'acceptor' & glue('{category}:{crystal_structure}:{scale_number}') == category_structure_pair), computation = factor('dE/dq', levels = computation_levels))) +
         ylim(c(-5,5)) +
+        scale_color_discrete(labels = energy_derivative_label_map) +
         acceptor_charge_label +
         this_theme
     ggsave(glue('{category_structure_pair}_energy_derivatives_zoomed.png'), energy_derivatives_zoomed, width = unit(11.5, 'in'), height = unit(4.76, 'in'))
@@ -291,12 +303,14 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
         geom_hline(yintercept = 0, linetype = 'dashed')+
-        ylab('Δelectronegativity (V)') +
+        ylab(delta_electronegativity_label) +
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
         geom_line() +
         acceptor_charge_label +
+        scale_color_discrete(labels = energy_derivative_label_map) +
         this_theme
+    
     ggsave(glue('{category_structure_pair}_lam_comparison.png'), lam_facet_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
     
@@ -311,10 +325,11 @@ for (category_structure_pair in category_structure_pairs)
                 geom_vline(xintercept = 0, linetype = 'dashed') +
                 # Put a horizontal line to indicate zero
                 geom_hline(yintercept = 0, linetype = 'dashed')+
-                ylab('Δelectronegativity (V)') +
+                ylab(delta_electronegativity_label) +
                 # Remove the title from the legend
                 guides(color = guide_legend(title = NULL)) +
                 geom_line() +
+                scale_color_discrete(labels = energy_derivative_label_map) +
                 acceptor_charge_label
         }))
     lam_plot_list <- lam_plot_tbl$plot
@@ -394,7 +409,7 @@ for (category_structure_pair in category_structure_pairs)
         geom_vline(xintercept = 0, linetype = 'dashed') +
         # Put a horizontal line to indicate zero
         geom_hline(yintercept = 0, linetype = 'dashed')+
-        ylab('Δelectronegativity (V)') +
+        ylab(delta_electronegativity_label) +
         # Remove the title from the legend
         guides(color = guide_legend(title = NULL)) +
         geom_line() +
@@ -402,6 +417,7 @@ for (category_structure_pair in category_structure_pairs)
         # structure because that was already done during creation
         geom_abline(data = lam_line_data,
                     aes(intercept = intercept, slope = slope, color = line)) +
+        scale_color_discrete(labels = energy_derivative_label_map) +
         acceptor_charge_label +
         this_theme +
         theme(legend.position = 'bottom')
