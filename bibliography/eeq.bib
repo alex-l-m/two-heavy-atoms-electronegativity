@@ -1,3 +1,26 @@
+@article{Devereux2020,
+author={Devereux, Christian
+and Smith, Justin S.
+and Huddleston, Kate K.
+and Barros, Kipton
+and Zubatyuk, Roman
+and Isayev, Olexandr
+and Roitberg, Adrian E.},
+title={Extending the Applicability of the ANI Deep Learning Molecular Potential to Sulfur and Halogens},
+journal={Journal of Chemical Theory and Computation},
+year={2020},
+month={Jul},
+day={14},
+publisher={American Chemical Society},
+volume={16},
+number={7},
+pages={4192-4202},
+abstract={Machine learning (ML) methods have become powerful, predictive tools in a wide range of applications, such as facial recognition and autonomous vehicles. In the sciences, computational chemists and physicists have been using ML for the prediction of physical phenomena, such as atomistic potential energy surfaces and reaction pathways. Transferable ML potentials, such as ANI-1x, have been developed with the goal of accurately simulating organic molecules containing the chemical elements H, C, N, and O. Here, we provide an extension of the ANI-1x model. The new model, dubbed ANI-2x, is trained to three additional chemical elements: S, F, and Cl. Additionally, ANI-2x underwent torsional refinement training to better predict molecular torsion profiles. These new features open a wide range of new applications within organic chemistry and drug development. These seven elements (H, C, N, O, F, Cl, and S) make up ~90\% of drug-like molecules. To show that these additions do not sacrifice accuracy, we have tested this model across a range of organic molecules and applications, including the COMP6 benchmark, dihedral rotations, conformer scoring, and nonbonded interactions. ANI-2x is shown to accurately predict molecular energies compared to density functional theory with a ~106 factor speedup and a negligible slowdown compared to ANI-1x and shows subchemical accuracy across most of the COMP6 benchmark. The resulting model is a valuable tool for drug development which can potentially replace both quantum calculations and classical force fields for a myriad of applications.},
+annotate={Introduces the COMP6v2 dataset. It's hard to tell what's actually in it, so probably I should just refer to the previous paper on COMP6. It's interesting that it contains random conformers using RDKit's conformer generation. Formula 4 shows both energies and forces being used in the loss function.},
+issn={1549-9618},
+doi={10.1021/acs.jctc.0c00121},
+url={https://doi.org/10.1021/acs.jctc.0c00121}
+}
 @article{geerlingsconceptualDFTreview,
 author={Geerlings, Paul
 and Chamorro, Eduardo
@@ -18,11 +41,11 @@ volume={139},
 number={2},
 pages={36},
 abstract={This paper results from a round table discussion at the CCTC2018 Conference in Changsha City, Hunan, China, in December 2018. It presents a report on the status, prospects, and issues of conceptual density functional theory (CDFT). After a short exposition on the history of CDFT, its fundamentals, philosophy, and successes are highlighted. Then ten issues for reflection on the future of conceptual DFT are formulated and discussed, ending with one or more summarizing statements on the present status of various concepts/principles/practices and proposed directions for future research. The issues include the further analysis of the energy functional, E[N,v], extended to include effects of temperature, solvent, and mechanical forces, basic requirements for physically acceptable response functions as reactivity descriptors, the use of the grand canonical ensemble, the relevance of CDFT for chemical kinetics and thermodynamics, the domain of validity of CDFT-based principles, the combination of CDFT with reaction path calculations, information-theoretic descriptors, and the treatment of excited states and time dependence. The final issue advocates the transition of CDFT from an interpretative to a predictive mode; we believe this is of utmost importance for promoting CDFT as a viable alternative to wave function-based methods for the practicing chemist, a separate issue treated in the final section.},
+annotate={Section 2 has both a history of conceptual DFT and an attempt to define it. It is defined more or less as I would expect: the attempt to explicate chemistry concepts using DFT concepts. This is stated in 2.1. The history, also in 2.1, begins with three developments: the electronegativity, the hardness, and the Fukui function. The first two are of course necessary background for the electronegativity equalization. The emphasis of the paper seems to be on reactivity, but section 3.5 is about electronegativity equalization. In fact, it says "The initial impetus for CDFT arose from its ability to simply and rigorously explain the origins of the electronegativity equality method/principle".},
 issn={1432-2234},
 doi={10.1007/s00214-020-2546-7},
 url={https://doi.org/10.1007/s00214-020-2546-7}
 }
-
 @article{Ko2021,
 author={Ko, Tsz Wai
 and Finkler, Jonas A.
