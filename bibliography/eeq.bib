@@ -1,3 +1,44 @@
+@article{Gubler2024,
+author={Gubler, Moritz
+and Finkler, Jonas A.
+and Sch{\"a}fer, Moritz R.
+and Behler, J{\"o}rg
+and Goedecker, Stefan},
+title={Accelerating Fourth-Generation Machine Learning Potentials Using Quasi-Linear Scaling Particle Mesh Charge Equilibration},
+journal={Journal of Chemical Theory and Computation},
+year={2024},
+month={Aug},
+day={27},
+publisher={American Chemical Society},
+volume={20},
+number={16},
+pages={7264-7271},
+abstract={Machine learning potentials (MLPs) have revolutionized the field of atomistic simulations by describing atomic interactions with the accuracy of electronic structure methods at a small fraction of the cost. Most current MLPs construct the energy of a system as a sum of atomic energies, which depend on information about the atomic environments provided in the form of predefined or learnable feature vectors. If, in addition, nonlocal phenomena like long-range charge transfer are important, fourth-generation MLPs need to be used, which include a charge equilibration (Qeq) step to take the global structure of the system into account. This Qeq can significantly increase the computational cost and thus can become a computational bottleneck for large systems. In this Article, we present a highly efficient formulation of Qeq that does not require the explicit computation of the Coulomb matrix elements, resulting in a quasi-linear scaling method. Moreover, our approach also allows for the efficient calculation of energy derivatives, which explicitly consider the global structure-dependence of the atomic charges as obtained from Qeq. Due to its generality, the method is not restricted to MLPs and can also be applied within a variety of other force fields.},
+annotate={The most interesting thing I learned here is that people solve for equalized electronegativity using conjugate gradients. If the best way to do it is already iterative, are we really gaining anything from the linear approximation? It cites Nakano 1997, which is maybe the foundational paper to read about this.},
+issn={1549-9618},
+doi={10.1021/acs.jctc.4c00334},
+url={https://doi.org/10.1021/acs.jctc.4c00334}
+}
+
+@article{Vondrak2025,
+author={Vondr{\'a}k, Martin
+and Reuter, Karsten
+and Margraf, Johannes T.},
+title={Pushing charge equilibration-based machine learning potentials to their limits},
+journal={npj Computational Materials},
+year={2025},
+month={Sep},
+day={16},
+volume={11},
+number={1},
+pages={288},
+abstract={Machine learning (ML) has demonstrated its potential in atomistic simulations to bridge the gap between accurate first-principles methods and computationally efficient empirical potentials. This is achieved by learning mappings between a system's structure and its physical properties. State-of-the-art models for potential energy surfaces typically represent chemical structures through (semi-)local atomic environments. However, this approach neglects long-range interactions (most notably electrostatics) and non-local phenomena such as charge transfer, leading to significant errors in the description of molecules or materials in polar anisotropic environments. To address these challenges, ML frameworks that predict self-consistent charge distributions in atomistic systems using the Charge Equilibration (QEq) method are currently popular. In this approach, atomic charges are derived from an electrostatic energy expression that incorporates environment-dependent atomic electronegativities. Herein, we explore the limits of this concept at the example of the previously reported Kernel Charge Equilibration (kQEq) approach, combined with local short-ranged potentials. To this end we consider prototypical systems with varying total charge states and applied electric fields. We find that charge equilibration-based models perform well in most situations. However, we also find that some pathologies of conventional QEq carry over to the ML variants in the form of spurious charge transfer and overpolarization in the presence of static electric fields. This indicates a need for new methodological developments.},
+annotate={At least shows that people still care about machine learning potentials with charge equilibration in 2025. Describes charge equilibration as "the state-of-the-art approach to introduce non-local charge transfer and electrostatic interactions into MLIPs [machine learning interatomic potentials]", which I think is a controversial statement. References in the introduction could be helpful for getting up to date with the field. First section is on separating molecules and avoiding charge equilibration between separated molecules, a common issue. Next section on external fields seems to say that perturbed molecules are valuable training data for prediction on unperturbed ones.},
+issn={2057-3960},
+doi={10.1038/s41524-025-01791-3},
+url={https://doi.org/10.1038/s41524-025-01791-3}
+}
+
 @article{Devereux2020,
 author={Devereux, Christian
 and Smith, Justin S.
