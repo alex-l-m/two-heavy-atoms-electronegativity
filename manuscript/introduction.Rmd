@@ -11,24 +11,28 @@ Machine learning (ML) interatomic potentials have also introduced electrostatic 
 Empirical methods such as these can predict properties much faster than _ab initio_ methods such as density functional theory, enabling prediction for larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of molecules and materials.
 
 <!-- 2. Charge equilibration / You should get it from charge equilibration -->
+<!--
 QEq begins by assigning each atom $k$ an electronegativity $\chi^0_k$ and a hardness $\eta_k$, which define a linear system that is solved to obtain atomic charges $q_k$ [@conceptualDFTElectronegativityOriginal].
 In the original formulation of QEq, these parameters depend only upon the element of the atom, but in recent ML potentials, they are predicted from local environment.
 The advantage is that while these parameters depend only on local environment, charge itself can be affected by distant parts of the molecule competing for the same fixed pool of charge [@Ko2021].
+-->
 
-<!-- 3. Conceptual DFT / Electronegativity is a real thing -->
-The theoretical foundation of charge equilibration began with defining the electronegativity $\chi$ of a system as the negative of the chemical potential of its electrons, or equivalently, the derivative of the energy with respect to the electric charge, $q$ [@parrcdftelectronegativity].
-Defined this way, electronegativity is an increasing function of charge, $\chi(q)$.
+<!-- 2. Conceptual DFT / Electronegativity is a real thing -->
+QEq is a class of empirical methods for predicting partial charges of atoms, descended from the electronegativity equalization method (EEM) [@conceptualDFTElectronegativityOriginal].
+The EEM is theoretically rooted in conceptual density functional theory (DFT), in which concepts of chemistry are defined in terms of concepts from DFT [@geerlingsconceptualDFTreview].
+Conceptual DFT began with a new definition of the electronegativity of a molecule or material: the negative of the chemical potential of the electrons in the system [@parrcdftelectronegativity].
+Defined this way, electronegativity $\chi$ is an increasing function of charge $q$, $\chi(q)$.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
-A discrete difference approximation to this $\chi(0)$ yields the familiar Mulliken electronegativity.
-@parrAbsoluteHardness also identified the derivative of the electronegativity with the hardness $\eta$ from the hard and soft acids and bases theory.
-This work became the basis of conceptual density functional theory, in which the concepts of chemistry are interpreted in terms of density functional theory (DFT) [@geerlingsconceptualDFTreview].
+Considering the electronegativity $\chi(0)$ of a neutral atom, and approximating the derivative with a difference, yields the familiar Mulliken electronegativity.
+The derivative $\chi'(q)$ was defined as the hardness $\eta$, which provides a conceptual DFT definition for the hardness from the hard and soft acids and bases theory [@parrAbsoluteHardness].
 
-Defining the electronegativity of a system is not sufficient to provide the theoretical basis of QEq.
-The first QEq method began by associating an electronegativity $\chi_k$ with an atom $k$ in the system, defined as the derivative of the total energy with respect to the charge $q_k$ of that atom, holding the other charges constant [@conceptualDFTElectronegativityOriginal].
-The $\chi^0_k$ parameter of charge equilibration is the electronegativity an atom would have if neutral, and the hardness parameter $\eta_k$ determines the rate at which electronegativity increases as it becomes more positive.
-At the equilibrium, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
+The theoretical basis of the EEM requires defining not only the electronegativity $\chi$ of a system, but an analogous definition for the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal].
+In a stationary state, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
 For example, while a neutral oxygen atom is more electronegative than a neutral carbon atom, in carbon monoxide, the negative oxygen and positive carbon have equal electronegativities.
-QEq, then, consists of solving for the vector of atomic charges $\vect{q}$ such that all atomic electronegativities are equal, yielding a prediction of the charges.
+The EEM and all subsequent QEq methods predict charge by solving for the atomic charges $\vect{q}$ such that all atomic electronegativities are equal.
+
+<!-- The $\chi^0_k$ parameter of charge equilibration is the electronegativity an atom would have if neutral, and the hardness parameter $\eta_k$ determines the rate at which electronegativity increases as it becomes more positive. !-->
+<!-- 3. Explanation of QEq parameters -->
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
 For practical use, the QEq model must be trained using a dataset of reference charges.
