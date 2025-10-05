@@ -1,3 +1,17 @@
+@article{Nakano1997,
+title = {Parallel multilevel preconditioned conjugate-gradient approach to variable-charge molecular dynamics},
+journal = {Computer Physics Communications},
+volume = {104},
+number = {1},
+pages = {59-69},
+year = {1997},
+issn = {0010-4655},
+doi = {https://doi.org/10.1016/S0010-4655(97)00041-6},
+url = {https://www.sciencedirect.com/science/article/pii/S0010465597000416},
+author = {Aiichiro Nakano},
+abstract = {Physical realism of molecular dynamics (MD) simulations is greatly enhanced by incorporating variable atomic charges which adapt to the local environment dynamically. In the electrostatic plus (ES+) model, atomic charges are determined to equalize electronegativity. However, this model involves costly minimization of the electrostatic energy at each MD step. A preconditioned conjugate-gradient method is developed for this minimization problem by splitting the Coulomb-interaction matrix into short- and long-range components; the computationally less intensive short-range matrix is used as a preconditioner. This preconditioning scheme is found to speed up the convergence significantly. Numerical tests involving up to 26.5 million atoms are performed on a parallel computer, and the preconditioner is shown to improve the parallel efficiency by increasing data locality. The computational cost is further amortized due to the algorithmic similarity to the multiple-time-scale MD.},
+annotate = {Algorithm for fast solution of the electronegativity equalization equations. The speed is achieved in a few different ways which I didn't really follow. All that's important really from my perspective is that it's a conjugate gradients method, so it's a loop. So I guess I don't see why you couldn't do the same thing but with a non-linear form for the electronegativities. You would just need to linearize in each step by taking derivatives, maybe?}
+}
 @book{baderbook,
     author = {Bader, Richard F W},
     title = {Atoms in Molecules: A Quantum Theory},
