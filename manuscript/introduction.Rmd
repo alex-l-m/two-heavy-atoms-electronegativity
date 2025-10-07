@@ -10,13 +10,6 @@ However, QEq has been proposed as a means of avoiding this iteration in xTB [@gf
 Machine learning (ML) interatomic potentials have also introduced electrostatic energy terms based on partial charge predictions, including methods using QEq [@Anstine2023].
 Empirical methods such as these can predict properties much faster than _ab initio_ methods such as density functional theory, enabling prediction for larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of molecules and materials.
 
-<!-- 2. Charge equilibration / You should get it from charge equilibration -->
-<!--
-QEq begins by assigning each atom $k$ an electronegativity $\chi^0_k$ and a hardness $\eta_k$, which define a linear system that is solved to obtain atomic charges $q_k$ [@conceptualDFTElectronegativityOriginal].
-In the original formulation of QEq, these parameters depend only upon the element of the atom, but in recent ML potentials, they are predicted from local environment.
-The advantage is that while these parameters depend only on local environment, charge itself can be affected by distant parts of the molecule competing for the same fixed pool of charge [@Ko2021].
--->
-
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
 QEq is a class of empirical methods for predicting partial charges of atoms, descended from the electronegativity equalization method (EEM) [@conceptualDFTElectronegativityOriginal].
 The EEM is theoretically rooted in conceptual density functional theory (DFT), in which concepts of chemistry are defined in terms of concepts from DFT [@geerlingsconceptualDFTreview].
@@ -31,12 +24,21 @@ In a stationary state, every atom has the same electronegativity $\chi_k(\vect{q
 For example, while a neutral oxygen atom is more electronegative than a neutral carbon atom, in carbon monoxide, the negative oxygen and positive carbon have equal electronegativities.
 The EEM and all subsequent QEq methods predict charge by solving for the atomic charges $\vect{q}$ such that all atomic electronegativities are equal.
 
-<!-- The $\chi^0_k$ parameter of charge equilibration is the electronegativity an atom would have if neutral, and the hardness parameter $\eta_k$ determines the rate at which electronegativity increases as it becomes more positive. !-->
 <!-- 3. Explanation of QEq parameters -->
+Besides the fundamental idea of predicting charge by equalizing atomic electronegativity, QEq also makes the physical assumption that these electronegativities depend linearly on the charges.
+In most expositions this is described as a quadratic approximation to energy, but differentiating yields that $\chi(\vect{q})$ is an affine transformation.
+As a result, equalizing electronegativity is accomplished by solving a linear system.
+
+Leaving aside interatomic interactions for the moment, the linear relationship $\chi(\vect{q})$ is defined by a slope and an intercept for each atom $k$: the intercept $\chi_k^0$ representing the electronegativity it would have if neutral, and a slope $\eta_k$, the hardness, representing the rate at which the electronegativity of the atom increases as it becomes more positive.
+In the EEM these values were assumed to depend only on the element.
+Therefore the EEM was an empirical method with two free parameters per element $e$: $\chi^0_e$ and $\eta_e$.
+Most subsequent use of QEq has made the same assumption.
+However, within the last decade, ML methods incorporating QEq have assigned these values based on the atom's local environment.
+In ML potentials, one of the selling points of QEq over using ML to predict charge directly has been that the $\chi^0_k$ and $\eta_k$ values are apparently more local then charge itself, not just because of long-range Coulomb interactions but because distant atoms are still competing for a fixed pool of charge, inducing long-range dependence of charge on distant electron-withdrawing functional groups [@Ko2021].
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
 For practical use, the QEq model must be trained using a dataset of reference charges.
-That is, the parameters of the model, whether the element-specific $\chi^0_k$ and $\eta_k$ values of a classical QEq model or the much larger number of parameters used by a modern ML model to assign environment-dependent $\chi^0_k$ and $\eta_k$, are determined by minimizing a loss function.
+That is, the parameters of the model, whether the element-specific $\chi^0_e$ and $\eta_e$ values of an old-fashioned QEq model or the much larger number of parameters used by a modern ML model to assign environment-dependent $\chi^0_k$ and $\eta_k$, are determined by minimizing a loss function.
 That loss function is the error of charge prediction on a training dataset consisting of DFT simulations.
 
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
