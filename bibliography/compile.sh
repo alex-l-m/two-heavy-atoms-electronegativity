@@ -1,0 +1,2 @@
+bibtex display_annotated_bibliography.aux
+pdflatex display_annotated_bibliography.tex
