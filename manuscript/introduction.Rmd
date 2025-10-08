@@ -4,20 +4,24 @@
 Molecules and materials are composed of atoms, and the contributions of atoms are visible in the electron density function as roughly spherical concentrations of electron density [@baderbook].
 A model of the electron density as a sum of spherical contributions provides an approximation to the electrostatic potential, with increasing accuracy at larger distances.
 In this model, the electron density is fully described by a partial charge on each atom.
-Consequently, partial charge assignment is an essential part of polarizable force fields, to approximate the electrostatic energy, with charges often derived from charge equilibration (QEq) [@polarizableFFReviewJing].
-A similar approximation scheme is used to include electrostatic energy in semiempirical quantum mechanics in the SCC-DFTB [@scc1998] and xTB [@gfn1xtb] methods, though the charges are obtained by iteration to self-consistency.
-However, QEq has been proposed as a means of avoiding this iteration in xTB [@gfn0xtb].
+
+The monopole approximation to the electrostatic energy has been widely used in computational chemistry and materials science, necessitating prediction of partial charge as a subtask, often accomplished with charge equlibration (QEq).
+In force fields, partial charge estimation, often with QEq, has been used to create polarizable force fields [@polarizableFFReviewJing], as well as force fields modeling reactivity [@ReaxFFOriginal].
+The monopole approximation is also used to include electrostatic energy in semiempirical quantum mechanics in the SCC-DFTB [@scc1998] and xTB [@gfn1xtb] methods. In those methods the charges are obtained by iteration to self-consistency, but QEq has been proposed as a means of avoiding this iteration in xTB [@gfn0xtb].
 Machine learning (ML) interatomic potentials have also introduced electrostatic energy terms based on partial charge predictions, including methods using QEq [@Anstine2023].
-Empirical methods such as these can predict properties much faster than _ab initio_ methods such as density functional theory, enabling prediction for larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of molecules and materials.
+Empirical methods such as these can predict properties much faster than _ab initio_ methods such as density functional theory (DFT), enabling prediction for larger molecules, longer timescales in molecular dynamics, and larger combinatorial spaces of molecules and materials.
 
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
 QEq is a class of empirical methods for predicting partial charges of atoms, descended from the electronegativity equalization method (EEM) [@conceptualDFTElectronegativityOriginal].
-The EEM is theoretically rooted in conceptual density functional theory (DFT), in which concepts of chemistry are defined in terms of concepts from DFT [@geerlingsconceptualDFTreview].
+The EEM is theoretically rooted in conceptual DFT, in which concepts of chemistry are defined in terms of concepts from DFT [@geerlingsconceptualDFTreview].
 Conceptual DFT began with a new definition of the electronegativity of a molecule or material: the negative of the chemical potential of the electrons in the system [@parrcdftelectronegativity].
-Defined this way, electronegativity $\chi$ is an increasing function of charge $q$, $\chi(q)$.
+Equivalently, if we consider the $E(q)$ as the energy of a system as a function of its electric charge, then the electronegativity $\chi(q)$ is the derivative, $E'(q)$.
+
+Defined this way, $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but an ion, a molecule, or a material.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
-Considering the electronegativity $\chi(0)$ of a neutral atom, and approximating the derivative with a difference, yields the familiar Mulliken electronegativity.
-The derivative $\chi'(q)$ was defined as the hardness $\eta$, which provides a conceptual DFT definition for the hardness from the hard and soft acids and bases theory [@parrAbsoluteHardness].
+The familiar concept of an electronegativity associated with an element is recovered by considering the electronegativity $\chi(0)$ of a neutral atom.
+Approximating this derivative with a difference yields the familiar Mulliken electronegativity.
+After this definition of electronegativity, development of conceputal DFT continued by defining the hardness $\eta(q)$ as the derivative of electronegativity, providing a conceptual DFT rationalization of the hard and soft acids and bases theory [@parrAbsoluteHardness].
 
 The theoretical basis of the EEM requires defining not only the electronegativity $\chi$ of a system, but an analogous definition for the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal].
 In a stationary state, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
