@@ -1,3 +1,22 @@
+@article{fractionalChargeHirshfeldI,
+author={Heidar-Zadeh, Farnaz
+and Ayers, Paul W.
+and Bultinck, Patrick},
+title={Fractional nuclear charge approach to isolated anion densities for Hirshfeld partitioning methods},
+journal={Journal of Molecular Modeling},
+year={2017},
+month={Nov},
+day={21},
+volume={23},
+number={12},
+pages={348},
+abstract={Atoms in molecules methods that rely on reference promolecular densities typically require that one define, or otherwise determine, the densities of unbound atomic anions. Whereas the isolated atomic polyanions are always physically and computationally unbound, monoanions can be either physically bound but computationally unbound (like the oxygen anion at the Hartree-Fock level of theory), or physically unbound but computationally bound (like the nitrogen anion using many DFT methods with a basis set including diffuse functions). Depending on the level of theory and basis set used, the densities of negatively charged atomic ions can decay very slowly and even be nonmonotonically decreasing. These delocalized anionic densities induce ill-behaved atomic properties for compounds containing highly reduced atoms. To treat the problem of unphysical proatom densities in iterative Hirshfeld methods, we compute the smallest (typically fractional) nuclear charge to bind all electrons, called the effective nuclear charge of an atom A. When at a given level of theory, the scaled density corresponding to the effective nuclear charge is used as the negatively charged proatom density. This novel approach dramatically improves the computational robustness of the iterative Hirshfeld partitioning scheme.},
+annotate={Add nuclear charge to stabilize anionic proatoms. Equation 9 is the condition for the nuclear charge: sets electron affinity to zero. Equation 10 is the formula for the proatom ``pseudodensity'': the electron density of the atom with augmented nuclear charge, but scaled. I don't really understand the justification for the scaling (to ``meet the nuclear cusp condition''?). It's interesting though, because it means a nitrogen won't become an oxygen even if you add a full extra nuclear charge. Instead it will be wider, as it should be.},
+issn={0948-5023},
+doi={10.1007/s00894-017-3514-6},
+url={https://doi.org/10.1007/s00894-017-3514-6}
+}
+
 @article{variationalHirshfeldI,
     author = {Pujal, Leila and van Zyl, Maximilian and Vöhringer-Martinez, Esteban and Verstraelen, Toon and Bultinck, Patrick and Ayers, Paul W. and Heidar-Zadeh, Farnaz},
     title = {Constrained iterative Hirshfeld charges: A variational approach},
