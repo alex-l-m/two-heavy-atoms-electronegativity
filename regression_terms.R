@@ -1,6 +1,11 @@
 library(tidyverse)
 library(glue)
 
+cell_sizes <- read_csv('cell_sizes.csv', col_types = cols(
+    structure_id = col_character(),
+    cell_size = col_double()
+))
+
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
     symbol = col_character(),
@@ -48,8 +53,11 @@ for (category_structure_pair in category_structure_pairs)
     these_charges <- charge_energy |>
         filter(glue('{category}:{crystal_structure}') == category_structure_pair) |>
         select(combination_id, formula, symbol, other_symbol, donor_or_acceptor,
-               charge, electronegativity_field_discrete,
-               scale_number)
+               charge, electronegativity_field_analytic,
+               scale_number,
+               # Also needed structure_id for joining cell sizes
+               # In the future might just want cell sizes in charge_energy
+               structure_id)
     
     # Order elements by atomic number, to select the least for use as a
     # reference for electronegativity and hardness
@@ -94,6 +102,10 @@ for (category_structure_pair in category_structure_pairs)
         rename(electronegativity_term_rank = element_rank) |>
         # Electronegativity terms correspond to an element
         # Also make them dependent on scale
+        # Also need to reverse sign for a donor; this is because we're
+        # constructing the regression equation for the electronegativity
+        # difference, that is, the electronegativity of the acceptor minus the
+        # electronegativity of the donor, so donor terms are negative
         mutate(category = glue('{symbol}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1)) |>
@@ -117,6 +129,9 @@ for (category_structure_pair in category_structure_pairs)
         # Same as electronegativity: each term corresponds to an element, also
         # dependent on scale
         mutate(category = glue('{symbol}_S{scale_number}'),
+               # Note that the contributions from both atoms end up the same
+               # sign; one is added and the other is subtracted, but one has
+               # positive charge and the other negative
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * charge) |>
         select(combination_id, category, variable_contribution,
@@ -124,6 +139,15 @@ for (category_structure_pair in category_structure_pairs)
 
     write_csv(hardness_terms, glue('{category_structure_pair}_hardness_terms.csv.gz'))
     
+    # The interaction terms the way I originally did it, where they are
+    # arbitrary parameters that depend on the material. The resulting model
+    # can't be used for prediction. Originally I did it this way just because I
+    # didn't want to take a chance with any specific model of the interaction,
+    # except the implicit assumption that it doesn't depend on the charges
+    # (which would be violated by an overlap correction that depends on the
+    # sizes of the Hirshfeld atoms). I still think this analysis could be
+    # useful for something, maybe just for comparing these terms to models
+    # based on stronger assumptions, so I'm keeping this code.
     interaction_terms <- these_charges |>
         # There's linear constraint on the interaction terms as well. Every
         # atom can be thought of as having an "adjusted hardness", which is the
@@ -131,22 +155,55 @@ for (category_structure_pair in category_structure_pairs)
         # realized in practice. So you could just consider the smallest
         # interaction term to be zero, and the hardness to be the highest
         # achievable hardness
+        # Another issue to consider is sign. For an interaction term, the
+        # relevant charge is the charge of the other atom. Using the assumption
+        # of zero total charge, that's a sign flip. This will have to change if
+        # I ever have non-constant total charge.
+        # Contrasting to the hardness, this shows that the interaction
+        # "softens" the atoms.
         left_join(ranked_formulas, by = 'formula') |>
         rename(interaction_term_donor_rank = formula_rank_donor,
                interaction_term_acceptor_rank = formula_rank_acceptor) |>
         mutate(category = glue('{formula}_S{scale_number}'),
                variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
-                                              1, -1) * charge) |>
+                                              1, -1) * (-charge)) |>
         select(combination_id, category, variable_contribution,
                interaction_term_donor_rank, interaction_term_acceptor_rank)
 
     write_csv(interaction_terms, glue('{category_structure_pair}_interaction_terms.csv.gz'))
-    
+
+    # Naive Coulomb interaction term, but with a constant learned by
+    # regression. In the model where the material is a lattice of point
+    # charges, the constant reflects the universal Coulomb constant and the
+    # crystal-structure specific Madelung constant. And, depending on what
+    # measure of cell size I use, some adjustment for that. It should really
+    # also depend on the dielectric constant and on the overlap. I'm leaving
+    # these out of this model, but as a result the constant that is estimated
+    # from the data cannot be expected to match the theoretical value for a
+    # lattice of point charges.
+    point_charge_coulomb_terms <- these_charges |>
+        left_join(cell_sizes, by = 'structure_id') |>
+        # The category here is tricky. For now I think it can just be the scale
+        # number. However, it will have to get more specific if I ever include
+        # multiple space groups in the same regression, because if you will have
+        # its own Madelung constant.
+        mutate(category = glue('S{scale_number}'),
+               variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
+                                              1, -1) * (-charge) / cell_size) |>
+        select(combination_id, category, variable_contribution)
+    write_csv(point_charge_coulomb_terms,
+              glue('{category_structure_pair}_point_charge_coulomb_terms.csv.gz'))
+
+    # Sum the electronegativities for each atom to get the derivative of energy
+    # as one atom gains charge and the other loses it
+    # Theoretically I should be able to use the discrete or analytic
+    # electronegativities here. I'm not even sure which is more accurate since
+    # the "analytic" one relies on a numerical integration. Currently the
+    # discrete one is undefined for the first frame (though that depends on how
+    # I take the numerical derivative, so it may change), so using analytic
     electronegativity_differences <- these_charges |>
-        # Sum the electronegativities for each atom to get the derivative of
-        # energy as one atom gains charge and the other loses it
         group_by(combination_id) |>
-        summarize(variable_contribution = sum(electronegativity_field_discrete),
+        summarize(variable_contribution = sum(electronegativity_field_analytic),
                   .groups = 'drop') |>
         select(combination_id, variable_contribution)
     write_csv(electronegativity_differences,
