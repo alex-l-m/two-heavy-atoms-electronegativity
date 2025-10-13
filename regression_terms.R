@@ -101,7 +101,9 @@ for (category_structure_pair in category_structure_pairs)
         left_join(ranked_elements, by = 'symbol') |>
         rename(electronegativity_term_rank = element_rank) |>
         # Electronegativity terms correspond to an element
-        # Also make them dependent on scale
+        # Also making them dependent on scale, since I have enough data to fit
+        # scale-dependence, but may change this decision if I ever actually
+        # include multiple scales in the analysis
         # Also need to reverse sign for a donor; this is because we're
         # constructing the regression equation for the electronegativity
         # difference, that is, the electronegativity of the acceptor minus the
@@ -183,14 +185,15 @@ for (category_structure_pair in category_structure_pairs)
     # lattice of point charges.
     point_charge_coulomb_terms <- these_charges |>
         left_join(cell_sizes, by = 'structure_id') |>
-        # The category here is tricky. For now I think it can just be the scale
-        # number. However, it will have to get more specific if I ever include
-        # multiple space groups in the same regression, because if you will have
-        # its own Madelung constant.
-        mutate(category = glue('S{scale_number}'),
-               variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
+        # The category here is tricky. It will have to get more specific if I
+        # ever include multiple space groups in the same regression, because if
+        # you will have its own Madelung constant. If I include multiple
+        # scales, the same one should be used across scales, because I take
+        # into account changes in the lattice constant with the cell size. So
+        # for now, I won't have any category.
+        mutate(variable_contribution = ifelse(donor_or_acceptor == 'acceptor',
                                               1, -1) * (-charge) / cell_size) |>
-        select(combination_id, category, variable_contribution)
+        select(combination_id, variable_contribution)
     write_csv(point_charge_coulomb_terms,
               glue('{category_structure_pair}_point_charge_coulomb_terms.csv.gz'))
 
