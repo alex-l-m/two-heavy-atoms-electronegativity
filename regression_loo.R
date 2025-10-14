@@ -116,8 +116,9 @@ for (category_structure_pair in category_structure_pairs)
     
     # Estimate parameters for the elements in the left out formula, and predict
     # charge of the acceptor
-    loo <- formula |>
+    loo_pre_regression_table <- formula |>
         rename(formula_left_out = formula) |>
+        bind_rows(tibble(formula_left_out = 'none')) |>
         cross_join(regression_terms) |>
         filter(formula != formula_left_out) |>
         group_by(formula_left_out) |>
@@ -132,12 +133,21 @@ for (category_structure_pair in category_structure_pairs)
         # Remove the combination id so won't end up being used as a predictor
         # Convert from a tidy table to a design matrix
         pivot_wider(names_from = variable_name, values_from = variable_value,
-                    values_fill = 0) |>
+                    values_fill = 0)
+
+    loo_models <- loo_pre_regression_table |>
         select(-combination_id) |>
         group_by(formula_left_out) |>
-        # Do the regression and get parameters for all variables
-        reframe(tidy(lm(electronegativity_difference ~ . + 0,
-                        data = pick(everything())))) |>
+        # Make a list column of regression models
+        summarize(model = list(
+                lm(electronegativity_difference ~ . + 0,
+                   data = pick(everything()))
+        ))
+
+    loo_parameters <- loo_models |>
+        group_by(formula_left_out) |>
+        reframe(tidy(model[[1]]))
+    loo <- loo_parameters |>
         ungroup() |>
         # Join the information on the symbols of the donor and acceptor
         left_join(donor_acceptor_symbols,
