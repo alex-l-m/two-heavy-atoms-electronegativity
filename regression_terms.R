@@ -186,8 +186,8 @@ for (category_structure_pair in category_structure_pairs)
     point_charge_coulomb_terms <- these_charges |>
         left_join(cell_sizes, by = 'structure_id') |>
         # The category here is tricky. It will have to get more specific if I
-        # ever include multiple space groups in the same regression, because if
-        # you will have its own Madelung constant. If I include multiple
+        # ever include multiple space groups in the same regression, because
+        # each will have its own Madelung constant. If I include multiple
         # scales, the same one should be used across scales, because I take
         # into account changes in the lattice constant with the cell size. So
         # for now, I won't have any category.
