@@ -163,6 +163,8 @@ for (category_structure_pair in category_structure_pairs)
     loo_parameters <- loo_models |>
         group_by(formula_left_out) |>
         reframe(tidy(model[[1]]))
+    write_csv(loo_parameters, glue('{category_structure_pair}_loo_parameters.csv.gz'))
+
     loo <- loo_parameters |>
         ungroup() |>
         # Join the information on the symbols of the donor and acceptor
