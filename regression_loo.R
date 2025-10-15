@@ -126,9 +126,10 @@ for (category_structure_pair in category_structure_pairs)
         # rank columns and then remove those columns
         filter(not_reference(electronegativity_term_rank) &
                not_reference(hardness_term_rank)) |>
+        ungroup() |>
         select(-electronegativity_term_rank,
                -hardness_term_rank) |>
-        group_by(combination_id, formula_left_out, variable_name) |>
+        group_by(combination_id, formula, formula_left_out, variable_name) |>
         summarize(variable_value = sum(variable_contribution), .groups = 'drop') |>
         # Remove the combination id so won't end up being used as a predictor
         # Convert from a tidy table to a design matrix
@@ -136,13 +137,28 @@ for (category_structure_pair in category_structure_pairs)
                     values_fill = 0)
 
     loo_models <- loo_pre_regression_table |>
-        select(-combination_id) |>
+        select(-combination_id, -formula) |>
         group_by(formula_left_out) |>
         # Make a list column of regression models
         summarize(model = list(
                 lm(electronegativity_difference ~ . + 0,
                    data = pick(everything()))
         ))
+
+    # For each formula, make predictions using the model where that formula was
+    # left out
+    loo_eq_pred <- loo_pre_regression_table |>
+        filter(formula_left_out == 'none') |>
+        select(-formula_left_out) |>
+        group_by(formula) |>
+        nest() |>
+        left_join(loo_models, by = c('formula' = 'formula_left_out')) |>
+        reframe(
+            tibble(combination_id = data[[1]]$combination_id,
+                   predicted_electronegativity_difference =
+                       predict(model[[1]], newdata = data[[1]]))
+        )
+    write_csv(loo_eq_pred, glue('{category_structure_pair}_loo_eq_pred.csv.gz'))
 
     loo_parameters <- loo_models |>
         group_by(formula_left_out) |>
