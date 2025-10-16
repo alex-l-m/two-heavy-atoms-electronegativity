@@ -121,7 +121,6 @@
     &SCF
       SCF_GUESS  {guess} 
       EPS_SCF 1e-6
-      IGNORE_CONVERGENCE_FAILURE
 	  
       &OUTER_SCF ON
            MAX_SCF {max_outer_scf}
