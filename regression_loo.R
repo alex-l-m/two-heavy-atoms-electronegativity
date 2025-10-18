@@ -88,11 +88,6 @@ for (category_structure_pair in category_structure_pairs)
             variable_contribution = col_double(),
             hardness_term_rank = col_integer()
         ))
-    interaction_terms <- read_csv(glue('{category_structure_pair}_point_charge_coulomb_terms.csv.gz'),
-        col_types = cols(
-            combination_id = col_character(),
-            variable_contribution = col_double(),
-        ))
 
     electronegativity_differences <- read_csv(glue('{category_structure_pair}_electronegativity_differences.csv.gz'),
         col_types = cols(
@@ -104,7 +99,6 @@ for (category_structure_pair in category_structure_pairs)
             electronegativity_difference = electronegativity_differences,
             electronegativity = electronegativity_terms,
             hardness = hardness_terms,
-            interaction = interaction_terms,
             .id = 'variable_type') |>
         # The categories are all {formula}_S{scale_number} or {symbol}_S{scale_number}
         # Therefore variable names will consist of three parts: type, group, scale number

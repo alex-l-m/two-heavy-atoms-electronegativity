@@ -65,10 +65,13 @@ for (category_structure_pair in category_structure_pairs)
             variable_contribution = col_double(),
             hardness_term_rank = col_integer()
         ))
-    interaction_terms <- read_csv(glue('{category_structure_pair}_point_charge_coulomb_terms.csv.gz'),
+    interaction_terms <- read_csv(glue('{category_structure_pair}_interaction_terms.csv.gz'),
         col_types = cols(
             combination_id = col_character(),
+            category = col_character(),
             variable_contribution = col_double(),
+            interaction_term_donor_rank = col_integer(),
+            interaction_term_acceptor_rank = col_integer()
         ))
 
     electronegativity_differences <- read_csv(glue('{category_structure_pair}_electronegativity_differences.csv.gz'),
@@ -95,10 +98,13 @@ for (category_structure_pair in category_structure_pairs)
         # Filter out the lowest ranked terms according to each of the reference
         # rank columns and then remove those columns
         filter(not_reference(electronegativity_term_rank) &
-               not_reference(hardness_term_rank)) |>
+               not_reference(hardness_term_rank) &
+               not_reference(interaction_term_donor_rank) &
+               not_reference(interaction_term_acceptor_rank)) |>
         select(-electronegativity_term_rank,
                -hardness_term_rank,
-               -variable_type) |>
+               -interaction_term_donor_rank,
+               -interaction_term_acceptor_rank) |>
         group_by(combination_id, variable_name) |>
         summarize(variable_value = sum(variable_contribution), .groups = 'drop') |>
         # Convert from a tidy table to a design matrix
