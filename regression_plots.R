@@ -156,14 +156,16 @@ for (category_structure_pair in category_structure_pairs)
         mutate(symbol = factor(symbol, levels = element_levels))
 
     # Read the previously saved parameter estimates from regression
-    estimates <- read_csv(glue('{category_structure_pair}_regression_estimates.csv.gz'),
+    estimates <- read_csv(glue('{category_structure_pair}_loo_parameters.csv.gz'),
              col_types = cols(
+                 formula_left_out = col_character(),
                  term = col_character(),
                  estimate = col_double(),
                  std.error = col_double(),
                  statistic = col_double(),
                  p.value = col_double()
              )) |>
+        filter(formula_left_out == 'none') |>
         select(term, estimate)
 
     electronegativity_comparison_tbl <- ranked_elements |>
