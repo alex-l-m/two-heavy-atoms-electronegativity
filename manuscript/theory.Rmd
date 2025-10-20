@@ -12,6 +12,14 @@ It is stationary with respect to variations in the density:
 \end{equation}
 
 where $\mu$ is the chemical potential.
+
+In the conceptual DFT definition [@parrcdftelectronegativity], the electronegativity is defined as the negative of the chemical potential:
+\begin{equation}
+  \chi = -\mu.
+  (\#eq:ChiDef)
+\end{equation}
+However, we will continue to work with chemical potentials for theoretical derivations, for consistency with previous publications, and only flip signs as required in final results.
+
 Let $\energyNuc$ be the energy of the same state, but considering only the potential of the nuclei.
 Then,
 
@@ -21,7 +29,7 @@ Then,
   (\#eq:EnergySplit)
 \end{equation}
 
-Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yields a relationship between the functional derivative of $E_{nuc}$ and the imposed potential:
+Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yields a relationship between the functional derivative of $\energyNuc$ and the imposed potential:
 
 \begin{equation}
   \funcDerivValue{\energyNuc}{\electronDensity}
@@ -31,7 +39,7 @@ Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yiel
 
 The negative of $\funcDerivValue{\energyNuc}{\electronDensity}$ is like an electronegativity of a point in space.
 
-## Definition of atomic electronegativity
+## Definition of atomic electron populations and charges
 
 To transition to considering individual atoms, we will begin with a definition of the electron population $N_k$ of atom $k$ in terms of a weight function $w_k(\position)$:
 
@@ -40,8 +48,29 @@ To transition to considering individual atoms, we will begin with a definition o
   (\#eq:AtomicPopulation)
 \end{equation}
 
+These weights add to 1 at each point:
+\begin{equation}
+  \sum_{k} w_k(\position) = 1
+  (\#eq:PartitionUnity)
+\end{equation}
+
+This implies an intuitive relation, which will be required later:
+\begin{equation}
+  dN = \sum_{k} \popChange{k},
+  (\#eq:TotalPopChange)
+\end{equation}
+
+For these derivations, we will work with atomic electron populations, but for the final formulas, we will substitute to obtain atomic partial charges:
+\begin{equation}
+  q_k = Z_k - N_k
+  (\#eq:AtomicCharge)
+\end{equation}
+where $Z_k$ is the nuclear charge of atom $k$.
+
+## Definition of atomic electronegativity
+
 Following the approach of conceptual density functional theory, the electronegativity of an atom will be defined in terms of the chemical potential.
-The chemical potential of an atom will be defined the derivative of the energy of the system (considering only the potential of the nuclei) with respect to the electron population of that atom, while holding the electron populations of all other atoms constant:
+The chemical potential of an atom will be defined as the derivative of the energy of the system (considering only the potential of the nuclei) with respect to the electron population of that atom, while holding the electron populations of all other atoms constant:
 
 \begin{equation}
   \mu_k
@@ -49,7 +78,21 @@ The chemical potential of an atom will be defined the derivative of the energy o
   (\#eq:ChemicalPotentialDef)
 \end{equation}
 
+The total differential:
+
+\begin{equation}
+  d\energyNuc
+    = \sum_{k} \mu_k \popChange{k}
+  (\#eq:ChemicalPotentialsTotalDifferential)
+\end{equation}
+
 Atomic electronegativity is $\chi_k = - \mu_k$.
+Equivalently, in terms of charge,
+\begin{equation}
+  \chi_k
+    = \constDeriv{\energyNuc}{q_k}{q_1,\cdots,q_{k-1},q_{k+1},\cdots}
+  (\#eq:AtomicElectronegativityDef)
+\end{equation}
 
 ## Measuring atomic electronegativity by imposing a potential
 
@@ -61,6 +104,14 @@ In order to obtain a relationship between the atomic chemical potential and the 
   (\#eq:ImposedPotential)
 \end{equation}
 
+As in the fixed weight function special case, substituting Equation \@ref(eq:ImposedPotential) into Equation \@ref(eq:RelateNucPotential) gives
+
+\begin{equation}
+  \funcDerivValue{\energyNuc}{\electronDensity}
+    = \mu - \sum_{k} \lambda_k w_k(\position)
+  (\#eq:FuncDerivWithWeights)
+\end{equation}
+
 Then, considering a change in energy $d\energyNuc$ associated with a density variation $\delta\electronDensityValue$:
 
 \begin{equation}
@@ -69,79 +120,210 @@ Then, considering a change in energy $d\energyNuc$ associated with a density var
   (\#eq:EnergyNucVariation)
 \end{equation}
 
-Substituting, we obtain the total differential:
+Substituting Equation \@ref(eq:FuncDerivWithWeights) into Equation \@ref(eq:EnergyNucVariation) and rearranging, we obtain the total differential:
 
 \begin{equation}
   d\energyNuc
-    = \mu dN
-      + \sum_{k}(-\lambda_k) \popChangeFixed{k}
+    = \mu dN - \sum_{k} \lambda_k \popChangeFixed{k}
   (\#eq:ThermoRelationConstant)
 \end{equation}
-
-where $\popChangeFixed{k}$ is the change in electron population of atom $k$ while holding the weight function fixed:
-
+where $dN$ is the total change in electron count:
+\begin{equation}
+  dN = \spaceIntegral{\delta\electronDensityValue}
+  (\#eq:TotalElectronChange)
+\end{equation}
+and $\popChangeFixed{k}$ is the change in electron population of atom $k$ while holding the weight function fixed:
 \begin{equation}
   \popChangeFixed{k}
     = \spaceIntegral{w_k(\position) \delta\electronDensityValue}
   (\#eq:PopChangeFixedK)
 \end{equation}
 
-This is all that is required for a constant weight function, and is typically referred to as a "thermodynamic relation" in the context of constrained DFT [@KadukConstrainedDFTReview].
+## Special case: fixed weight functions
 
-To use Hirshfeld-I charges, it is necessary to consider an important complication that arises when the weight function depends on the density itself.
-In this case, the change in electron population $\popChange{k}$ the change due to electron flow, plus a term representing the change in partition:
-
-\begin{equation}
-  \popChange{k}
-    = \spaceIntegral{w_k(\position)\delta\electronDensityValue}
-      + \spaceIntegral{\delta w_k(\position)\electronDensityValue}
-  (\#eq:PopChangeFullK)
-\end{equation}
-
-Since
+If these are Hirshfeld weight functions, then we have:
 
 \begin{equation}
-  \delta w_k(\position)
-    = \partDeriv{w_k}{N_k}(\position)\popChange{k}
-  (\#eq:DeltaWk)
+  \popChangeFixed{k} = \popChange{k}
+  (\#eq:FixedWeightPopChange)
 \end{equation}
 
-and using the definition of $\popChangeFixed{k}$ (Equation \@ref(eq:PopChangeFixedK)), we can express the change in electron population as:
-
-\begin{equation}
-  \popChange{k}
-    = \popChange{k} \spaceIntegral{\partDeriv{w_k}{N_k}(\position)\electronDensityValue}
-      + \popChangeFixed{k}
-  (\#eq:PopChangeSum)
-\end{equation}
-
-Rearranging yields a derivative which is required for expressing the atomic electronegativity when the weight function depends on the electron population:
-
-\begin{equation}
-  \correctionFactorPop{k}
-    = 1
-      - \spaceIntegral{\partDeriv{w_k(\position)}{N_k}\electronDensityValue}
-  (\#eq:PopCorrFactor)
-\end{equation}
-
-Importantly, this derivative just involves an integral against the density, and therefore can be computed from simulation output.
-
-For a weight function that depends on the density:
-
+This enables substituting out $\popChangeFixed{k}$ in Equation \@ref(eq:ThermoRelationConstant).
+To also substitute out $dN$, we use equation \@ref(eq:TotalPopChange).
+These substitutions yield:
 \begin{equation}
   d\energyNuc
-    = \mu dN
-      + \sum_{k}(-\lambda_k) \correctionFactorPop{k} \popChange{k}
-  (\#eq:ThermoRelationDensity)
+    = \sum_{k}
+      \left(
+        \mu - \lambda_k
+      \right)
+      \popChange{k}.
+  (\#eq:ThermoRelationFixedWeights)
 \end{equation}
 
-Since an increase to the electron population of a single atom while holding the others constant increases the total, the atomic chemical potential as defined in Equation \@ref(eq:ChemicalPotentialDef) must include two terms of this total differential:
-
+Relating to the total differential in Equation \@ref(eq:ChemicalPotentialsTotalDifferential) yields
 \begin{equation}
   \mu_k
-    = \mu
-      - \lambda_k \correctionFactorPop{k}
-  (\#eq:MuK)
+    = \mu - \lambda_k.
+  (\#eq:MuKFixedWeights)
 \end{equation}
 
-This can be regarded as an atom-condensed analogue of Equation \@ref(eq:RelateNucPotential).
+This is all that is required for a constant weight function such as in the original Hirshfeld method, and is typically referred to as a "thermodynamic relation" in the context of constrained DFT [@KadukConstrainedDFTReview].
+
+Flipping the sign, we obtain the relationship between the atomic electronegativities and the imposed field:
+
+\begin{equation}
+  \chi_k
+    = \chi + \lambda_k.
+  (\#eq:ChiKFixedWeights)
+\end{equation}
+
+## Accounting for the shift in the atom boundary
+
+When $w_k(\position)$ depends on the set of populations \(\{N_j\}\), the change in \(N_k\) contains both the change in the electron density and in the atom boundaries:
+\begin{equation}
+  \popChange{k}
+    = \popChangeFixed{k}
+      + \spaceIntegral{ \delta w_k(\position) \electronDensityValue }.
+  (\#eq:PopChangeSplit)
+\end{equation}
+To first order in the population increments,
+\begin{equation}
+  \delta w_k(\position)
+    = \sum_{j} \weightDerivValue{k}{j}\,\popChange{j}.
+  (\#eq:DeltaWkGeneral)
+\end{equation}
+Though we will not explicitly notate this, these derivatives are assumed to be holding all other atomic populations constant.
+
+Equations \@ref(eq:PopChangeSplit) and \@ref(eq:DeltaWkGeneral) imply
+\begin{equation}
+  \popChange{k}
+  = \popChangeFixed{k}
+    + \sum_{j} \avgWeightDeriv{k}{j}\,\popChange{j}.
+  (\#eq:PopChangeRelation)
+\end{equation}
+where
+\begin{equation}
+  \avgWeightDeriv{k}{j} = \spaceIntegral{ \weightDerivValue{k}{j}\,\electronDensityValue }
+  (\#eq:AvgWeightDerivDef)
+\end{equation}
+
+Solving for the fixed‑weight population change gives
+\begin{equation}
+  \popChangeFixed{k}
+  = \popChange{k}
+    - \sum_{j} \avgWeightDeriv{k}{j}\,\popChange{j}.
+  (\#eq:PopChangeFixedFromTotal)
+\end{equation}
+
+Substituting Equation \@ref(eq:PopChangeFixedFromTotal) into the general total differential (Equation \@ref(eq:ThermoRelationConstant)) gives
+\begin{equation}
+\begin{aligned}
+  d\energyNuc
+    &= \mu dN - \sum_{k} \lambda_k
+       \!\left(\popChange{k}
+       - \sum_{j} \avgWeightDeriv{k}{j}\,\popChange{j}\right) \\
+    &= \mu dN - \sum_{k} \lambda_k\,\popChange{k}
+       + \sum_{j}\!\left(\sum_{k} \lambda_k\,\avgWeightDeriv{k}{j}\right)\!\popChange{j}.
+\end{aligned}
+  (\#eq:SubstitutionExpanded)
+\end{equation}
+Relabeling dummy indices to collect like terms,
+\begin{equation}
+  d\energyNuc
+  = \mu dN + \sum_{k}
+    \left(
+      -\lambda_k
+      + \sum_{j} \lambda_j\,\avgWeightDeriv{j}{k}
+    \right)\popChange{k}.
+  (\#eq:CollectBydNk)
+\end{equation}
+Substituting out $dN$ using Equation \@ref(eq:TotalPopChange) gives
+\begin{equation}
+    d\energyNuc
+    = \sum_{k}
+        \left(
+        \mu - \lambda_k
+        + \sum_{j} \lambda_j\,\avgWeightDeriv{j}{k}
+        \right)\popChange{k}.
+    (\#eq:MovingBoundaryTotalDifferential)
+\end{equation}
+Therefore, comparing to the total differential in Equation \@ref(eq:ChemicalPotentialsTotalDifferential), the chemical potentials are
+\begin{equation}
+  \mu_k
+  = \mu - \lambda_k
+    + \sum_{j} \lambda_j\,\avgWeightDeriv{j}{k}.
+  (\#eq:MuKGeneral)
+\end{equation}
+
+Since each element is an integral against the density, it is computable from simulation output provided the derivatives \(\weightDerivValue{k}{j}\) can be evaluated.  
+
+## Special case for two atoms
+
+Considerable simplification is possible in the case examined in our computational studies, in which there are only two atoms, a donor atom $D$ and an acceptor atom $A$, and the field weights are
+<!-- Choice of fields to apply -->
+\begin{equation}
+  \lambda_A = \lambda, \qquad \lambda_D = -\lambda
+  (\#eq:TwoAtomFieldStrength)
+\end{equation}
+
+The special case of Equation \@ref(eq:PartitionUnity) for two atoms is
+\begin{equation}
+  w_D(\position) + w_A(\position) = 1
+  (\#eq:TwoAtomPartition)
+\end{equation}
+and therefore
+\begin{equation}
+\begin{aligned}
+  \weightDerivValue{D}{A} + \weightDerivValue{A}{A} = 0 \\
+  \weightDerivValue{D}{D} + \weightDerivValue{A}{D} = 0
+\end{aligned}
+  (\#eq:TwoAtomWeightSumZero)
+\end{equation}
+
+For two atoms, specializing Equation \@ref(eq:MuKGeneral) gives
+\begin{equation}
+\begin{aligned}
+  \mu_D &= \mu -\lambda_D
+           + \avgWeightDeriv{D}{D}\lambda_D
+           + \avgWeightDeriv{A}{D}\lambda_A \\
+  \mu_A &= \mu -\lambda_A
+           + \avgWeightDeriv{D}{A}\lambda_D
+           + \avgWeightDeriv{A}{A}\lambda_A
+\end{aligned}
+(\#eq:TwoAtomMu)
+\end{equation}
+
+Substituting out $\avgWeightDeriv{D}{D}$ and $\avgWeightDeriv{D}{A}$ with Equation \@ref(eq:TwoAtomWeightSumZero), and $\lambda_D$ and $\lambda_A$ with Equation \@ref(eq:TwoAtomFieldStrength), yields
+\begin{equation}
+  \mu_D = \mu + \left(1 + 2\,\avgWeightDeriv{A}{D} \right)\lambda,
+  \qquad
+  \mu_A = \mu - \left(1 - 2\,\avgWeightDeriv{A}{A} \right)\lambda
+  (\#eq:TwoAtomMuSimplified)
+\end{equation}
+
+Then, the difference of chemical potentials is
+\begin{equation}
+  \mu_D - \mu_A
+  = 2\,\left( 1 + \avgWeightDeriv{A}{D} - \avgWeightDeriv{A}{A} \right)\lambda
+  (\#eq:TwoAtomMuDelta)
+\end{equation}
+
+A more compact form is possible by restoring the subscripts indicating which variables are held constant.
+Then,
+\begin{equation}
+  \weightDerivSubscript{A}{A}{N} = \weightDerivSubscript{A}{A}{N_D} - \weightDerivSubscript{A}{D}{N_A}
+\end{equation}
+Integrating,
+\begin{equation}
+  \avgWeightDerivSubscript{A}{A}{N} = \avgWeightDerivSubscript{A}{A}{N_D} - \avgWeightDerivSubscript{A}{D}{N_A}
+\end{equation}
+
+Then, the difference of chemical potentials in equation \@ref(eq:TwoAtomMuDelta) can be written as
+\begin{equation}
+  \mu_D - \mu_A
+  = 2\,\left( 1 - \avgWeightDerivSubscript{A}{A}{N} \right)\lambda
+  (\#eq:TwoAtomMuDeltaCompact)
+\end{equation}
+
+Reversing signs, this is also the electronegativity difference $\Delta \chi = \chi_A - \chi_D$.
