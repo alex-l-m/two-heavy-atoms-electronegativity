@@ -139,7 +139,7 @@ and $\popChangeFixed{k}$ is the change in electron population of atom $k$ while 
   (\#eq:PopChangeFixedK)
 \end{equation}
 
-## Special case: fixed weight functions
+### Special case: fixed weight functions
 
 If these are Hirshfeld weight functions, then we have:
 
@@ -178,7 +178,7 @@ Flipping the sign, we obtain the relationship between the atomic electronegativi
   (\#eq:ChiKFixedWeights)
 \end{equation}
 
-## Accounting for the shift in the atom boundary
+### Accounting for the shift in the atom boundary
 
 When $w_k(\position)$ depends on the set of populations \(\{N_j\}\), the change in \(N_k\) contains both the change in the electron density and in the atom boundaries:
 \begin{equation}
@@ -256,12 +256,19 @@ Therefore, comparing to the total differential in Equation \@ref(eq:ChemicalPote
   (\#eq:MuKGeneral)
 \end{equation}
 
-Since each element is an integral against the density, it is computable from simulation output provided the derivatives \(\weightDerivValue{k}{j}\) can be evaluated.  
+Flipping signs to put it in terms of electronegativity:
+\begin{equation}
+  \chi_k
+  = \chi + \lambda_k
+    - \sum_{j} \lambda_j\,\avgWeightDeriv{j}{k}.
+  (\#eq:ChiKGeneral)
+\end{equation}
 
-## Special case for two atoms
+Since each element is an integral against the density, it is computable from simulation output provided the derivatives \(\weightDerivValue{k}{j}\) can be evaluated.
+
+### Special case for two atoms
 
 Considerable simplification is possible in the case examined in our computational studies, in which there are only two atoms, a donor atom $D$ and an acceptor atom $A$, and the field weights are
-<!-- Choice of fields to apply -->
 \begin{equation}
   \lambda_A = \lambda, \qquad \lambda_D = -\lambda
   (\#eq:TwoAtomFieldStrength)
@@ -327,3 +334,103 @@ Then, the difference of chemical potentials in equation \@ref(eq:TwoAtomMuDelta)
 \end{equation}
 
 Reversing signs, this is also the electronegativity difference $\Delta \chi = \chi_A - \chi_D$.
+
+## Linear regression model for atomic electronegativities
+
+The fundamental physical approximation made in charge equilibration models is that the energy is second-order in the atomic partial charges, or equivalently, that the atomic electronegativities are first-order in the charges.
+This can be expressed as, for atom $i$ of a system,
+\begin{equation}
+  \chi_i = \chi_i^0 + \eta_i q_i + \sum_{j \ne i} c_{ij} q_j
+  (\#eq:ChiLinearModel)
+\end{equation}
+
+$c_{ij}$ is a symmetric ($c_{ij}=c_{ji}$) interaction term, assumed to have some explicit functional form as a function of the distance between the atoms.
+Whereas $\chi_i^0$ and $\eta_i$ depend on empirical parameters of the model.
+
+It is not the electronegativities $\chi_i$ that are directly observed, but the field strengths $\lambda_i$ that were imposed. We can express $\chi_i-\chi$ in terms of the field strengths by rearranging Equation \@ref(eq:ChiKGeneral).
+\begin{equation}
+  \chi_i - \chi
+  = \lambda_i - \sum_j \lambda_j\,\avgWeightDeriv{j}{i},
+  (\#eq:ChiMinusChiFromLambda)
+\end{equation}
+The model for this difference is:
+\begin{equation}
+  \chi_i - \chi
+  = -\chi + \chi_i^0 + \eta_i q_i + \sum_{j \ne i} c_{ij} q_j
+  (\#eq:LambdaLinearModelAtom)
+\end{equation}
+
+Suppose that the $\chi_i^0$ and $\eta_i$ parameters depend only on the element $e$.
+Then the equation can be written as:
+\begin{equation}
+  (\chi_i - \chi) - \sum_{j \ne i} c_{ij} q_j = -\chi + \chi_e^0 + \eta_e q_i
+  (\#eq:LambdaLinearModelElement)
+\end{equation}
+If both charges and field strengths are given, and the interaction term $c_{ij}$ is a known function of interatomic distance which is given, then the left hand side is determined by the data, and is used as the dependent variable in the linear regression model.
+And the right hand side is linear in unknown model parameters $\chi_e^0$ and $\eta_e$, and an unknown $\chi$ that is specific to the simulation.
+The independent variables of the model are the charges and element indicators.
+Collecting each such equation into a linear system, parameters can then be fit with least squares linear regression.
+
+### Special case for two atoms
+
+In this work, we analyze only two-atom systems, which we index as the donor $D$ and the acceptor $A$.
+We also assume the interaction term is zero, absorbing interactions into the hardness parameters.
+In this case, instead of considering $\chi$ as a variable in the regression as in the general case, an alternative approach is possible.
+We instead take as our response the electronegativity differences, which depend on the imposed field and on the weight function derivatives, as described by Equation \@ref(eq:TwoAtomMuDeltaCompact).
+
+Then, for every pair of equations in \@ref(eq:LambdaLinearModelElement), subtracting the donor equation from the acceptor equation yields (assuming $c_{DA}=0$)
+\begin{equation}
+  \Delta \chi
+    = \chi_{eA}^0 - \chi_{eD}^0
+      + \eta_{eA} q_A - \eta_{eD} q_D
+  (\#eq:DeltaLambdaLinearModel)
+\end{equation}
+where $eD$ is the donor element and $eA$ is the acceptor element.
+
+### Example
+
+Consider two materials, each simulated at a single field strength, and with the same donor element $e$ but different acceptor elements $f$ and $g$:
+
+\begin{equation}
+  \begin{aligned}
+    \Delta \chi_1
+      &=\chi_{f}^0 - \chi_{e}^0
+        + \eta_{f} q_{A1} - \eta_{e} q_{D1} \\
+    \Delta \chi_2
+      &=\chi_{g}^0 - \chi_{e}^0
+        + \eta_{g} q_{A2} - \eta_{e} q_{D2}
+  \end{aligned}
+  (\#eq:TwoMaterialExampleEquations)
+\end{equation}
+
+This can be expressed as a linear system
+
+\begin{equation}
+  \begin{pmatrix}
+    \Delta \chi_1 \\
+    \Delta \chi_2
+  \end{pmatrix} =
+  \begin{pmatrix}
+    -1 & 1 & 0 & -q_{D1} & q_{A1} & 0 \\
+    -1 & 0 & 1 & -q_{D2} & 0 & q_{A2}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \chi_{e}^0 \\
+    \chi_{f}^0 \\
+    \chi_{g}^0 \\
+    \eta_{e} \\
+    \eta_{f} \\
+    \eta_{g}
+  \end{pmatrix}
+  (\#eq:TwoMaterialExampleLinearSystem)
+\end{equation}
+
+This is of the form of a regression problem $y = X \beta$, where $y$ is the dependent variable, $X$ is the design matrix containing the independent variables as columns, and $\beta$ is a vector of parameters to be determined by the regression.
+
+Additional frames of the simulations of these systems with different field strengths add additional rows to this system.
+Additional systems add more rows, and also more columns if they involve additional elements.
+
+### Zero of the electronegativity scale in regression
+
+In charge equilibration, electronegativies $\chi^0$ are considered as differences from an arbitrary reference electronegativity.
+In the regression framework, this is handled by removing the corresponding column from the design matrix, which is equivalent to setting one of the unknown parameters to zero.
