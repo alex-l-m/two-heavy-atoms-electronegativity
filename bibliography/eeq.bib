@@ -1,3 +1,26 @@
+@article{mbis,
+author={Verstraelen, Toon
+and Vandenbrande, Steven
+and Heidar-Zadeh, Farnaz
+and Vanduyfhuys, Louis
+and Van Speybroeck, Veronique
+and Waroquier, Michel
+and Ayers, Paul W.},
+title={Minimal Basis Iterative Stockholder: Atoms in Molecules for Force-Field Development},
+journal={Journal of Chemical Theory and Computation},
+year={2016},
+month={Aug},
+day={09},
+publisher={American Chemical Society},
+volume={12},
+number={8},
+pages={3894-3912},
+abstract={Atomic partial charges appear in the Coulomb term of many force-field models and can be derived from electronic structure calculations with a myriad of atoms-in-molecules (AIM) methods. More advanced models have also been proposed, using the distributed nature of the electron cloud and atomic multipoles. In this work, an electrostatic force field is defined through a concise approximation of the electron density, for which the Coulomb interaction is trivially evaluated. This approximate ``pro-density'' is expanded in a minimal basis of atom-centered s-type Slater density functions, whose parameters are optimized by minimizing the Kullback--Leibler divergence of the pro-density from a reference electron density, e.g., obtained from an electronic structure calculation. The proposed method, Minimal Basis Iterative Stockholder (MBIS), is a variant of the Hirshfeld AIM method, but it can also be used as a density-fitting technique. An iterative algorithm to refine the pro-density is easily implemented with a linear-scaling computational cost, enabling applications to supramolecular systems. The benefits of the MBIS method are demonstrated with systematic applications to molecular databases and extended models of condensed phases. A comparison to 14 other AIM methods shows its effectiveness when modeling electrostatic interactions. MBIS is also suitable for rescaling atomic polarizabilities in the Tkatchenko--Scheffler scheme for dispersion interactions.},
+annotate={Spherical mixure modeling, but a bit flexible within the constraint to be spherical, for charge densities. Figure 11 plots a mixture component on top of the density and shows a pretty good fit. Figure 12 shows ``valence width'' of carbon atoms in molecules as a function of charge. Interestingly, they look like a one dimensional family. It seems to confirm that if you constrain the atoms to be spherical then they're really in a one dimensional family parametrized by charge, so there really are transferable but charge-dependent atomic densities.},
+issn={1549-9618},
+doi={10.1021/acs.jctc.6b00456},
+url={https://doi.org/10.1021/acs.jctc.6b00456}
+}
 @article{fractionalChargeHirshfeldI,
 author={Heidar-Zadeh, Farnaz
 and Ayers, Paul W.
