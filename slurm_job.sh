@@ -24,3 +24,4 @@ do
     $COMMAND &
 done < cp2k_jobs.sh
 wait $(jobs -p)
+sh extract_charge_energy.sh
