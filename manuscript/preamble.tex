@@ -34,3 +34,18 @@
 
 % Vectors for systems of atoms
 \newcommand{\vect}[1]{\vec{#1}}  % Vector notation, easily changeable
+
+% \rho-weighted "average" (angle-bracket) and its explicit integral form
+\newcommand{\densityAverage}[1]{\left\langle #1 \right\rangle}                 % \langle \cdot \rangle
+\newcommand{\densityAverageDef}[1]{\spaceIntegral{ #1 \, \electronDensityValue }} % \int (\cdot)\,\rho(r)\,dr
+
+% Derivatives of weight functions w.r.t. atomic populations
+\newcommand{\weightDeriv}[2]{\partDeriv{w_{#1}}{N_{#2}}}           % \partial w_k / \partial N_j
+\newcommand{\weightDerivValue}[2]{\weightDeriv{#1}{#2}(\position)} % \partial w_k/\partial N_j evaluated at r
+
+% Shorthand for the \rho-weighted average of a weight-function derivative
+\newcommand{\avgWeightDeriv}[2]{\densityAverage{\weightDeriv{#1}{#2}}}         % \langle \partial w_k / \partial N_j \rangle
+
+\newcommand{\weightDerivSubscript}[3]{\left(\weightDeriv{#1}{#2}\right)_{#3}(\position)} % (\partial w_k / \partial N1)_{N2}
+
+\newcommand{\avgWeightDerivSubscript}[3]{\left\langle \left( \weightDeriv{#1}{#2} \right)_{#3} \right\rangle}
