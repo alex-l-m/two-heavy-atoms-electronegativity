@@ -5,7 +5,7 @@ Molecules and materials are composed of atoms, and the contributions of atoms ar
 A model of the electron density as a sum of spherical contributions provides an approximation to the electrostatic potential, with increasing accuracy at larger distances.
 In this model, the electron density is fully described by a partial charge on each atom.
 
-The monopole approximation to the electrostatic energy has been widely used in computational chemistry and materials science, necessitating prediction of partial charge as a subtask, often accomplished with charge equilibration (QEq).
+This monopole approximation to the electrostatic energy has been widely used in computational chemistry and materials science, necessitating prediction of partial charge as a subtask, often accomplished with charge equilibration (QEq).
 In force fields, partial charge estimation, often with QEq, has been used to create polarizable force fields [@polarizableFFReviewJing], as well as force fields modeling reactivity [@ReaxFFOriginal].
 The monopole approximation is also used to include electrostatic energy in semiempirical quantum mechanics in the SCC-DFTB [@scc1998] and xTB [@gfn1xtb] methods. In those methods the charges are obtained by iteration to self-consistency, but QEq has been proposed as a means of avoiding this iteration in xTB [@gfn0xtb].
 Machine learning (ML) interatomic potentials have also introduced electrostatic energy terms based on partial charge predictions, including methods using QEq [@Anstine2023].
@@ -15,17 +15,17 @@ Empirical methods such as these can predict properties much faster than _ab init
 QEq is a class of empirical methods for predicting partial charges of atoms, descended from the electronegativity equalization method (EEM) [@conceptualDFTElectronegativityOriginal].
 The EEM is theoretically rooted in conceptual DFT, in which concepts of chemistry are defined in terms of concepts from DFT [@geerlingsconceptualDFTreview].
 Conceptual DFT began with a new definition of the electronegativity of a molecule or material: the negative of the chemical potential of the electrons in the system [@parrcdftelectronegativity].
-Equivalently, if we consider the $E(q)$ as the energy of a system as a function of its electric charge, then the electronegativity $\chi(q)$ is the derivative, $E'(q)$.
+Equivalently, if we consider the energy of a system as a function $E(q)$ of its electric charge, then the electronegativity $\chi(q)$ is the derivative, $E'(q)$.
 
-Defined this way, $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but an ion, a molecule, or a material.
+Defined this way, the electronegativity $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but an ion, a molecule, or a material.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
 The familiar concept of an electronegativity associated with an element is recovered by considering the electronegativity $\chi(0)$ of a neutral atom.
 Approximating this derivative with a difference yields the familiar Mulliken electronegativity.
-After this definition of electronegativity, development of conceptual DFT continued by defining the hardness $\eta(q)$ as the derivative of electronegativity, providing a conceptual DFT rationalization of the hard and soft acids and bases theory [@parrAbsoluteHardness].
+After this definition of electronegativity, development of conceptual DFT continued by defining the hardness $\eta(q)$ as the derivative of electronegativity, providing a rationalization of the hard and soft acids and bases theory [@parrAbsoluteHardness].
 
-The theoretical basis of the EEM requires defining not only the electronegativity $\chi$ of a system, but an analogous definition for the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal].
-In a stationary state, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
-For example, while a neutral oxygen atom is more electronegative than a neutral carbon atom, in carbon monoxide, the negative oxygen and positive carbon have equal electronegativities.
+To develop a method of predicting charges of atoms in molecules required defining not only the electronegativity $\chi$ of a system, but an analogous definition for the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal].
+The theoretical basis of the EEM is that in a stationary state, every atom has the same electronegativity $\chi_k(\vect{q}) = \chi$.
+For example, while a neutral chlorine atom is more electronegative than a neutral hydrogen atom, in hydrogen chloride, the negative chlorine and positive hydrogen have equal electronegativities.
 The EEM and all subsequent QEq methods predict charge by solving for the atomic charges $\vect{q}$ such that all atomic electronegativities are equal.
 
 <!-- 3. Explanation of QEq parameters -->
@@ -37,8 +37,8 @@ Leaving aside interatomic interactions for the moment, the linear relationship $
 In the EEM these values were assumed to depend only on the element.
 Therefore the EEM was an empirical method with two free parameters per element $e$: $\chi^0_e$ and $\eta_e$.
 Most subsequent use of QEq has made the same assumption.
-However, within the last decade, ML methods incorporating QEq have assigned these values based on the atom's local environment.
-In ML potentials, one of the selling points of QEq over using ML to predict charge directly has been that the $\chi^0_k$ and $\eta_k$ values are apparently more local then charge itself, not just because of long-range Coulomb interactions but because distant atoms are still competing for a fixed pool of charge, inducing long-range dependence of charge on distant electron-withdrawing functional groups [@Ko2021].
+However, within the last decade, ML methods incorporating QEq have predicted $\chi^0_k$ and $\eta_k$ from the atom's local environment.
+In ML potentials, one of the selling points of QEq over using ML to predict charge directly has been that the $\chi^0_k$ and $\eta_k$ values are apparently more local than charge itself, not just because of long-range Coulomb interactions but because distant atoms are still competing for a fixed pool of charge, inducing long-range dependence of charge on distant electron-withdrawing functional groups [@Ko2021].
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
@@ -47,18 +47,18 @@ That is, the parameters of the model, whether the element-specific $\chi^0_e$ an
 The training target has sometimes been system-level observables such as dipole moments, and sometimes atomic partial charges computed from DFT.
 
 <!-- 6. χ-prediction / We should be doing χ-prediction instead -->
-In this work we will raise a new possibility: using a dataset that includes not only atomic charges $q_k$ extracted from DFT but atomic electronegativities $\chi_k$ as well, and training the QEq model by minimizing error in prediction of $\chi_k$.
-The ultimate purpose of a QEq model is predicting the $q_k$, what we will call the $q$-prediction task.
+In this work we will raise a new possibility: using a dataset that includes not only atomic charges $q_k$ extracted from DFT but atomic electronegativities $\chi_k$ as well, and training the QEq model by minimizing error in prediction of the atomic electronegativities $\chi_k$.
+The ultimate purpose of a QEq model is predicting the charges $q_k$, what we will call the $q$-prediction task.
 But its physical basis is the assumption of a linear model for what we call the $\chi$-prediction task: the prediction of $\chi_k$ given each $q_k$ as input.
 Once the QEq model is trained to the $\chi$-prediction task, it can then be used for $q$-prediction through electronegativity equalization.
 
 <!-- Linear regression -->
 Consider classical QEq, with $\chi^0_e$ and $\eta_e$ parameters corresponding to each element.
 In the $\chi$-prediction task, these parameters appear as weights in a linear model, with charges as predictors and electronegativity as the data to be predicted.
-We will demonstrate for the first time that these parameters can be determined with standard linear regression.
+We will demonstrate for the first time that these parameters can be determined with linear regression.
 
 <!-- Analogy to force / If force prediction is easier, probably so is χ-prediction -->
-The advantages of training with $\chi$-prediction is suggested by analogy to another prediction task, prediction of equilibrium geometries.
+The advantage of training with $\chi$-prediction is suggested by analogy to another prediction task, prediction of equilibrium geometries.
 The equilibrium geometry of a molecule or material is usually predicted by solving for the geometry at which forces are zero.
 The distinction between predicting geometry directly, and indirectly by way of force, can be illustrated with the machine learning tasks in the Open Catalyst Project OCP challenge.
 OCP ranks models on a task in which a machine learning model predicts a relaxed geometry from an initial geometry, as well as a separate task in which a model predicts forces [@kolluru2022openchallengesdevelopinggeneralizable].
