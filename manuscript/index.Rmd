@@ -15,4 +15,9 @@ output:
     toc_depth: 3
     toc_unnumbered: yes
     toc_appendix: yes
+    extra_dependencies: ["placeins"]
 ---
+
+```{r setup, echo=FALSE, include=FALSE, results=FALSE}
+library(tidyverse)
+```

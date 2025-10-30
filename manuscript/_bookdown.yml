@@ -7,3 +7,4 @@ rmd_files:
   - discussion.Rmd
   - theory.Rmd
   - computation.Rmd
+  - supplementary_figures.Rmd

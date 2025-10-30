@@ -311,6 +311,10 @@ for (category_structure_pair in category_structure_pairs)
     texsave(lam_comparison_base, lam_facet_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
+    # Also save the table that was used to make the plot
+    lam_comparison_tbl_outfile <- glue('{category_structure_pair}_lam_comparison_table.csv.gz')
+    write_csv(lam_facet_plot_tbl, lam_comparison_tbl_outfile)
+
     # Same thing but a list of plots instead of facets
     lam_plot_tbl <- lam_facet_plot_tbl |>
         group_by(formula) |>
