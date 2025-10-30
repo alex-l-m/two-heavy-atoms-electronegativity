@@ -6,13 +6,7 @@ library(grid)
 library(png)
 library(glue)
 library(cowplot)
-library(latex2exp)
-library(showtext)
-# Needed so that greek letters don't overlap in latex expressions
-showtext_auto()
-# Needed to avoid tiny text output
-# https://forum.posit.co/t/font-gets-really-small-when-saving-to-png-using-ggsave-and-showtext/147029/6
-showtext_opts(dpi=300)
+box::use(./enutils[texsave])
 theme_set(theme_cowplot(font_size = 12) + theme(plot.background = element_rect(fill = 'white')))
 
 # Load my circuit diagram image as a raster grob
@@ -36,10 +30,10 @@ hardness_regression_plot <- readr::read_rds(hardness_regression_plot_path) +
 
 # Save the electronegativity comparison plot as a figure that covers half a
 # powerpoint slide
-ggsave('electronegativity_comparison_plot_powerpoint.png', electronegativity_comparison_plot,
+texsave('electronegativity_comparison_plot_powerpoint', electronegativity_comparison_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))
 # Save the hardness regression plot as a figure for powerpoint slide
-ggsave('hardness_regression_plot_powerpoint.png', hardness_regression_plot,
+texsave('hardness_regression_plot_powerpoint', hardness_regression_plot,
        width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
 # List of energy curve plots
@@ -53,9 +47,9 @@ ggsave('example_energy_curve_plot.png', example_energy_curve_plot,
 # Same thing for energy derivative plots
 electronegativity_plot_list <- readr::read_rds('3-5:zincblende:0_lam_plots.rds')
 example_electronegativity_plot <- electronegativity_plot_list[['GaP']] +
-            ggtitle('GaP Δχ') +
+            ggtitle(r'(GaP $\Delta \chi$)') +
             theme(legend.position = 'bottom')
-ggsave('example_electronegativity_plot.png', example_electronegativity_plot,
+texsave('example_electronegativity_plot', example_electronegativity_plot,
        width = unit(5.68, 'in'), height = unit(4.76, 'in'))
 
 # The comparison between the estimated charges from the leave-one-out and the
@@ -85,6 +79,11 @@ fig2_panels <-
     patchwork::plot_annotation(tag_levels = 'A')
 
 #ggsave('manuscript/figure.png', panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
-# Save each of the figure to the manuscripts folder
-ggsave('manuscript/figure1.png', fig1_panels, width = unit(10, 'in'), height = unit(5, 'in'))
-ggsave('manuscript/figure2.png', fig2_panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
+# Save each of the figures in the working directory first
+# Latex actually won't be able to compile in a different directory because it
+# can't find the raster image from the raster grob
+texsave('figure1', fig1_panels, width = unit(10, 'in'), height = unit(5, 'in'))
+texsave('figure2', fig2_panels, width = unit(10, 'in'), height = unit(7.5, 'in'))
+# Then, copy to the manuscript folder
+file.copy('figure1.png', 'manuscript/figure1.png', overwrite = TRUE)
+file.copy('figure2.png', 'manuscript/figure2.png', overwrite = TRUE)

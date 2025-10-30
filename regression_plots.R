@@ -4,16 +4,10 @@ library(robustbase)
 library(glue)
 library(ggrepel)
 library(tune)
-library(latex2exp)
-library(showtext)
-# Needed so that greek letters don't overlap in latex expressions
-showtext_auto()
-# Needed to avoid tiny text output
-# https://forum.posit.co/t/font-gets-really-small-when-saving-to-png-using-ggsave-and-showtext/147029/6
-showtext_opts(dpi=300)
+box::use(./enutils[texsave])
 
-delta_electronegativity_label <- TeX(r'($\Delta \chi$ (V))')
-regression_electronegativity_label <- TeX(r'($\chi_e^0$ from regression (V))')
+delta_electronegativity_label <- r'($\Delta \chi$ (V))'
+regression_electronegativity_label <- r'($\chi_e^0$ from regression (V))'
 
 this_theme <- 
     theme(
@@ -196,7 +190,7 @@ for (category_structure_pair in category_structure_pairs)
         ylab(regression_electronegativity_label) +
         xlab('Pauling electronegativity')
 
-    ggsave(glue('{category_structure_pair}_electronegativity_comparison_plot.png'),
+    texsave(glue('{category_structure_pair}_electronegativity_comparison_plot'),
            electronegativity_comparison_plot,
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
 
@@ -212,7 +206,7 @@ for (category_structure_pair in category_structure_pairs)
         xlab('Pauling electronegativity')
     
     electronegativity_comparison_base <- glue('{category_structure_pair}_electronegativity_comparison_plot_eq')
-    ggsave(glue('{electronegativity_comparison_base}.png'),
+    texsave(glue('{electronegativity_comparison_base}'),
            electronegativity_comparison_plot_eq,
            height = unit(4.76, 'in'), width = unit(5.67, 'in'))
     write_rds(electronegativity_comparison_plot_eq,
@@ -243,6 +237,9 @@ for (category_structure_pair in category_structure_pairs)
         # the symbol of the acceptor
         filter(donor_or_acceptor == 'acceptor') |>
         ggplot(aes(x = charge, y = electronegativity_difference, color = other_symbol, group = structure_id)) +
+        # Actually necessary because the underscore in other_symbol will mess
+        # up the latex
+        labs(color = 'Cation') +
         facet_wrap(~ symbol) +
         geom_hline(yintercept = 0, linetype = 'dotted') +
         geom_vline(xintercept = 0, linetype = 'dotted') +
@@ -261,6 +258,6 @@ for (category_structure_pair in category_structure_pairs)
               panel.border = element_rect(color = 'grey', fill = NA, size = 1)
         )
     hardness_regression_base <- glue('{category_structure_pair}_hardness_regression_plot')
-    ggsave(glue('{hardness_regression_base}.png'), hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
+    texsave(hardness_regression_base, hardness_regression_plot, height = unit(4.76, 'in'), width = unit(11.5, 'in'))
     write_rds(hardness_regression_plot, glue('{hardness_regression_base}.rds'))
 }

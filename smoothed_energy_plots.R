@@ -4,19 +4,15 @@ library(robustbase)
 library(glue)
 library(ggrepel)
 library(broom)
-library(latex2exp)
-library(showtext)
-# Needed so that greek letters don't overlap in latex expressions
-showtext_auto()
-# Needed to avoid tiny text output
-# https://forum.posit.co/t/font-gets-really-small-when-saving-to-png-using-ggsave-and-showtext/147029/6
-showtext_opts(dpi=300)
+box::use(./enutils[texsave])
 theme_set(theme_cowplot() + theme(plot.background = element_rect(fill = 'white')))
-
 TO_EV <- 27.211386246
 
-delta_electronegativity_label <- TeX(r'($\Delta \chi$ (V))')
-energy_derivative_label_map <- c(`dE/dq` = TeX(r'(Numerical $\frac{dE}{dq_A}$)'), `correction * Lam` = TeX(r'($2 \frac{dN_A^0}{dN_A} \lambda$)'))
+delta_electronegativity_label <- r'($\Delta \chi$ (V))'
+energy_derivative_label_map <- c(
+    `dE/dq` = r'($\frac{\Delta E_{\text{nuc}}}{\Delta q_A}$)',
+    `correction * Lam` = r'($2\,\left( 1 - \avgWeightDerivSubscript{A}{A}{N} \right)\lambda$)'
+)
 
 # Atomic numbers, for ordering
 atomic_numbers <- read_csv('atomic_numbers.csv', col_types = cols(
@@ -120,8 +116,6 @@ nofield_derivatives <- energy_derivatives |>
 
 this_theme <- 
     theme(
-        # x axis text is too crowded, rotate it
-        axis.text.x = element_text(angle = 90),
         legend.position = 'bottom'
     )
 
@@ -313,9 +307,14 @@ for (category_structure_pair in category_structure_pairs)
         scale_color_discrete(labels = energy_derivative_label_map) +
         this_theme
     
-    ggsave(glue('{category_structure_pair}_lam_comparison.png'), lam_facet_plot,
+    lam_comparison_base <- glue('{category_structure_pair}_lam_comparison')
+    texsave(lam_comparison_base, lam_facet_plot,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-    
+    readr::write_rds(list(lam_facet_plot), 'test.rds')
+    test <- readr::read_rds('test.rds')[[1]]
+    texsave('test', test,
+           width = unit(11.5, 'in'), height = unit(4.76, 'in'))
+
     # Same thing but a list of plots instead of facets
     lam_plot_tbl <- lam_facet_plot_tbl |>
         group_by(formula) |>
