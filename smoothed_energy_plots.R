@@ -306,13 +306,9 @@ for (category_structure_pair in category_structure_pairs)
         acceptor_charge_label +
         scale_color_discrete(labels = energy_derivative_label_map) +
         this_theme
-    
+
     lam_comparison_base <- glue('{category_structure_pair}_lam_comparison')
     texsave(lam_comparison_base, lam_facet_plot,
-           width = unit(11.5, 'in'), height = unit(4.76, 'in'))
-    readr::write_rds(list(lam_facet_plot), 'test.rds')
-    test <- readr::read_rds('test.rds')[[1]]
-    texsave('test', test,
            width = unit(11.5, 'in'), height = unit(4.76, 'in'))
 
     # Same thing but a list of plots instead of facets
