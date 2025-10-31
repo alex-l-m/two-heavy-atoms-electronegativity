@@ -1,4 +1,4 @@
-# Theory
+# Supplementary theory
 
 ## Functional derivative of energy
 
@@ -41,16 +41,16 @@ The negative of $\funcDerivValue{\energyNuc}{\electronDensity}$ is like an elect
 
 ## Definition of atomic electron populations and charges
 
-To transition to considering individual atoms, we will begin with a definition of the electron population $N_k$ of atom $k$ in terms of a weight function $w_k(\position)$:
+To transition to considering individual atoms, we will begin with a definition of the electron population $N_k$ of atom $k$ in terms of a weight function $\weightFunc{k}{\vect{N}}$:
 
 \begin{equation}
-  N_k = \spaceIntegral{w_k(\position) \electronDensityValue}
+  N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \electronDensityValue}
   (\#eq:AtomicPopulation)
 \end{equation}
 
 These weights add to 1 at each point:
 \begin{equation}
-  \sum_{k} w_k(\position) = 1
+  \sum_{k} \weightFunc{k}{\vect{N}} = 1
   (\#eq:PartitionUnity)
 \end{equation}
 
@@ -100,7 +100,7 @@ In order to obtain a relationship between the atomic chemical potential and the 
 
 \begin{equation}
   \imposedPotentialValue
-    = \sum_{k} \lambda_k w_k(\position)
+    = \sum_{k} \lambda_k \weightFunc{k}{\vect{N}}
   (\#eq:ImposedPotential)
 \end{equation}
 
@@ -108,7 +108,7 @@ As in the fixed weight function special case, substituting Equation \@ref(eq:Imp
 
 \begin{equation}
   \funcDerivValue{\energyNuc}{\electronDensity}
-    = \mu - \sum_{k} \lambda_k w_k(\position)
+    = \mu - \sum_{k} \lambda_k \weightFunc{k}{\vect{N}}
   (\#eq:FuncDerivWithWeights)
 \end{equation}
 
@@ -135,7 +135,7 @@ where $dN$ is the total change in electron count:
 and $\popChangeFixed{k}$ is the change in electron population of atom $k$ while holding the weight function fixed:
 \begin{equation}
   \popChangeFixed{k}
-    = \spaceIntegral{w_k(\position) \delta\electronDensityValue}
+    = \spaceIntegral{\weightFunc{k}{\vect{N}} \delta\electronDensityValue}
   (\#eq:PopChangeFixedK)
 \end{equation}
 
@@ -180,16 +180,16 @@ Flipping the sign, we obtain the relationship between the atomic electronegativi
 
 ### Accounting for the shift in the atom boundary
 
-When $w_k(\position)$ depends on the set of populations \(\{N_j\}\), the change in \(N_k\) contains both the change in the electron density and in the atom boundaries:
+When $\weightFunc{k}{\vect{N}}$ depends on the set of populations \(\{N_j\}\), the change in \(N_k\) contains both the change in the electron density and in the atom boundaries:
 \begin{equation}
   \popChange{k}
     = \popChangeFixed{k}
-      + \spaceIntegral{ \delta w_k(\position) \electronDensityValue }.
+      + \spaceIntegral{ \delta \weightFunc{k}{\vect{N}} \electronDensityValue }.
   (\#eq:PopChangeSplit)
 \end{equation}
 To first order in the population increments,
 \begin{equation}
-  \delta w_k(\position)
+  \delta \weightFunc{k}{\vect{N}}
     = \sum_{j} \weightDerivValue{k}{j}\,\popChange{j}.
   (\#eq:DeltaWkGeneral)
 \end{equation}
@@ -276,7 +276,7 @@ Considerable simplification is possible in the case examined in our computationa
 
 The special case of Equation \@ref(eq:PartitionUnity) for two atoms is
 \begin{equation}
-  w_D(\position) + w_A(\position) = 1
+  \weightFunc{D}{N_D, N_A} + \weightFunc{A}{N_D, N_A} = 1
   (\#eq:TwoAtomPartition)
 \end{equation}
 and therefore
@@ -434,3 +434,30 @@ Additional systems add more rows, and also more columns if they involve addition
 
 In charge equilibration, electronegativies $\chi^0$ are considered as differences from an arbitrary reference electronegativity.
 In the regression framework, this is handled by removing the corresponding column from the design matrix, which is equivalent to setting one of the unknown parameters to zero.
+
+### Primitive Hirshfeld-I
+
+We use a variant of the Hirshfeld-I method, one of a class of methods in which electron populations of atoms are defined as integrals of a weight function:
+
+$$N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \rho(\position)}$$
+
+In Hirshfeld-I, this weight function is defined as
+$$\weightFunc{k}{\vect{N}} = \frac{\rho_k^0(\position; N_k)}{\sum_j \rho_j^0(\position; N_j)}$$
+where $\rho_k^0(\position; N_k)$ is called a pro-atom density.
+
+In the original Hirshfeld method, the pro-atom densities did not depend on electron population, and were defined as the electron densities of free atoms.
+
+In the Hirshfeld-I method, these pro-atom densities are linear combinations of densities of free atoms and ions.
+The main issue with the Hirshfeld-I method is anions with unbound or nearly unbound electrons, with the nitrogen anion causing particular trouble.
+
+Instead, we define $\rho_k^0(\position; Z_k)$ to be the free neutral atom density, and then
+$$\rho_k^0(\position; N_k) = \frac{N_k}{Z_k} \rho_k^0(\position; Z_k)$$
+We term the resulting partial charge definition "primitive Hirshfeld-I".
+
+Primitive Hirshfeld-I does not accurately model the changes to the atomic density with charge, but it avoids the issues of Hirshfeld-I with anions.
+
+In fact, due to the limited change in the shape of the pro-atom density, primitive Hirshfeld-I resembles the original Hirshfeld method.
+However, unlike the original Hirshfeld method, both Hirshfeld-I and our primitive Hirshfeld-I satisfy the condition
+$$N_k = \spaceIntegral{\rho^0_k(\position;N_k)}$$
+Since this is the condition that motivated the Hirshfeld-I method, our primitive Hirshfeld-I method is in that sense a member of a broader Hirshfeld-I family.
+Primitive Hirshfeld-I is also computed by the same iterative algorithm.

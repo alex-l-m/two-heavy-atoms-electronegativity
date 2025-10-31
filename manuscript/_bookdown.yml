@@ -3,8 +3,9 @@ delete_merged_file: true
 rmd_files:
   - index.Rmd
   - introduction.Rmd
+  - short_theory.Rmd
   - results.Rmd
   - discussion.Rmd
-  - theory.Rmd
   - computation.Rmd
+  - theory.Rmd
   - supplementary_figures.Rmd

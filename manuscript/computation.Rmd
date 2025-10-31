@@ -1,19 +1,15 @@
 # Computational methods
 
-We built a dataset of binary materials to use to train a model mapping charge to electronegativity.
-In order to simulate the same structure with a variety of partial charges of the two atoms and a variety of electronegativity differences between them, the structures were simulated with varying imposed potentials.
-After optimization of the lattice constant and a single point energy calculation, partial charges were computed using the Hirshfeld-I method.
-Then, the calculation was repeated with a sequence of increasingly strong potentials.
-According to the previous expression for the chemical potential, the chemical potential difference between the atoms can be expressed equivalently as a derivative of the energy or in terms of the strength of the potential, as long as the potential is defined in terms of the weight function.
-To maintain this equivalence, after each simulation, the self-consistent Hirshfeld-I weight functions were used to define the potential imposed in the next simulation:
-$$\imposedPotential(r) = \lambda (w_A(r) - w_D(r))$$
-where $w_A$ and $w_D$ are the weight functions of the acceptor and donor, respectively.
+Binary materials were constructed from pairs of a formal cation and a formal anion from periods 2 to 4.
+Each material the consisted of a formal cation from group III (starting with Boron) and a formal anion from group V (starting with nitrogen).
+Geometries were generated in the zincblende crystal structure, optimized in VASP [@vasp] with the PBE functional and PAW pseudopotentials.
 
-To compute electronegativity directly according to the definition, $\energyNuc$ was computed by evaluating energy from the restart file but without an imposed potential.
-Then, using the computed energies $\energyNuc$ and partial charges $q_A$, the derivative was computed using the discrete difference method.
+Then, for each structure, an initial simulation, followed by a sequence of simulations with increasing field strengths (which we call "frames") were performed in CP2K [@cp2k], with the PBE functional, GTH-PBE pseudopotentials, and the DZVP-MOLOPT-SR-GTH basis.
+For each frame, primitive Hirshfeld-I charges and weight functions were computed as defined in the theory section, and the weight functions were saved as samples on a grid in the Gaussian CUBE format.
+These CUBE files containing the weight functions were used to define the shape of the potential used in the next frame.
 
-To compute electronegativity from the field strength requires a correction factor.
-The correction factor was computed by integrating an analytic formula for the derivative of the weight function against the computed density.
-Both methods were the same to a factor of BLANK.
-Using the field strength $\lambda$ and this correction factor, the electronegativity obtained was identical to that obtained through numerical differentiation of the energy to a factor of BLANK.
-This shows that, as with force calculations, it is possible to obtain the electronegativity difference from a single simulation without discrete differences, even when using a partial charge definition such as Hirshfeld-I where the partitioning depends upon the density itself.
+For each frame, $\energyNuc$ was computed by evaluating energy from the restart file but without the potential.
+
+To compute electronegativity differences using the relationship with field strength, the correction factor was computed by numerical integration, using the electron density sampled on a discrete grid and the derivative of the weight function evaluated on the same grid, using the neutral proatom densities evaluated on that grid and the analytical formula for the weight function derivative.
+
+Training the QEq model with least squares linear regression was done using the \texttt{lm} function in the \texttt{stats} package of R.

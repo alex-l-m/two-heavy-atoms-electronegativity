@@ -5,11 +5,14 @@
 \newcommand{\energyTot}{E_\text{tot}}
 
 % Position
-\newcommand{\position}{r}
+\newcommand{\position}{\vect{r}}
 
 % Potentials and chemical potentials
 \newcommand{\imposedPotential}{V_\text{ext}} % Potential applied to system
 \newcommand{\imposedPotentialValue}{\imposedPotential(\position)} % Evaluated at a point
+% How to notate the electrical potential, which is the negative of the potential
+\newcommand{\electricalPotential}{v_\text{ext}}
+\newcommand{\electricalPotentialValue}[1]{\electricalPotential(\position)}
 
 % Electron density and related
 \newcommand{\electronDensity}{\rho} % Electron density
@@ -33,11 +36,13 @@
 \newcommand{\spaceIntegral}[1]{\int #1 \, dr}  % Integration over space
 
 % Vectors for systems of atoms
-\newcommand{\vect}[1]{\vec{#1}}  % Vector notation, easily changeable
+\newcommand{\vect}[1]{\mathbf{#1}}  % Vector notation, easily changeable
 
 % \rho-weighted "average" (angle-bracket) and its explicit integral form
 \newcommand{\densityAverage}[1]{\left\langle #1 \right\rangle}                 % \langle \cdot \rangle
 \newcommand{\densityAverageDef}[1]{\spaceIntegral{ #1 \, \electronDensityValue }} % \int (\cdot)\,\rho(r)\,dr
+
+\newcommand{\weightFunc}[2]{w_{#1}(\position;#2)}
 
 % Derivatives of weight functions w.r.t. atomic populations
 \newcommand{\weightDeriv}[2]{\partDeriv{w_{#1}}{N_{#2}}}           % \partial w_k / \partial N_j

@@ -12,65 +12,34 @@ knitr::include_graphics("figure1.png")
 knitr::include_graphics("figure2.png")
 ```
 
-A $\chi$-prediction model takes as input a structure (defined as positions and atomic numbers of each atom), along with a partial charge $q$ for each atom, and outputs an electronegativity $\chi$ for each atom.
-A training dataset for such a model requires structures annotated with both $q$ and $\chi$ for each atom.
-We constructed a minimal example of such a dataset, consisting of crystal structures of binary materials.
-
-Materials were simulated with DFT to obtain both energy and atomic charge, computed with the Hirshfeld-I method.
+Materials were simulated with DFT to obtain both energy and atomic charge, computed with the primitive Hirshfeld-I method.
 An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A).
-The potential was of the form
-\begin{equation}
-  \imposedPotentialValue = \lambda \bigl(w_A(r) - w_D(r)\bigr)
-  (\#eq:ImposedPotentialTwoAtom)
-\end{equation}
-where \(w_A(r)\) and \(w_D(r)\) are the weight functions defining the boundaries of the atoms of the acceptor and donor atoms respectively, obtained from the Hirshfeld-I analysis.
+The potential was of the form from the previous formula.
 For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
-In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \eqref{eq:ImposedPotentialTwoAtom}.
+In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to the previous formula.
 
 The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
-The electronegativity difference is the derivative of this curve:
-\begin{equation}
-  \Delta \chi = \chi_A - \chi_D = \constDeriv{\energyNuc}{q_A}{N}
-  (\#eq:DeltaChi)
-\end{equation}
+The electronegativity difference is the derivative of this curve (Equation whatever).
 $\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
 The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
-
-We also obtained $\Delta \chi$ from each frame individually without taking differences, due to the form of the imposed potential in equation \eqref{eq:ImposedPotentialTwoAtom}.
-If the Hirshfeld-I weight functions were constant between the frames, $\Delta \chi$ would simply be $2 \lambda$, and the electronegativity difference could be read off from the input settings of the simulations without even looking at the output.
-Since the boundary between the atoms is shifting, an extra factor is required:
-\begin{equation}
-  \constDeriv{\energyNuc}{q_A}{N} = 2 \correctionFactorPop{A} \lambda
-  (\#eq:DerivativePotential)
-\end{equation}
-Since the factor $\correctionFactorPop{A}$ can be computed as an integral against the electron density, $\Delta \chi$ can still be obtained from a single frame without numerical differentiation.
+We also obtained $\Delta \chi$ from each frame individually without taking differences, due to the form of the imposed potential.
 The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C).
-Electronegativity differences for all materials are shown in Figure \@ref(fig:linear-model-figure)A.
+Among all structures, the maximum deviation between the two methods of computing $\Delta \chi$ was 0.1 eV (Table \@ref(tab:electronegativity-max-deviations-table)).
 
-Using these data as a training dataset, we fit the parameters of the classical charge equilibration (QEq) model.
-QEq parameters include, for each element $\text{e}$, the electronegativity of a neutral atom of that element $\chi^0_{\text{e}}$, as well as the hardness $\eta_e$, which is the rate that its electronegativity increases as it becomes more positively charged.
-The modeling assumption underlying QEq is that the electronegativity of an atom depends linearly on the charges.
-For a system with two atoms with zero total charge, this simplifies to a linear formula for the electronegativity difference:
-\begin{equation}
-  \chi_A - \chi_D
-    = \bigl(\chi_A^0 - \chi_D^0\bigr)
-      + \bigl(\eta_A + \eta_D - 2\,c_{AD}\bigr)\,q_{A}
-  (\#eq:LinearModel)
-\end{equation}
-Because this formula for $\Delta \chi$ is linear in all of the QEq parameters, we estimate them by least squares linear regression.
-As a sanity check, the $\chi^0_e$ parameters were compared to Pauling electronegativities, with which they correlated closely, except for boron (Figure \@ref(fig:linear-model-figure)B).
+Using these data as a training dataset, we fit the parameters of charge equilibration (QEq) model.
+QEq parameters include, for each element $\text{e}$, the electronegativity of a neutral atom of that element $\chi^0_{\text{e}}$, as well as the hardness $\eta_e$.
+Because the formula for $\widehat{\Delta \chi}$ is linear in all of the QEq parameters, we estimate them by least squares linear regression.
+The $\chi^0_e$ parameters in our model correlate with Pauling electronegativities (Figure \@ref(fig:linear-model-figure)B), but with the difference that boron has higher $\chi_e^0$ than phosphorus or arsenic, in contradiction to the Pauling values.
+This reflects that in our simulations of BP and BAs without imposed potentials, boron is found to have a negative charge, despite being formally the cation.
+Negative boron has been observed in a previous DFT simulation of boron phosphide, though with a different definition of partial charge.
 
 The predictive performance of the model was tested using leave-one-out cross-validation.
-In each structure, the linear relationship \eqref{eq:LinearModel}, with parameters estimated from the dataset excluding that structure, is shown overlaid on the DFT results in Figure \@ref(fig:linear-model-figure)A.
+In each structure, $\widehat{\Delta\chi}$, with parameters estimated from the dataset excluding that structure, is shown overlaid on the DFT results in Figure \@ref(fig:linear-model-figure)A.
 The y intercept shows the difference in electronegativity when both atoms are neutral, which in the leave-one-out analysis is the difference between the $\chi^0$ parameters for the two elements, estimated from the other structures containing those elements.
+Accuracy in prediction of the y intercept indicates transferability of the $\chi^0_e$ parameters across elements.
+Transferability of $\eta_e$ parameters is indicated by accuracy in prediction of the slope.
+
 The x intercept is the charge of the acceptor atom without an imposed potential.
-
-A formula for the charge estimate can be obtained by setting $\chi_A - \chi_D$ to zero and solving \eqref{eq:LinearModel} for $q_A$:
-\begin{equation}
-  -q_A = \frac{\chi_A^0 - \chi_D^0}{\eta_A + \eta_D - 2\,c_{AD}}
-  (\#eq:EEqPred)
-\end{equation}
-This is the familiar electronegativity equalization equation.
-
-Estimates of charge in the leave-one-out analysis are shown in Figure \@ref(fig:linear-model-figure)C, and correlated closely with the density functional theory results.
-In this way, the $\chi$-prediction model defined by \eqref{eq:LinearModel} was used to solve the $q$-prediction problem, in a manner analogous to the prediction of equilibrium geometry is from a force model.
+It is given by the familiar electronegativity equalization equation.
+Estimates of charge computed using the charge prediction formula in the leave-one-out analysis are shown in Figure \@ref(fig:linear-model-figure)C, and correlated closely with the density functional theory results.
+In this way, the $\chi$-prediction model was used to solve the $q$-prediction problem, in a manner analogous to the prediction of equilibrium geometries from a force model.

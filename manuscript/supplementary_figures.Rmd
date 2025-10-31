@@ -2,19 +2,19 @@
 
 (ref:all-energies-caption) $\energyNuc$ for each system as a function of charge, with quadratic fit, and a dot indicating the frame with no field applied.
 
-```{r all-energies, echo=FALSE, fig.cap="(ref:all-energies-caption)", out.width="100%"}
+```{r all-energies-figure, echo=FALSE, fig.cap="(ref:all-energies-caption)", out.width="100%"}
 knitr::include_graphics("3-5:zincblende:0_energy_with_nofield.png")
 ```
 
 (ref:all-electronegativities-caption) $\Delta \chi$ computed by discrete differences between frames and by a correction to $\lambda$.
 
-```{r all-electronegativities, echo=FALSE, fig.cap="(ref:all-electronegativities-caption)", out.width="100%"}
+```{r all-electronegativities-figure, echo=FALSE, fig.cap="(ref:all-electronegativities-caption)", out.width="100%"}
 knitr::include_graphics("3-5:zincblende:0_lam_comparison.png")
 ```
 
 (ref:electronegativity-max-deviations-caption) Maximum absolute difference between the two methods of computing $\Delta \chi$.
 
-```{r electronegativity-max-deviations, echo=FALSE, out.width="100%"}
+```{r electronegativity-max-deviations-table, echo=FALSE, out.width="100%"}
 electronegativity_max_deviations_tbl <- read_csv('supplementary_table_electronegativity_max_deviations.csv', col_types = cols(
     structure_id = col_character(),
     maximum_absolute_error = col_double()
