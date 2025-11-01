@@ -19,3 +19,6 @@ Rscript figures.R
 # supplements
 cp 3-5:zincblende:0_lam_comparison.png manuscript
 cp 3-5:zincblende:0_energy_with_nofield.png manuscript
+
+# Create .csv files for supplementary tables
+Rscript supplementary_tables.R
