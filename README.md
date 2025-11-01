@@ -12,6 +12,9 @@ For analysis of the charges and energies, separated into a slow parsing step and
     extract_charge_energy.sh
     analyze_cp2k_charge.sh
 
+The extraction script requires critic2 for calculation of Bader charges.
+The analysis script, for creation of graphs, requires xelatex, as well as pdftoppm from poppler tools.
+
 And extra analysis of the cube files, which is slower and not needed for analysis of the charges:
 
     analyze_cp2k_cube.sh
