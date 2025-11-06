@@ -9,9 +9,10 @@ knitr::include_graphics("figure1.png")
 ```
 
 Materials were simulated with DFT to obtain both energy and atomic charges, computed with the primitive Hirshfeld-I method defined in the Supplementary Theory section.
-An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A). The potential was of the form from Equation \@ref(eq:TwoAtomPotentialSummary).
+A potential was applied that, considered as an electrical potential, was electrically positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A).
+This electrical potential was not a uniform electric field, but a shaped potential of the form in \@ref(eq:TwoAtomPotentialSummary).
 For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
-In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \@ref(eq:TwoAtomPotentialSummary).
+In each frame of the series, the weight functions from the previous frame were used to define the potential.
 
 The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
 The electronegativity difference is the derivative of this curve (Equation \@ref(eq:EnergyDerivativeDeltaChiSummary)).

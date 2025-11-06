@@ -14,14 +14,15 @@ q_k = Z_k - N_k
 where $Z_k$ is the atomic number.
 The particular charge definition we use is our primitive Hirshfeld-I method, defined in full in the Supplementary Theory.
 
-We will perform simulations with an external electric field imposed.
-In order to relate the electric field to atomic electronegativities, the field must have a form defined by the weight functions:
+We will perform simulations with an external electrical potential imposed.
+In order to relate the electrical potential to atomic electronegativities, the field must have a form defined by the weight functions:
 \begin{equation}
 \electricalPotentialValue{} = - \sum_k \lambda_k \, \weightFunc{k}{\vect{N}}
 (\#eq:ElectricalPotentialSummary)
 \end{equation}
 
-Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$, we impose an electrical potential such that $\lambda_A = -\lambda_D = \lambda$ so that
+Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$.
+We impose a shaped electrical potential such that $\lambda_A = -\lambda_D = \lambda$ so that
 \begin{equation}
 \electricalPotentialValue{} = -\lambda \, \weightFunc{A}{N_D, N_A} + \lambda \, \weightFunc{D}{N_D, N_A}
 (\#eq:TwoAtomPotentialSummary)
