@@ -38,5 +38,5 @@ texsave <- function(outbase, plot, width, height)
            width = width, height = height,
             device = device_function)
     system2('xelatex', args = texfile)
-    system2('pdftoppm', args = c('-png', '-singlefile', glue('{outbase}.pdf'), outbase))
+    system2('pdftoppm', args = c('-r', '600', '-png', '-singlefile', glue('{outbase}.pdf'), outbase))
 }
