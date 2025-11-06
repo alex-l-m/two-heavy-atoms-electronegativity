@@ -28,7 +28,7 @@ Our simulations will be of systems of two atoms, which we refer to as a donor at
 \end{equation}
 $\lambda$ can be taken as a measure of the strength of the imposed potential.
 
-To define electronegativities, we consider the energy $\energyNuc$, defined by excluding the imposed electrical potential.
+To define electronegativities, we consider the energy $\energyNuc$ (defined formally in the Supplementary Theory), which includes the Coulomb potential of the nuclei but not the imposed electrical potential.
 The electronegativities are
 \begin{equation}
 \chi_D = \constDeriv{\energyNuc}{q_D}{q_A} \qquad \chi_A = \constDeriv{\energyNuc}{q_A}{q_D}
@@ -57,20 +57,20 @@ Including the shift in the definition of atoms requires another factor in this r
 where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight function integrated against the electron density, discussed in more detail in the Supplementary Theory.
 We evaluate this constant by numerical integration.
 
-The linear model underlying QEq, in the two-atom case and assuming net charge zero (so that $q_D=-q_A$), is
+The linear model underlying QEq, in the two-atom case excluding the Coulomb interaction term, is
 \begin{equation}
-\widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A + \eta_{e(D)} \, q_A
+\widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A + \eta_{e(D)} \, q_D
 (\#eq:QEqLinearModelSummary)
 \end{equation}
 where $\widehat{\Delta \chi}$ is the estimated value of $\Delta \chi$ using these model parameters.
-The estimate of charge is obtained by electronegativity equalization, that is, setting $\widehat{\Delta \chi}$ to zero in Equation \@ref(eq:QEqLinearModelSummary), which after solving for $q_A$ yields
+The estimate of charge is obtained by electronegativity equalization, that is, setting $\widehat{\Delta \chi}=0$ and $q_D+q_A=0$ in Equation \@ref(eq:QEqLinearModelSummary), which after solving for $q_A$ yields
 \begin{equation}
 -\hat{q}_A = \frac{\chi_{e(A)}^0 - \chi_{e(D)}^0}{\eta_{e(A)} + \eta_{e(D)}}
 (\#eq:ChargeEstimateSummary)
 \end{equation}
 This is the familiar electronegativity equalization formula for charge transfer between two fragments [@electronegativityEqualizationInorganic].
 
-Following previous research which trained QEq models by minimizing squared error in charge prediction, and considering that we examine only binary systems with zero total charge, we could train QEq by minimizing squared error in prediction of charge of the acceptor atom.
+Following previous research which trained QEq models by minimizing squared error in charge prediction, and considering that we examine only binary systems with zero total charge, we could train QEq by minimizing squared error in prediction of charge of the acceptor atom:
 \begin{equation}
 \sum_i \left(\hat{q}_A^{(i)} - q_A^{(i)}\right)^2
 (\#eq:ChargeLossSqSummary)
@@ -82,3 +82,27 @@ Instead, we train the model by minimizing the loss function
 (\#eq:DeltaChiLossSqSummary)
 \end{equation}
 using the predictions $\widehat{\Delta \chi}$ given in Equation \@ref(eq:QEqLinearModelSummary) and the $\Delta \chi$ values extracted from the simulation using the relationship with the potentials in Equation \@ref(eq:DeltaChiWithBoundarySummary).
+
+## Remarks
+
+In conceptual DFT, electronegativity is a derivative at fixed potential [@parrcdftelectronegativity].
+We do not notate the constant potential, but we enforce this constraint by defining electronegativity in terms of $\energyNuc$, which excludes the varying imposed potential.
+
+The derivative of the energy of a system with respect to its electron population is piecewise linear [@piecewiseLinearEnergy].
+However, the derivative in Equation \@ref(eq:EnergyDerivativeDeltaChiSummary) describes charge transfer within a system of fixed total electron population, and will not be piecewise linear.
+
+<!-- Constrained density functional theory -->
+In constrained density functional theory, the penalty term enforcing the charge constraint can be interpreted as a potential of the form in Equation \@ref(eq:ElectricalPotentialSummary), and Equation \@ref(eq:DeltaChiNoBoundarySummary) follows from a "thermodynamic relation" between the Lagrange multiplier and the chemical potential [@KadukConstrainedDFTReview].
+The term "generalized force" has been used for derivatives of energy with respect to a constraint [@thermo-dynamics], and the perspective of constrained DFT reveals atomic electrongativities to be generalized forces.
+
+<!-- Locality of the electronegativity difference, in contrast to the charge transfer -->
+The locality of $\chi_k$, in contrast to $q_k$, is indicated by contrasting equation \@ref(eq:ChargeEstimateSummary) for $\hat{q}_A$ with equation \@ref(eq:QEqLinearModelSummary) for $\widehat{\Delta \chi}$.
+$\hat{q}_A$ is a linear function of $\chi_{e(A)}^0$ and $\chi_{e(D)}^0$, but the coefficients in this linear equation mix the hardnesses of both atoms.
+In contrast, $\widehat{\Delta \chi}$ is a linear function of $q_A$ and $q_D$, but the coefficient on the charge of an atom depends on the hardness of that atom only.
+Conceptually, estimating charge requires taking into account every atom that is competing for the fixed pool of charge.
+
+The sensitivity of the charge predictions to error in the model parameters can be computed by differentiating the electronegativity equalization equation \@ref(eq:ChargeEstimateSummary) with respect to the model parameters, showing that the higher the hardnesses, the less the error propagates.
+
+<!-- Hohenberg-Kohn map -->
+It is also worth noting that since the $q_k$ are computed from the electron density and the $\lambda_k$ parametrize the potential, the $\chi$-prediction task requires learning a map from the density to the potential.
+In this case it is a crude map that throws away most of the information in the density, but the first Hohenberg-Kohn theorem guarantees the existence of an exact map from density to potential [@hohenbergKohn].
