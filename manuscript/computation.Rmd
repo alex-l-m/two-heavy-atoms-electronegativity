@@ -1,10 +1,11 @@
 # Computational methods
 
 Binary materials were constructed from pairs of a formal cation and a formal anion from periods 2 to 4.
-Each material the consisted of a formal cation from group III (starting with Boron) and a formal anion from group V (starting with nitrogen).
+Each material the consisted of a formal cation from group III (starting with boron) and a formal anion from group V (starting with nitrogen).
 Geometries were generated in the zincblende crystal structure, optimized in VASP [@vasp] with the PBE functional and PAW pseudopotentials.
+These geometries are among those included in a previous study [@discretePeriodicTable].
 
-Then, for each structure, an initial simulation, followed by a sequence of simulations with increasing field strengths (which we call "frames") were performed in CP2K [@cp2k], with the PBE functional, GTH-PBE pseudopotentials, and the DZVP-MOLOPT-SR-GTH basis.
+Then, for each structure, an initial simulation, followed by a sequence of simulations ("frames") with increasing field strengths were performed in CP2K [@cp2k], with the PBE functional, GTH-PBE pseudopotentials, the DZVP-MOLOPT-SR-GTH basis, and 7 Monkhorst–Pack k-points.
 For each frame, primitive Hirshfeld-I charges and weight functions were computed as defined in the theory section, and the weight functions were saved as samples on a grid in the Gaussian CUBE format.
 These CUBE files containing the weight functions were used to define the shape of the potential used in the next frame.
 

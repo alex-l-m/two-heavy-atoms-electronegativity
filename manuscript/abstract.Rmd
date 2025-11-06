@@ -1,0 +1,11 @@
+# Abstract
+
+Force fields, including machine learning force fields, often divide the energy into a short-range component and an electrostatic component, and approximate the electrostatic component by assigning partial charges to each atom.
+Partial charges are often predicted using charge equilibration (QEq), and QEq models are often trained by minimizing error in charge prediction (the $q$-prediction problem).
+In this work we raise a new possibility: using a dataset that includes not only atomic charges $q_k$ extracted from DFT but atomic electronegativities $\chi_k$ as well, and training the QEq model by minimizing error in prediction of the atomic electronegativities $\chi_k$.
+We call this the $\chi$-prediction problem.
+Once the QEq model is trained in the $\chi$-prediction task, it can then be used for $q$-prediction through electronegativity equalization.
+The advantage of training with $\chi$-prediction is suggested by analogy to another prediction task, prediction of equilibrium geometries, with $\chi_k$ analogous to a force.
+We have demonstrated this new approach by annotating a training dataset with first-principles atomic electronegativities, and training a charge prediction model in the $\chi$-prediction problem.
+We then obtain predictions of charge using this model.
+Our simple demonstration opens a new direction in training charge models, in which the model learns a generalized force on a charge.

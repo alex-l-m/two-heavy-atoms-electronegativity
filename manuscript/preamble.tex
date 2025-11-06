@@ -1,17 +1,21 @@
 % preamble.tex - LaTeX macros for quantum chemistry document
 
 % Energy terms
-\newcommand{\energyNuc}{E_\text{nuc}}
-\newcommand{\energyTot}{E_\text{tot}}
+\newcommand{\hamiltonianNuc}{H_0}
+\newcommand{\nuc}{\text{nuc}}
+\newcommand{\tot}{\text{tot}}
+\newcommand{\ext}{\text{ext}}
+\newcommand{\energyNuc}{E_{\nuc}}
+\newcommand{\energyTot}{E_{\tot}}
 
 % Position
 \newcommand{\position}{\vect{r}}
 
 % Potentials and chemical potentials
-\newcommand{\imposedPotential}{V_\text{ext}} % Potential applied to system
+\newcommand{\imposedPotential}{V_\ext} % Potential applied to system
 \newcommand{\imposedPotentialValue}{\imposedPotential(\position)} % Evaluated at a point
 % How to notate the electrical potential, which is the negative of the potential
-\newcommand{\electricalPotential}{v_\text{ext}}
+\newcommand{\electricalPotential}{v_\ext}
 \newcommand{\electricalPotentialValue}[1]{\electricalPotential(\position)}
 
 % Electron density and related
@@ -33,7 +37,7 @@
 \newcommand{\constDeriv}[3]{\left(\frac{\partial #1}{\partial #2}\right)_{#3}}  % Constrained derivative
 
 % Mathematical operations
-\newcommand{\spaceIntegral}[1]{\int #1 \, dr}  % Integration over space
+\newcommand{\spaceIntegral}[1]{\int #1 \, d\position}  % Integration over space
 
 % Vectors for systems of atoms
 \newcommand{\vect}[1]{\mathbf{#1}}  % Vector notation, easily changeable

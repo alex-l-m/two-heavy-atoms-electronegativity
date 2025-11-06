@@ -2,6 +2,7 @@ book_filename: "electronegativity_paper"
 delete_merged_file: true
 rmd_files:
   - index.Rmd
+  - abstract.Rmd
   - introduction.Rmd
   - short_theory.Rmd
   - results.Rmd

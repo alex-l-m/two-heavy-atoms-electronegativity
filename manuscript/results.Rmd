@@ -1,37 +1,40 @@
 # Results
 
+## Dataset
+
 (ref:dataset-illustration-figure-caption) **A** Circuit diagram, depicting an electrical potential that moves electron density from the acceptor atom back onto the donor atom. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The derivative of the energy with respect to the charge, compared to a mathematically equivalent method of computing the electronegativity difference, showing only small numerical deviations.
 
 ```{r dataset-illustration-figure, echo=FALSE, fig.cap="(ref:dataset-illustration-figure-caption)", out.width="100%"}
 knitr::include_graphics("figure1.png")
 ```
 
-(ref:linear-model-figure-caption) **A** Electronegativity difference as a function of charge for all materials in the 3-5 zincblende dataset, separated into panels by anion element. Curves were colored according to the cation element. Dotted lines are predicted lines from the leave-one-out cross-validation. **B** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit. **C** Comparison of the charge of the anion in each material to the predicted charge from the leave-one-out cross-validation of the linear model.
+Materials were simulated with DFT to obtain both energy and atomic charges, computed with the primitive Hirshfeld-I method defined in the Supplementary Theory section.
+An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A). The potential was of the form from Equation \@ref(eq:TwoAtomPotentialSummary).
+For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
+In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to Equation \@ref(eq:TwoAtomPotentialSummary).
+
+The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
+The electronegativity difference is the derivative of this curve (Equation \@ref(eq:EnergyDerivativeDeltaChiSummary)).
+$\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
+The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
+We also obtained $\Delta \chi$ from each frame individually without taking differences, due to the form of the imposed potential in Equation \@ref(eq:DeltaChiWithBoundarySummary).
+The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C).
+Among all structures, the maximum deviation between the two methods of computing $\Delta \chi$ was 0.1 eV (Table \@ref(tab:electronegativity-max-deviations-table)).
+
+## Model
+
+(ref:linear-model-figure-caption) **A** Electronegativity difference as a function of charge for all materials in the III-V zincblende dataset, separated into panels by anion element. Curves were colored according to the cation element. Dotted lines are predicted lines from the leave-one-out cross-validation. **B** Pauling electronegativity compared to parameter of the electronegativity equalization model corresponding to the electronegativity of a neutral atom, extracted from a linear regression fit. **C** Comparison of the charge of the anion in each material to the predicted charge from the leave-one-out cross-validation of the linear model.
 
 ```{r linear-model-figure, echo=FALSE, fig.cap="(ref:linear-model-figure-caption)", out.width="100%"}
 knitr::include_graphics("figure2.png")
 ```
 
-Materials were simulated with DFT to obtain both energy and atomic charge, computed with the primitive Hirshfeld-I method.
-An electrical potential was applied that was positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A).
-The potential was of the form from the previous formula.
-For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
-In each of these frames of the series, the weight functions from the previous frame were used to define the potential according to the previous formula.
-
-The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
-The electronegativity difference is the derivative of this curve (Equation whatever).
-$\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
-The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
-We also obtained $\Delta \chi$ from each frame individually without taking differences, due to the form of the imposed potential.
-The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C).
-Among all structures, the maximum deviation between the two methods of computing $\Delta \chi$ was 0.1 eV (Table \@ref(tab:electronegativity-max-deviations-table)).
-
-Using these data as a training dataset, we fit the parameters of charge equilibration (QEq) model.
+Using these data as a training dataset, we fit the parameters of the charge equilibration (QEq) model.
 QEq parameters include, for each element $\text{e}$, the electronegativity of a neutral atom of that element $\chi^0_{\text{e}}$, as well as the hardness $\eta_e$.
-Because the formula for $\widehat{\Delta \chi}$ is linear in all of the QEq parameters, we estimate them by least squares linear regression.
-The $\chi^0_e$ parameters in our model correlate with Pauling electronegativities (Figure \@ref(fig:linear-model-figure)B), but with the difference that boron has higher $\chi_e^0$ than phosphorus or arsenic, in contradiction to the Pauling values.
+Because Equation \@ref(eq:QEqLinearModelSummary) for $\widehat{\Delta \chi}$ is linear in all of the QEq parameters, we estimate them by least squares linear regression.
+The $\chi^0_e$ parameters in our model correlate with Pauling electronegativities [@standardPaulingElectronegativities] (Figure \@ref(fig:linear-model-figure)B), but with the difference that boron has higher $\chi_e^0$ than phosphorus or arsenic, in contradiction to the Pauling values.
 This reflects that in our simulations of BP and BAs without imposed potentials, boron is found to have a negative charge, despite being formally the cation.
-Negative boron has been observed in a previous DFT simulation of boron phosphide, though with a different definition of partial charge.
+Negative boron has been observed in a previous DFT simulation of cubic boron phosphide, though with a different definition of partial charge [@wannierBP].
 
 The predictive performance of the model was tested using leave-one-out cross-validation.
 In each structure, $\widehat{\Delta\chi}$, with parameters estimated from the dataset excluding that structure, is shown overlaid on the DFT results in Figure \@ref(fig:linear-model-figure)A.
@@ -40,6 +43,6 @@ Accuracy in prediction of the y intercept indicates transferability of the $\chi
 Transferability of $\eta_e$ parameters is indicated by accuracy in prediction of the slope.
 
 The x intercept is the charge of the acceptor atom without an imposed potential.
-It is given by the familiar electronegativity equalization equation.
-Estimates of charge computed using the charge prediction formula in the leave-one-out analysis are shown in Figure \@ref(fig:linear-model-figure)C, and correlated closely with the density functional theory results.
+It is given by the familiar electronegativity equalization equation (Equation \@ref(eq:ChargeEstimateSummary)).
+Estimates of charge computed using this formula in the leave-one-out analysis are shown in Figure \@ref(fig:linear-model-figure)C, and correlate closely with the density functional theory results.
 In this way, the $\chi$-prediction model was used to solve the $q$-prediction problem, in a manner analogous to the prediction of equilibrium geometries from a force model.

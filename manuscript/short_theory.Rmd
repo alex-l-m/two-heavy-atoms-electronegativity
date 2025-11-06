@@ -1,51 +1,84 @@
 # Summary of Theory
 
-Here we will use electron populations defined integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function:
-$$N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \rho(\position)}$$
+Here we will use electron populations defined as integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function:
+\begin{equation}
+N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \, \electronDensityValue}
+(\#eq:AtomicPopulationSummary)
+\end{equation}
 As in other Hirshfeld-I variants, the weight function depends on both the element and on the electron populations of each atom.
 The charge is then
-$$q_k = Z_k - N_k$$
+\begin{equation}
+q_k = Z_k - N_k
+(\#eq:AtomicChargeSummary)
+\end{equation}
 where $Z_k$ is the atomic number.
 The particular charge definition we use is our primitive Hirshfeld-I method, defined in full in the Supplementary Theory.
 
 We will perform simulations with an external electric field imposed.
 In order to relate the electric field to atomic electronegativities, the field must have a form defined by the weight functions:
-$$\electricalPotentialValue{} = - \sum_k \lambda_k \weightFunc{k}{\vect{N}}$$
+\begin{equation}
+\electricalPotentialValue{} = - \sum_k \lambda_k \, \weightFunc{k}{\vect{N}}
+(\#eq:ElectricalPotentialSummary)
+\end{equation}
 
 Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$, we impose an electrical potential such that $\lambda_A = -\lambda_D = \lambda$ so that
-$$\electricalPotentialValue{} = -\lambda \, \weightFunc{A}{N_D, N_A} + \lambda \, \weightFunc{D}{N_D, N_A}$$
+\begin{equation}
+\electricalPotentialValue{} = -\lambda \, \weightFunc{A}{N_D, N_A} + \lambda \, \weightFunc{D}{N_D, N_A}
+(\#eq:TwoAtomPotentialSummary)
+\end{equation}
 $\lambda$ can be taken as a measure of the strength of the imposed potential.
 
 To define electronegativities, we consider the energy $\energyNuc$, defined by excluding the imposed electrical potential.
 The electronegativities are
-$$\chi_D = \constDeriv{\energyNuc}{q_D}{q_A} \qquad \chi_A = \constDeriv{\energyNuc}{q_A}{q_D}$$
+\begin{equation}
+\chi_D = \constDeriv{\energyNuc}{q_D}{q_A} \qquad \chi_A = \constDeriv{\energyNuc}{q_A}{q_D}
+(\#eq:ChiDefSummary)
+\end{equation}
 In our simulations we will vary $\lambda$ while the total electron number $N$ stays constant, so within our series of simulations the derivative of $\energyNuc$ will be
-$$\constDeriv{\energyNuc}{q_A}{N} = \chi_A - \chi_D = \Delta \chi$$
+\begin{equation}
+\constDeriv{\energyNuc}{q_A}{N} = \chi_A - \chi_D = \Delta \chi
+(\#eq:EnergyDerivativeDeltaChiSummary)
+\end{equation}
 
 To measure $\Delta \chi$, we rely on a relationship with the strength of the field applied to each atom.
 In the supplementary theory, we show the derivation of the relationship for an arbitrary number of atoms, and an arbitrary vector of field coefficients $\lambda_k$.
 For two atoms and this specific form of the field, it simplifies considerably.
 If the weight functions did not depend on the electron populations, the relationship would be
-$$\Delta \chi = 2 \, \lambda$$
+\begin{equation}
+\Delta \chi = 2 \, \lambda
+(\#eq:DeltaChiNoBoundarySummary)
+\end{equation}
 That is, the difference in electronegativity could be read off simply from the field that was used as input to the simulation.
 Including the shift in the definition of atoms requires another factor in this relationship:
-$$\Delta \chi = 2\,\left( 1 - \avgWeightDerivSubscript{A}{A}{N} \right)\lambda$$
+\begin{equation}
+\Delta \chi = 2\,\left( 1 - \avgWeightDerivSubscript{A}{A}{N} \right)\lambda
+(\#eq:DeltaChiWithBoundarySummary)
+\end{equation}
 where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight function integrated against the electron density, discussed in more detail in the Supplementary Theory.
 We evaluate this constant by numerical integration.
 
 The linear model underlying QEq, in the two-atom case and assuming net charge zero (so that $q_D=-q_A$), is
-$$\widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A + \eta_{e(D)} \, q_A$$
+\begin{equation}
+\widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A + \eta_{e(D)} \, q_A
+(\#eq:QEqLinearModelSummary)
+\end{equation}
 where $\widehat{\Delta \chi}$ is the estimated value of $\Delta \chi$ using these model parameters.
-The estimate of charge is obtained by electronegativity equalization, that is, setting $\widehat{\Delta \chi}$ to zero, which after solving for $q_A$ yields
-$$\hat{q}_A = \frac{\chi_{e(A)}^0 - \chi_{e(D)}^0}{\eta_{e(A)} + \eta_{e(D)}}$$
+The estimate of charge is obtained by electronegativity equalization, that is, setting $\widehat{\Delta \chi}$ to zero in Equation \@ref(eq:QEqLinearModelSummary), which after solving for $q_A$ yields
+\begin{equation}
+-\hat{q}_A = \frac{\chi_{e(A)}^0 - \chi_{e(D)}^0}{\eta_{e(A)} + \eta_{e(D)}}
+(\#eq:ChargeEstimateSummary)
+\end{equation}
+This is the familiar electronegativity equalization formula for charge transfer between two fragments [@electronegativityEqualizationInorganic].
 
-In previous research, the values of the parameters were determined by minimizing a loss function representing error in prediction of charge, such as 
-such as
-$$\sum_i \left(\hat{q}_A^{(i)} - q_A^{(i)}\right)^2$$
+Following previous research which trained QEq models by minimizing squared error in charge prediction, and considering that we examine only binary systems with zero total charge, we could train QEq by minimizing squared error in prediction of charge of the acceptor atom.
+\begin{equation}
+\sum_i \left(\hat{q}_A^{(i)} - q_A^{(i)}\right)^2
+(\#eq:ChargeLossSqSummary)
+\end{equation}
 where $i$ indexes over the frames simulated.
-Even in previous studies that augmented the data by imposing potentials used a modified version of the formula for $\hat{q}_A$ that included the potentials.
-Our point of departure is to instead minimize the loss function
-$$\sum_i \left(\smash[t]{\widehat{\Delta \chi}}^{(i)} - \smash[t]{\Delta \chi}^{(i)} \right)^2$$
-using the predictions $\widehat{\Delta \chi}$ given above and the $\Delta \chi$ values extracted from the simulation using the relationship with the potentials.
-
-
+Instead, we train the model by minimizing the loss function
+\begin{equation}
+\sum_i \left(\smash[t]{\widehat{\Delta \chi}}^{(i)} - \smash[t]{\Delta \chi}^{(i)} \right)^2
+(\#eq:DeltaChiLossSqSummary)
+\end{equation}
+using the predictions $\widehat{\Delta \chi}$ given in Equation \@ref(eq:QEqLinearModelSummary) and the $\Delta \chi$ values extracted from the simulation using the relationship with the potentials in Equation \@ref(eq:DeltaChiWithBoundarySummary).
