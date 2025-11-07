@@ -1,0 +1,3 @@
+# Acknowledgments
+
+This work was supported by the Alliance for AI-Accelerated Materials Discovery (A3MD). The mathematical derivations were fueled by coffee from Mallo in Toronto. The authors gratefully acknowledge helpful conversations with Kareem Gameel, Ihor Neporizhnii, Paul Ayers and Toon Verstraelen.

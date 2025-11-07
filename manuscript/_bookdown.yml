@@ -8,5 +8,6 @@ rmd_files:
   - results.Rmd
   - discussion.Rmd
   - computation.Rmd
+  - acknowledgments.Rmd
   - theory.Rmd
   - supplementary_figures.Rmd
