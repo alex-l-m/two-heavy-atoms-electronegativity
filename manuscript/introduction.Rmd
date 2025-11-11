@@ -1,13 +1,10 @@
 # Introduction
 
 <!-- 1. Why charge? / Charge is important -->
-Molecules and materials are composed of atoms, and the contributions of atoms are visible in the electron density function as roughly spherical concentrations of electron density [@baderbook].
-A model of the electron density as a sum of spherical contributions provides an approximation to the electrostatic potential, with increasing accuracy at larger distances.
-In this model, the electron density is fully described by a partial charge on each atom.
-
-This monopole approximation to the electrostatic energy has been widely used in computational chemistry and materials science.
-Using the monopole approximation in a model requires prediction of partial charges as a subtask.
+The electrostatic potential of a molecule or material can be approximated with a model consisting of a point charge at each atom, or overlapping spherical charge densities.
+This monopole approximation to the electrostatic energy has been widely used in computational chemistry and materials science, motivating prediction of partial charges.
 Partial charges are often predicted using charge equilibration (QEq) [@rappe1991charge].
+
 In force fields, partial charge estimation, often with QEq, has been used to create polarizable force fields [@polarizableFFReviewJing], as well as force fields modeling reactivity [@ReaxFFOriginal].
 In semiempirical quantum mechanics, the monopole approximation is used to include electrostatic energy in the SCC-DFTB [@scc1998] and xTB [@gfn1xtb] methods, with the charges obtaiend by iteration to self-consistency.
 QEq has been proposed as a means of avoiding this iteration in xTB [@gfn0xtb].
