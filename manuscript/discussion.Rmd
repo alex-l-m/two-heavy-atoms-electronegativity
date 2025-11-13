@@ -26,7 +26,7 @@ We have demonstrated a new approach by annotating our training dataset with firs
 This indirect method of charge prediction is analogous to the prediction of equilibrium geometries using a model trained to determine forces.
 Our simple demonstration opens a new direction in training charge models, in which the model learns a generalized force on a charge.
 
-The current generation of machine learning datasets includes atomic $q_k$, as well as off-equilibrium geometries and forces [@isayevani2,@levine2025openmolecules2025omol25].
+The current generation of machine learning datasets includes atomic $q_k$, as well as off-equilibrium geometries and forces [@isayevani2,@omol25].
 Charge models would benefit if the next generation includes, not only off-equilibrium electron densities obtained by applying a field, but electronegativities $\chi_k$, analogous to the forces included for the off-equilibrium geometries.
 Most directly, such a dataset could then be used as a training target for the QEq models used in force fields and machine learning interatomic potentials.
 However, with our perspective that $\chi$-prediction from partial charges is a crude approximation to the exact map from densities to potentials, such datasets may be useful even for model architectures that do not learn charges.

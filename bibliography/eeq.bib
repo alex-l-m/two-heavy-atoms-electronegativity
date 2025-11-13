@@ -1,3 +1,98 @@
+@article{chgnet,
+author={Deng, Bowen
+and Zhong, Peichen
+and Jun, KyuJung
+and Riebesell, Janosh
+and Han, Kevin
+and Bartel, Christopher J.
+and Ceder, Gerbrand},
+title={CHGNet as a pretrained universal neural network potential for charge-informed atomistic modelling},
+journal={Nature Machine Intelligence},
+year={2023},
+month={Sep},
+day={01},
+volume={5},
+number={9},
+pages={1031-1041},
+abstract={Large-scale simulations with complex electron interactions remain one of the greatest challenges for atomistic modelling. Although classical force fields often fail to describe the coupling between electronic states and ionic rearrangements, the more accurate ab initio molecular dynamics suffers from computational complexity that prevents long-time and large-scale simulations, which are essential to study technologically relevant phenomena. Here we present the Crystal Hamiltonian Graph Neural Network (CHGNet), a graph neural network-based machine-learning interatomic potential (MLIP) that models the universal potential energy surface. CHGNet is pretrained on the energies, forces, stresses and magnetic moments from the Materials Project Trajectory Dataset, which consists of over 10{\thinspace}years of density functional theory calculations of more than 1.5{\thinspace}million inorganic structures. The explicit inclusion of magnetic moments enables CHGNet to learn and accurately represent the orbital occupancy of electrons, enhancing its capability to describe both atomic and electronic degrees of freedom. We demonstrate several applications of CHGNet in solid-state materials, including charge-informed molecular dynamics in LixMnO2, the finite temperature phase diagram for LixFePO4 and Li diffusion in garnet conductors. We highlight the significance of charge information for capturing appropriate chemistry and provide insights into ionic systems with additional electronic degrees of freedom that cannot be observed by previous MLIPs.},
+annotate={MPtrj dataset. Includes non-equilibrium geometries by using the relaxation paths from Materials Project (``We extracted 1.37 million structure relaxation and static calculations tasks from the Materials Project Database''). Atom-level properties include forces (for all frames) and magnetic moments (not always there for some reason?). No atomic charges (``we define charge as an atomic property (atomic charge) that can be inferred from the inclusion of magnetic moments (magmoms).'').},
+issn={2522-5839},
+doi={10.1038/s42256-023-00716-3},
+url={https://doi.org/10.1038/s42256-023-00716-3}
+}
+@misc{omat24,
+      title={Open Materials 2024 (OMat24) Inorganic Materials Dataset and Models},
+      author={Luis Barroso-Luque and Muhammed Shuaibi and Xiang Fu and Brandon M. Wood and Misko Dzamba and Meng Gao and Ammar Rizvi and C. Lawrence Zitnick and Zachary W. Ulissi},
+      year={2024},
+      eprint={2410.12771},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.mtrl-sci},
+      url={https://arxiv.org/abs/2410.12771},
+      annotate={Materials with non-equilibrium geometries, sampled by a variety of methods, farther off equilibrium then in MPtrj. Seems like the only atomic property is forces.}
+}
+@article{matbench,
+author={Dunn, Alexander
+and Wang, Qi
+and Ganose, Alex
+and Dopp, Daniel
+and Jain, Anubhav},
+title={Benchmarking materials property prediction methods: the Matbench test set and Automatminer reference algorithm},
+journal={npj Computational Materials},
+year={2020},
+month={Sep},
+day={15},
+volume={6},
+number={1},
+pages={138},
+abstract={We present a benchmark test suite and an automated machine learning procedure for evaluating supervised machine learning (ML) models for predicting properties of inorganic bulk materials. The test suite, Matbench, is a set of 13{\thinspace}ML tasks that range in size from 312 to 132k samples and contain data from 10 density functional theory-derived and experimental sources. Tasks include predicting optical, thermal, electronic, thermodynamic, tensile, and elastic properties given a material's composition and/or crystal structure. The reference algorithm, Automatminer, is a highly-extensible, fully automated ML pipeline for predicting materials properties from materials primitives (such as composition and crystal structure) without user intervention or hyperparameter tuning. We test Automatminer on the Matbench test suite and compare its predictive power with state-of-the-art crystal graph neural networks and a traditional descriptor-based Random Forest model. We find Automatminer achieves the best performance on 8 of 13 tasks in the benchmark. We also show our test suite is capable of exposing predictive advantages of each algorithm---namely, that crystal graph methods appear to outperform traditional machine learning methods given {\textasciitilde}104 or greater data points. We encourage evaluating materials ML algorithms on the Matbench benchmark and comparing them against the latest version of Automatminer.},
+issn={2057-3960},
+doi={10.1038/s41524-020-00406-3},
+url={https://doi.org/10.1038/s41524-020-00406-3}
+}
+
+@article{matproj,
+  title={Commentary: The Materials Project: A materials genome approach to accelerating materials innovation},
+  author={Jain, Anubhav and Ong, Shyue Ping and Hautier, Geoffroy and Chen, Wei and Richards, William Davidson and Dacek, Stephen and Cholia, Shreyas and Gunter, Dan and Skinner, David and Ceder, Gerbrand and others},
+  journal={APL materials},
+  volume={1},
+  number={1},
+  year={2013},
+  publisher={AIP Publishing}
+}
+@article{tmqm,
+author={Balcells, David
+and Skjelstad, Bastian Bjerkem},
+title={tmQM Dataset---Quantum Geometries and Properties of 86k Transition Metal Complexes},
+journal={Journal of Chemical Information and Modeling},
+year={2020},
+month={Dec},
+day={28},
+publisher={American Chemical Society},
+volume={60},
+number={12},
+pages={6135-6146},
+abstract={We report the transition metal quantum mechanics (tmQM) data set, which contains the geometries and properties of a large transition metal--organic compound space. tmQM comprises 86,665 mononuclear complexes extracted from the Cambridge Structural Database, including Werner, bioinorganic, and organometallic complexes based on a large variety of organic ligands and 30 transition metals (the 3d, 4d, and 5d from groups 3 to 12). All complexes are closed-shell, with a formal charge in the range {\{}+1, 0, -1{\}}e. The tmQM data set provides the Cartesian coordinates of all metal complexes optimized at the GFN2-xTB level, and their molecular size, stoichiometry, and metal node degree. The quantum properties were computed at the DFT(TPSSh-D3BJ/def2-SVP) level and include the electronic and dispersion energies, highest occupied molecular orbital (HOMO) and lowest unoccupied molecular orbital (LUMO) energies, HOMO/LUMO gap, dipole moment, and natural charge of the metal center; GFN2-xTB polarizabilities are also provided. Pairwise representations showed the low correlation between these properties, providing nearly continuous maps with unusual regions of the chemical space, for example, complexes combining large polarizabilities with wide HOMO/LUMO gaps and complexes combining low-energy HOMO orbitals with electron-rich metal centers. The tmQM data set can be exploited in the data-driven discovery of new metal complexes, including predictive models based on machine learning. These models may have a strong impact on the fields in which transition metal chemistry plays a key role, for example, catalysis, organic synthesis, and materials science. tmQM is an open data set that can be downloaded free of charge from https://github.com/bbskjelstad/tmqm.},
+annotate={A single geometry for each molecule, the xTB equilibrium geometry, so no forces. No atomic properties (the atomic charge included is just for the metal atom).},
+issn={1549-9596},
+doi={10.1021/acs.jcim.0c01041},
+url={https://doi.org/10.1021/acs.jcim.0c01041}
+}
+@article{comp6,
+    author = {Smith, Justin S. and Nebgen, Ben and Lubbers, Nicholas and Isayev, Olexandr and Roitberg, Adrian E.},
+    title = {Less is more: Sampling chemical space with active learning},
+    journal = {The Journal of Chemical Physics},
+    volume = {148},
+    number = {24},
+    pages = {241733},
+    year = {2018},
+    month = {05},
+    abstract = {The development of accurate and transferable machine learning (ML) potentials for predicting molecular energetics is a challenging task. The process of data generation to train such ML potentials is a task neither well understood nor researched in detail. In this work, we present a fully automated approach for the generation of datasets with the intent of training universal ML potentials. It is based on the concept of active learning (AL) via Query by Committee (QBC), which uses the disagreement between an ensemble of ML potentials to infer the reliability of the ensemble’s prediction. QBC allows the presented AL algorithm to automatically sample regions of chemical space where the ML potential fails to accurately predict the potential energy. AL improves the overall fitness of ANAKIN-ME (ANI) deep learning potentials in rigorous test cases by mitigating human biases in deciding what new training data to use. AL also reduces the training set size to a fraction of the data required when using naive random sampling techniques. To provide validation of our AL approach, we develop the COmprehensive Machine-learning Potential (COMP6) benchmark (publicly available on GitHub) which contains a diverse set of organic molecules. Active learning-based ANI potentials outperform the original random sampled ANI-1 potential with only 10\% of the data, while the final active learning-based model vastly outperforms ANI-1 on the COMP6 benchmark after training to only 25\% of the data. Finally, we show that our proposed AL technique develops a universal ANI potential (ANI-1x) that provides accurate energy and force predictions on the entire COMP6 benchmark. This universal ML potential achieves a level of accuracy on par with the best ML potentials for single molecules or materials, while remaining applicable to the general class of organic molecules composed of the elements CHNO.},
+    annotate={Multiple conformers for each molecule. Includes force and Hirshfeld charge. Also relevant to charge estimation, includes molecular dipole moments.},
+    issn = {0021-9606},
+    doi = {10.1063/1.5023802},
+    url = {https://doi.org/10.1063/1.5023802},
+    eprint = {https://pubs.aip.org/aip/jcp/article-pdf/doi/10.1063/1.5023802/16656391/241733_1_online.pdf},
+}
 @article{partitionDFTPhysicalReview2010,
   title = {Partition density-functional theory},
   author = {Elliott, Peter and Burke, Kieron and Cohen, Morrel H. and Wasserman, Adam},
@@ -61,7 +156,7 @@
   author={Wang, Zhibo and Davis, Alexander and Dutta, Rajarshi and Yadav, Kanishk and Neporozhnii, Ihor and Voznyy, Oleksandr},
   year={2025}
 }
-@misc{levine2025openmolecules2025omol25,
+@misc{omol25,
       title={The Open Molecules 2025 (OMol25) Dataset, Evaluations, and Models}, 
       author={Daniel S. Levine and Muhammed Shuaibi and Evan Walter Clark Spotte-Smith and Michael G. Taylor and Muhammad R. Hasyim and Kyle Michel and Ilyes Batatia and Gábor Csányi and Misko Dzamba and Peter Eastman and Nathan C. Frey and Xiang Fu and Vahe Gharakhanyan and Aditi S. Krishnapriyan and Joshua A. Rackers and Sanjeev Raja and Ammar Rizvi and Andrew S. Rosen and Zachary Ulissi and Santiago Vargas and C. Lawrence Zitnick and Samuel M. Blau and Brandon M. Wood},
       year={2025},
@@ -69,6 +164,7 @@
       archivePrefix={arXiv},
       primaryClass={physics.chem-ph},
       url={https://arxiv.org/abs/2505.08762}, 
+      annotate={Conformers sampled through a variety of methods. Atomic properties include force, multiple charge definitions (Mulliken, Loewdin, natural bond orbital) and corresponding spins (Appendix A.2).}
 }
 @article{nistor2009dielectric,
   title={Dielectric properties of solids in the regular and split-charge equilibration formalisms},
@@ -374,7 +470,7 @@ doi={10.1038/s41524-025-01791-3},
 url={https://doi.org/10.1038/s41524-025-01791-3}
 }
 
-@article{Devereux2020,
+@article{isayevani2,
 author={Devereux, Christian
 and Smith, Justin S.
 and Huddleston, Kate K.
@@ -392,7 +488,7 @@ volume={16},
 number={7},
 pages={4192-4202},
 abstract={Machine learning (ML) methods have become powerful, predictive tools in a wide range of applications, such as facial recognition and autonomous vehicles. In the sciences, computational chemists and physicists have been using ML for the prediction of physical phenomena, such as atomistic potential energy surfaces and reaction pathways. Transferable ML potentials, such as ANI-1x, have been developed with the goal of accurately simulating organic molecules containing the chemical elements H, C, N, and O. Here, we provide an extension of the ANI-1x model. The new model, dubbed ANI-2x, is trained to three additional chemical elements: S, F, and Cl. Additionally, ANI-2x underwent torsional refinement training to better predict molecular torsion profiles. These new features open a wide range of new applications within organic chemistry and drug development. These seven elements (H, C, N, O, F, Cl, and S) make up ~90\% of drug-like molecules. To show that these additions do not sacrifice accuracy, we have tested this model across a range of organic molecules and applications, including the COMP6 benchmark, dihedral rotations, conformer scoring, and nonbonded interactions. ANI-2x is shown to accurately predict molecular energies compared to density functional theory with a ~106 factor speedup and a negligible slowdown compared to ANI-1x and shows subchemical accuracy across most of the COMP6 benchmark. The resulting model is a valuable tool for drug development which can potentially replace both quantum calculations and classical force fields for a myriad of applications.},
-annotate={Introduces the COMP6v2 dataset. It's hard to tell what's actually in it, so probably I should just refer to the previous paper on COMP6. It's interesting that it contains random conformers using RDKit's conformer generation. Formula 4 shows both energies and forces being used in the loss function.},
+annotate={Introduces the COMP6v2 dataset. It's hard to tell what's actually in it, so probably I should just refer to the previous paper on COMP6. It's interesting that it contains random conformers using RDKit's conformer generation, along with other methods. Formula 4 shows both energies and forces being used in the loss function. Apparently no charges though.},
 issn={1549-9618},
 doi={10.1021/acs.jctc.0c00121},
 url={https://doi.org/10.1021/acs.jctc.0c00121}
@@ -898,7 +994,7 @@ annotate = {Hardness of a system, defined in equation four. Not really atomic ha
   year={1980},
   publisher={W. H. Freeman}
 }
-@article{isayevani2,
+@article{torchani,
 	author = {Gao, Xiang and Ramezanghorbani, Farhad and Isayev, Olexandr and Smith, Justin S. and Roitberg, Adrian E.},
 	doi = {10.1021/acs.jcim.0c00451},
 	eprint = { https://doi.org/10.1021/acs.jcim.0c00451 },
