@@ -2,10 +2,10 @@
 
 <!-- 1. Identify the problem: what to include in a dataset? / We can include electronegativity in datasets -->
 Machine learning interatomic potentials (MLIPs) compute forces in a fraction of the time required for first-principles simulations such as with density functional theory (DFT), but first must be trained on large DFT datasets.
-In the past few years, datasets of the scale required for machine learning have been released for both materials and molecules, including the distorted structures and force calculations required for training an MLIP.
+In the past few years, datasets of the scale required for machine learning have been released for both materials and molecules, including the distorted structures and force calculations required for training an MLIP [@comp6,@isayevani2,@omol25,@chgnet,@omat24].
 This raises the question of the characteristics of these datasets, and we will focus on the question of what properties should be included.
 
-Besides forces, some datasets also include the charges of each atom.
+Besides forces, some datasets also include the charges of each atom [@comp6,@omol25].
 Charge prediction is an important component of some classical force fields and some MLIPs.
 Energy is partitioned into a short-range component, and a long-range electrostatic component which is computed using charges.
 In classical force fields that predict charge it is usually predicted using a variant of charge equilibration (QEq), and the idea has been revived in fourth-generation MLIPs.
