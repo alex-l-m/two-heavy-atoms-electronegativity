@@ -1,18 +1,19 @@
 # Introduction
 
 <!-- 1. Identify the problem: what to include in a dataset? / We can include electronegativity in datasets -->
-Machine learning interatomic potentials (MLIPs) compute forces in a fraction of the time required for first-principles simulations such as with density functional theory (DFT), but first must be trained on large DFT datasets.
-In the past few years, datasets of the scale required for machine learning have been released for both materials and molecules, including the distorted structures and force calculations required for training an MLIP [@comp6,@isayevani2,@omol25,@chgnet,@omat24].
-This raises the question of the characteristics of these datasets, and we will focus on the question of what properties should be included.
+For calculations beyond the computational range of density functional theory (DFT), we use force fields, which achieve speed but sacrifice accuracy.
+More recently, machine learning interatomic potentials (MLIPs) promise to approach DFT accuracy, but first must be trained on large DFT datasets [@Anstine2023].
+In the past few years, datasets of the scale required for machine learning, including distorted structures annotated with force for each atom, have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
+It is therefore an urgent question how to best construct datasets like these.
 
-Besides forces, some datasets also include the charges of each atom [@comp6,@omol25].
-Charge prediction is an important component of some classical force fields and some MLIPs.
-Energy is partitioned into a short-range component, and a long-range electrostatic component which is computed using charges.
-In classical force fields that predict charge it is usually predicted using a variant of charge equilibration (QEq), and the idea has been revived in fourth-generation MLIPs.
-Charge is therefore an important prediction target, at least for MLIP models that include direct charge prediction.
-Interestingly, training of classical QEq models has sometimes included charges perturbed by external potentials, to learn charge response, though ML-scale datasets do not currently include such perturbations [@verstraelenElectronegativityParameters,@verstraelenSilicatesResponse].
+Another potentially important property besides force is partial charge.
+In both polarizable force fields [@polarizableFFReviewJing] and some MLIPs [@Anstine2023], energy is partitioned into a short-range component, and a long-range electrostatic component which is computed using charges predicted from the geometry.
+In classical force fields that predict charge it is usually predicted using a variant of charge equilibration (QEq), and the idea has been revived in "fourth-generation" MLIPs [@fourGenerations].
 
-Our purpose in this work will be to propose not only the inclusion of perturbing electrical potentials, but an additional atomic property, electronegativity, analogous to the forces included for non-equilibrium geometries.
+Some datasets also include the charges of each atom [@comp6,@omol25].
+Interestingly, training of classical QEq models has sometimes included systems perturbed by potentials such as the electric field from a nearby point charge [@verstraelenElectronegativityParameters,@verstraelenSilicatesResponse], though ML-scale datasets do not currently include such perturbations.
+
+Our purpose in this work will be to propose not only the inclusion of perturbing potentials in MLIP training datasets, but to annotate these perturbed systems with an additional atomic property: electronegativity.
 To explain this it helps to begin with the theoretical foundation of QEq models.
 
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
@@ -22,32 +23,29 @@ Conceptual DFT began with a new definition of the electronegativity of a molecul
 Defined this way, the electronegativity $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but also an ion, a molecule, or a material.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
 The familiar concept of an electronegativity associated with an element is recovered by considering the electronegativity $\chi(0)$ of a neutral atom.
-The familiar Mulliken electronegativity [@originalMulliken] can be obtained as an approximation [@parrcdftelectronegativity].
+The familiar Mulliken electronegativity [@originalMulliken] can be obtained by replacing a derivative with a difference.
 
 QEq involves not only the electronegativity $\chi$ of a system, but an analogous definition for the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal].
 The theoretical basis of QEq is that in a stationary state, every atom has the same electronegativity.
 For example, while a neutral chlorine atom is more electronegative than a neutral hydrogen atom, in hydrogen chloride, the negative chlorine and the positive hydrogen have equal electronegativities.
+
 QEq methods predict charge by solving for the atomic charges $\vect{q}$ such that all atomic electronegativities are equal, under a constraint on total charge.
 Considering $\chi_k$ as a function of the charges $\vect{q}$, equal electronegativities can be expressed as $\chi_k(\vect{q}) = \chi$.
-We will use the term "electronegativity equalization" to refer to predicting charge by solving this equation, rather than more narrowly to refer to the electronegativity equalization method, an early QEq method [@conceptualDFTElectronegativityOriginal].
+We will use the term "electronegativity equalization" to refer to predicting charge by solving this equation.
 
 <!-- 3. Explanation of QEq parameters -->
-Besides the fundamental idea of predicting charge by equalizing atomic electronegativity, QEq also makes the physical assumption that these electronegativities depend linearly on the charges.
-In most expositions this is described as a quadratic approximation to energy, but differentiating yields that $\chi(\vect{q})$ is an affine transformation.
-As a result, equalizing electronegativity is accomplished by solving a linear system.
-
-The parameters of classical QEq methods were two free parameters per element $e$: $\chi^0_e$, the electronegativity of a neutral atom of that element, and a hardness $\eta_e$ that describes how the electronegativity increases with charge.
+The parameters of classical QEq methods are two free parameters per element $e$: $\chi^0_e$, the electronegativity of a neutral atom of that element, and a hardness $\eta_e$ that describes how the electronegativity increases with charge.
 Within the last decade, ML methods incorporating QEq have predicted individual $\chi^0_k$ values for each atom $k$ from the atom's local environment [@fourGenerations].
 One of the selling points of QEq over using ML to predict charge directly has been that the $\chi^0_k$ values are apparently more local than the charges $q_k$ [@Ko2021].
-$\chi^0_k$ is the intercept, and $\eta_k$ the slope, in the assumed linear relationship with charge.
 
 <!-- 4. Parameter estimation / Parameter estimation is an interesting topic and could be done better -->
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
 Our focus will be on training QEq models.
-That is, the parameters of the model, whether the element-specific $\chi^0_e$ and $\eta_e$ values of a calssical QEq model or the much larger number of parameters used by a modern ML model to assign environment-dependent $\chi^0_k$ and $\eta_k$, are determined by minimizing prediction error in a training dataset.
-The training target has sometimes been system-level observables such as dipole moments [@chemicalPotentialEqualization], and sometimes atomic partial charges $q_k$ computed from DFT [@verstraelenElectronegativityParameters].
+That is, the parameters of the model, whether the element-specific $\chi^0_e$ and $\eta_e$ values of a classical QEq model or the much larger number of parameters used by a modern ML model to assign environment-dependent $\chi^0_k$ and $\eta_k$, are determined by minimizing prediction error in a training dataset.
+
 
 <!-- 6. χ-prediction / We should be doing χ-prediction instead -->
+The training target has sometimes been system-level observables such as dipole moments [@chemicalPotentialEqualization], and sometimes atomic partial charges $q_k$ computed from DFT [@verstraelenElectronegativityParameters].
 The ultimate purpose of a QEq model is predicting the charges $q_k$, which we will call the $q$-prediction task.
 But its physical basis is the assumption of a linear model for what we call the $\chi$-prediction task: the prediction of $\chi_k$ given each $q_k$ as input.
 Once the QEq model is trained to the $\chi$-prediction task, it can then be used for $q$-prediction through electronegativity equalization.
@@ -67,9 +65,6 @@ Electronegativity equalization, then, is indirect prediction of charge in the sa
 <!-- Training on the χ-prediction task is feasible because you can get the data -->
 For the first time, we use $\chi_k$ values as a prediction target to train a charge equilibration model.
 By means of a complete execution of training a simple QEq model in the $\chi$-prediction problem, we will show that all issues that emerge are solvable.
-Using a thermodynamic relation previously discussed in the context of constrained DFT [@KadukConstrainedDFTReview], we explicate the relationship between the external electric field imposed on a system and the atomic electronegativities.
-We find that to use Hirshfeld-I charges, this relationship requires a correction factor, but that it is computable from the DFT results.
-We also show that for QEq with element-dependent $\chi_e^0$ and $\eta_e$ parameters, the $\chi$-prediction problem can be formulated as linear regression.
 We obtain these parameters by least squares regression, and then predict charge by electronegativity equalization.
 
 For this demonstration, we constructed a minimal example of a dataset for the $\chi$-prediction problem, consisting of crystal structures of binary materials.
