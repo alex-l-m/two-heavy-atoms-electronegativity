@@ -1,19 +1,19 @@
 # Introduction
 
 <!-- 1. Identify the problem: what to include in a dataset? / We can include electronegativity in datasets -->
-For calculations beyond the computational range of density functional theory (DFT), we use force fields, which achieve speed but sacrifice accuracy.
-More recently, machine learning interatomic potentials (MLIPs) promise to approach DFT accuracy, but first must be trained on large DFT datasets [@Anstine2023].
+For atomistic simulations, researchers have had to choose between _ab initio_ methods, which have high computational cost but also high accuracy, and force fields, which sacrifice accuracy for speed.
+In the last decade, machine learning interatomic potentials (MLIPs) have promised to approach DFT accuracy at speeds comparable to traditional force fields, but first must be trained on large datasets generated using _ab initio_ methods such as density functional theory (DFT) [@MILPReview2025].
 In the past few years, datasets of the scale required for machine learning, including distorted structures annotated with force for each atom, have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
 It is therefore timely to ask how to best construct datasets like these.
 
 Another potentially important property besides force is partial charge.
 In both polarizable force fields [@polarizableFFReviewJing] and some MLIPs [@Anstine2023], energy is partitioned into a short-range component and a long-range electrostatic component, and the electrostatic component is computed using charges predicted from the geometry.
-Charge equilibration (QEq) [@rappe1991charge] is typically used for assigning charges to atoms in classical force fields, and the idea has been revived in "fourth-generation" MLIPs [@fourGenerations].
+In classical force fields, charge is typically predicted using  charge equilibration (QEq) [@rappe1991charge], and the idea has been revived in "fourth-generation" MLIPs [@fourGenerations].
 
 Some datasets also include the charges of each atom [@comp6,@omol25].
 Interestingly, training of classical QEq models has sometimes included systems perturbed by potentials such as the electric field from a nearby point charge [@verstraelenElectronegativityParameters,@verstraelenSilicatesResponse], though ML-scale datasets do not currently include such perturbations.
 
-Our purpose in this work will be to propose not only the inclusion of perturbing potentials in MLIP training datasets, but to annotate these perturbed systems with an additional atomic property: electronegativity.
+Our purpose in this work will be to propose not only the inclusion of perturbing potentials in MLIP training datasets, but to annotate these perturbed systems with an additional atomic property, associated with perturbed charges just as a force is associated with an off-equilibrium nuclear position.
 To explain this it helps to begin with the theoretical foundation of QEq.
 
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
