@@ -8,17 +8,17 @@
 knitr::include_graphics("figure1.png")
 ```
 
-Materials were simulated with DFT to obtain both energy and atomic charges, computed with the primitive Hirshfeld-I method defined in the Supplementary Theory section.
+Materials were simulated with DFT to obtain both energy and atomic charges.
 A potential was applied that, considered as an electrical potential, was electrically positive at the donor atom and negative at the acceptor, to draw electron density back to the donor (Figure \@ref(fig:dataset-illustration-figure)A).
-This electrical potential was not a uniform electric field, but a shaped potential of the form in \@ref(eq:TwoAtomPotentialSummary).
+This electrical potential was not a uniform electric field, but a shaped potential of the form in Equation \@ref(eq:TwoAtomPotentialSummary).
 For each material, a series of simulations was performed with successively stronger potentials until both atoms were neutral.
 In each frame of the series, the weight functions from the previous frame were used to define the potential.
 
-The energy at each frame $\energyNuc$ tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
+The energy $\energyNuc$ at each frame tended to be approximately quadratic as a function of charge, as shown in Figure \@ref(fig:dataset-illustration-figure)B for gallium phosphide.
 The electronegativity difference is the derivative of this curve (Equation \@ref(eq:EnergyDerivativeDeltaChiSummary)).
 $\Delta \chi$ can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames, as shown in Figure \@ref(fig:dataset-illustration-figure)C.
-The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral and $\Delta \chi = \chi_A^0 - \chi_D^0$, where $\chi_A^0$ and $\chi_D^0$ are the electronegativities of the neutral atoms.
-We also obtained $\Delta \chi$ from each frame individually without taking differences, due to the form of the imposed potential in Equation \@ref(eq:DeltaChiWithBoundarySummary).
+The curve shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral.
+We also obtained $\Delta \chi$ from each frame individually without taking differences, using Equation \@ref(eq:DeltaChiWithBoundarySummary).
 The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C).
 Among all structures, the maximum deviation between the two methods of computing $\Delta \chi$ was 0.1 eV (Table \@ref(tab:electronegativity-max-deviations-table)).
 
@@ -30,18 +30,16 @@ Among all structures, the maximum deviation between the two methods of computing
 knitr::include_graphics("figure2.png")
 ```
 
-Using these data as a training dataset, we fit the parameters of the charge equilibration (QEq) model.
+Using these data as a training dataset, we fit the parameters of a charge equilibration (QEq) model.
 QEq parameters include, for each element $\text{e}$, the electronegativity of a neutral atom of that element $\chi^0_{\text{e}}$, as well as the hardness $\eta_e$.
 Because Equation \@ref(eq:QEqLinearModelSummary) for $\widehat{\Delta \chi}$ is linear in all of the QEq parameters, we estimate them by least squares linear regression.
 The $\chi^0_e$ parameters in our model correlate with Pauling electronegativities [@standardPaulingElectronegativities] (Figure \@ref(fig:linear-model-figure)B), but with the difference that boron has higher $\chi_e^0$ than phosphorus or arsenic, in contradiction to the Pauling values.
 This reflects that in our simulations of BP and BAs without imposed potentials, boron is found to have a negative charge, despite being formally the cation.
 Negative boron has been observed in a previous DFT simulation of cubic boron phosphide, though with a different definition of partial charge [@wannierBP].
 
-The predictive performance of the model was tested using leave-one-out cross-validation.
-In each structure, $\widehat{\Delta\chi}$, with parameters estimated from the dataset excluding that structure, is shown overlaid on the DFT results in Figure \@ref(fig:linear-model-figure)A.
-The y intercept shows the difference in electronegativity when both atoms are neutral, which in the leave-one-out analysis is the difference between the $\chi^0$ parameters for the two elements, estimated from the other structures containing those elements.
-Accuracy in prediction of the y intercept indicates transferability of the $\chi^0_e$ parameters across elements.
-Transferability of $\eta_e$ parameters is indicated by accuracy in prediction of the slope.
+The predictive performance of the model was tested using leave-one-out (LOO) cross-validation.
+Figure \@ref(fig:linear-model-figure)A shows the comparison between  the estimated $\widehat{\Delta\chi}$ line from LOO and the target $\widehat{\Delta\chi}$ from DFT, for each structure in the dataset.
+Accuracy in prediction of the y intercept indicates transferability of the $\chi^0_e$ parameters across elements, transferability of $\eta_e$ parameters is indicated by accuracy in prediction of the slope.
 
 The x intercept is the charge of the acceptor atom without an imposed potential.
 It is given by the familiar electronegativity equalization equation (Equation \@ref(eq:ChargeEstimateSummary)).

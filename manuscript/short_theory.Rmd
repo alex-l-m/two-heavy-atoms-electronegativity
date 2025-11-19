@@ -2,9 +2,8 @@
 
 ## Defining atomic charge
 
-The particular charge definition we use is our primitive Hirshfeld-I method, defined in full in the Supplementary Theory.
-Here we will use electron populations defined as integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function.
-As in other Hirshfeld-I variants, the weight function depends on both the element and on the electron populations of each atom.
+The charge definition we use is our primitive Hirshfeld-I method, defined in full in the Supplementary Theory.
+As in the original Hirshfeld-I method, electron populations $N_k$ are defined as integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function, where the weight function depends on both the element and on the electron populations of each atom:
 \begin{equation}
 N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \, \electronDensityValue}
 (\#eq:AtomicPopulationSummary)
@@ -28,7 +27,7 @@ The electronegativities are
 In conceptual DFT, electronegativity is a derivative at fixed potential [@parrcdftelectronegativity].
 We do not notate the constant potential, but we enforce this constraint by defining electronegativity in terms of $\energyNuc$, which excludes the varying imposed potential.
 
-In our simulations we will vary $\lambda$ while the total electron number $N$ stays constant, so within our series of simulations the derivative of $\energyNuc$ will be
+In our simulations we will smoothly vary the imposed potential while the total electron number $N$ stays constant, so within our series of simulations the derivative of $\energyNuc$ will be
 \begin{equation}
 \constDeriv{\energyNuc}{q_A}{N} = \chi_A - \chi_D = \Delta \chi
 (\#eq:EnergyDerivativeDeltaChiSummary)
@@ -39,7 +38,7 @@ However, the derivative in Equation \@ref(eq:EnergyDerivativeDeltaChiSummary) de
 
 ## Measuring atomic electronegativity
 
-We will perform simulations with an additional potential imposed.
+We will measure atomic electronegativities $\chi_k$ by performing DFT simulations with an additional potential imposed.
 Since $\chi_k$ is the negative of a chemical potential, the underlying principle is measuring an "internal" chemical potential with an "external" potential imposed on the system, in the terminology of @kittel1980thermal.
 
 In order to relate the imposed potential to atomic electronegativities, the field must have a form defined by the weight functions from the charge definition in equation \@ref(eq:AtomicPopulationSummary).
@@ -55,7 +54,7 @@ We impose a shaped potential such that $\lambda_A = -\lambda_D = \lambda$ so tha
 (\#eq:TwoAtomPotentialSummary)
 \end{equation}
 $\lambda$ can be taken as a measure of the strength of the imposed potential.
-This potential is positive on the acceptor to push electron density back onto the donor, but interpreted it as an electrical potential, it is electrically negative on the accepter to repel electrons back to the donor.
+This potential is positive on the acceptor to push electron density back onto the donor, but interpreted it as an electrical potential, it is electrically negative on the acceptor to repel electrons back to the donor.
 
 To measure $\Delta \chi$, we rely on a relationship with the strength of the field applied to each atom.
 In the Supplementary Theory, we show the derivation of the relationship for an arbitrary number of atoms, and an arbitrary vector of field coefficients $\lambda_k$.
@@ -76,7 +75,8 @@ We evaluate this constant by numerical integration.
 
 <!-- Constrained density functional theory -->
 In constrained density functional theory, the penalty term enforcing the charge constraint can be interpreted as a potential of the form in Equation \@ref(eq:ElectricalPotentialSummary), and Equation \@ref(eq:DeltaChiNoBoundarySummary) follows from a "thermodynamic relation" between the Lagrange multiplier and the chemical potential [@KadukConstrainedDFTReview].
-The term "generalized force" has been used for derivatives of energy with respect to a constraint [@thermo-dynamics], and the perspective of constrained DFT reveals atomic electrongativities to be generalized forces.
+From this perspective, the electronegativity is a derivative of the energy with respect to a constraint.
+This makes it a "generalized force" in the terminology of @thermo-dynamics.
 
 ## Predictive model
 
