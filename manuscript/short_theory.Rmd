@@ -94,6 +94,7 @@ The estimate of charge is obtained by electronegativity equalization, that is, s
 This is the familiar electronegativity equalization formula for charge transfer between two fragments [@electronegativityEqualizationInorganic].
 
 <!-- Locality of the electronegativity difference, in contrast to the charge transfer -->
+One of the selling points of QEq over using ML to predict charge directly has been that the $\chi^0_k$ values are apparently more local than the charges $q_k$ [@Ko2021].
 The locality of $\chi_k$, in contrast to $q_k$, is indicated by contrasting equation \@ref(eq:ChargeEstimateSummary) for $\hat{q}_A$ with equation \@ref(eq:QEqLinearModelSummary) for $\widehat{\Delta \chi}$.
 $\hat{q}_A$ is a linear function of $\chi_{e(A)}^0$ and $\chi_{e(D)}^0$, but the coefficients in this linear equation mix the hardnesses of both atoms.
 In contrast, $\widehat{\Delta \chi}$ is a linear function of $q_A$ and $q_D$, but the coefficient on the charge of an atom depends on the hardness of that atom only.
