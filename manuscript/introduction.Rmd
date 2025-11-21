@@ -1,44 +1,37 @@
 # Introduction
 
 <!-- 1. Identify the problem: what to include in a dataset? / We can include electronegativity in datasets -->
-For atomistic simulations, researchers have had to choose between _ab initio_ methods, which have high computational cost but also high accuracy, and force fields, which sacrifice accuracy for speed.
+For atomistic simulations, researchers have had to choose between _ab initio_ methods, which are accurate but have high computational cost, and force fields, which sacrifice accuracy for speed.
 In the last decade, machine learning interatomic potentials (MLIPs) have promised to approach DFT accuracy at speeds comparable to traditional force fields, but first must be trained on large datasets generated using _ab initio_ methods such as density functional theory (DFT) [@MILPReview2025].
-In the past few years, datasets of the scale required for machine learning, including distorted structures annotated with force for each atom, have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
+In the past few years, datasets of the scale required for machine learning, including off-equilibrium geometries annotated with force for each atom, have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
 It is therefore timely to ask how to best construct datasets like these.
 
-Another potentially important property besides force is partial charge.
+Besides force, another important atomic property is partial charge.
 In both polarizable force fields [@polarizableFFReviewJing] and some MLIPs [@Anstine2023], energy is partitioned into a short-range component and a long-range electrostatic component, and the electrostatic component is computed using charges predicted from the geometry.
 In traditional force fields, charge is typically predicted using  charge equilibration (QEq) [@rappe1991charge], and the idea has been revived in "fourth-generation" MLIPs [@fourGenerations].
 
 Some datasets also include the charges of each atom [@comp6,@omol25].
-Interestingly, training of QEq models has sometimes included systems perturbed by potentials such as the electrical potential from a nearby point charge [@verstraelenElectronegativityParameters,@verstraelenSilicatesResponse].
-ML-scale datasets do not currently include such perturbations, implicitly relying on changes in chemical environment to probe the polarizability of groups.
+Although charge models such as QEq can be trained on system-level observables such as dipole moments [@chemicalPotentialEqualization], when training data are annotated with charge, the models can be trained by minimizing error in charge prediction [@verstraelenElectronegativityParameters].
 
-Our purpose in this work will be to propose not only the inclusion of perturbing potentials in MLIP training datasets, but to annotate these perturbed systems with an additional atomic property, associated with perturbed charges just as a force is associated with an off-equilibrium nuclear position.
-To explain this it helps to begin with the theoretical foundation of QEq.
+Interestingly, training of QEq models has sometimes included systems perturbed by potentials such as the electrical potential from a nearby point charge [@verstraelenElectronegativityParameters,@verstraelenSilicatesResponse].
+ML-scale datasets do not currently include such perturbations.
+Just as datasets for MLIP training have included increasingly distorted geometries, electron densities distorted by external potentials could conceivably help model generalize to chemical environments not directly present in the training data.
+
+Our purpose in this work will be to propose not only the inclusion of external potentials in MLIP training datasets, but to annotate these electronically distorted systems with an additional atomic property.
+This atomic property is associated with a distorted electron density just as force is associated with a distorted geometry.
 
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
-Charge prediction with QEq is based on a theoretical foundation in conceptual DFT, in which concepts of chemistry are defined in terms of concepts from DFT [@geerlingsconceptualDFTreview].
-Conceptual DFT began with a new definition of the electronegativity of a molecule or material: the negative of the chemical potential of the electrons in the system [@parrcdftelectronegativity].
-
+The property is electronegativity, as defined in conceptual DFT [@geerlingsconceptualDFTreview]: the negative of the chemical potential of the electrons in the system [@parrcdftelectronegativity].
 Defined this way, the electronegativity $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but also an ion, a molecule, or a material.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
 The familiar concept of an electronegativity associated with an element is recovered by considering the electronegativity $\chi(0)$ of a neutral atom, which (ignoring technicalities) turns out to be the Mulliken electronegativity [@originalMulliken].
 
-QEq requires defining not only the electronegativity $\chi$ of a system, but also the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal].
-The theoretical basis of QEq is that in the ground state, every atom has the same electronegativity.
-For example, while a neutral chlorine atom is more electronegative than a neutral hydrogen atom, in hydrogen chloride, the negative chlorine and the positive hydrogen have equal electronegativities.
-
+Defining not only the electronegativity $\chi$ of a system, but also the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal], provides the foundation for charge prediction with QEq.
 QEq methods predict charge by electronegativity equalization: that is, solving for the atomic charges $\vect{q}$ such that all atomic electronegativities $\chi_k(\vect{q})$ are equal, under a constraint on total charge.
-
+For example, while a neutral chlorine atom is more electronegative than a neutral hydrogen atom, in hydrogen chloride, the negative chlorine and the positive hydrogen have equal electronegativities.
 
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
 <!-- 6. χ-prediction / We should be doing χ-prediction instead -->
-The ultimate purpose of a QEq model is predicting the charges $q_k$, which we will call the $q$-prediction task.
-It is an empirical model which must be trained to reproduce data.
-While the training target has sometimes been system-level observables such as dipole moments [@chemicalPotentialEqualization], it can also be trained directly in the $q$-prediction task using $q_k$ values extracted from DFT [@verstraelenElectronegativityParameters].
-But its physical basis is the assumption of a linear model for what we call the $\chi$-prediction task: the prediction of $\chi_k$ given each $q_k$ as input.
-
 <!-- Analogy to force / If force prediction is easier, probably so is χ-prediction -->
 In this work, we will raise a new possibility: using a dataset that includes not only atomic charges $q_k$ extracted from DFT but atomic electronegativities $\chi_k$ as well.
 Then, we can train the QEq model by minimizing error in prediction of the atomic electronegativities $\chi_k$, which we call the $\chi$-prediction task.
@@ -48,11 +41,6 @@ The advantage of training with $\chi$-prediction is suggested by analogy to anot
 The equilibrium geometry of a molecule or material is usually predicted by solving for the geometry at which forces are zero.
 Like force, $\chi_k$ is a derivative of energy.
 Electronegativity equalization, then, is analogous to prediction of a geometry by solving for zero forces.
-
-The distinction between predicting geometry directly, and indirectly by way of force, can be illustrated with the machine learning tasks in the Open Catalyst Project OCP challenge.
-OCP ranks models on "direct" prediction of a relaxed geometry from an initial geometry, as well as a separate task in which a model predicts forces [@kolluru2022openchallengesdevelopinggeneralizable].
-The use of the force model to solve for the equilibrium geometry is then called "indirect" prediction.
-Electronegativity equalization, then, is indirect prediction of charge in the same sense.
 
 <!-- Training on the χ-prediction task is feasible because you can get the data -->
 For the first time, we use $\chi_k$ values as a prediction target to train a charge equilibration model.
