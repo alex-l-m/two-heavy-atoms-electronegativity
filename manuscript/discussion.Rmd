@@ -1,24 +1,24 @@
 # Discussion
 
-We have, for the first time, trained a QEq model by minimizing error in the $\chi$-prediction task.
-We created a training dataset of binary materials by imposing an external potential, sampling a variety of charge states ("frames").
-Using a relationship with the strength of the electric field, we computed $\Delta \chi$ for each frame.
-Then, we trained a QEq model using least squares linear regression using the atomic partial charges to define the independent variables, and using $\Delta \chi$ as the dependent variable, with the $\chi^0_e$ and $\eta_e$ parameters of the QEq model estimated as regression coefficients.
+We have, for the first time, trained a charge prediction model by minimizing error in the $\chi$-prediction task.
+We created a training dataset of binary materials, and for each material, sampled a continuum of charge states ("frames") by imposing an external potential.
+We computed $\Delta \chi$ for each frame, using a relationship with the strength of the imposed potential.
+Then, we trained a QEq model using least squares linear regression.
+Framed as linear regression, the atomic partial charges defined the independent variables, and $\Delta \chi$ was the dependent variable.
+Once the QEq model was trained in this $\chi$-prediction task, we used it for the $q$-prediction task by equalizing electronegativity.
 Since classical QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction problem it corresponds to training a linear model, the most basic model in machine learning.
-Once the QEq model was trained in the $\chi$-prediction task, we used it for the $q$-prediction task by equalizing electronegativity.
 
 An intuitive picture of the meaning of our calculation of $\Delta \chi$ is provided by considering the final frame in each series, in which the charges of both atoms are zero.
 The atoms are being held in the neutral state by the electric field.
 The electronegativity difference $\Delta \chi^0$ is being measured by the strength of the field required to prevent charge transfer.
 
 In the course of our demonstration of training with $\chi$-prediction, three main technical challenges emerged, but were ultimately solvable.
-Perhaps the most important is that the shape of the field has to be matched to the shape of the weight functions used to define the partial charge.
+The most important is that the shape of the field has to be matched to the shape of the weight functions used to define the partial charge.
 Another complication is that the relationship between $\chi_k$ and the imposed electrical potential $\lambda_k$ involves the system electronegativity $\chi$.
-For the binary systems, we handled this by taking the difference $\Delta \chi$, which subtracts off $\chi$.
-This solution does not work in the $n$-atom case, but in our Supplementary Theory section we showed that $\chi$ can be included as an additional variable in the linear regression.
-There was an additional complication because we used Hirshfeld-I atoms, where the boundary between atoms depends on their charges.
-We computed a correction for this boundary response using an analytic derivative of the weight function.
-This would be more complicated using more flexible partial charge definitions like Bader charges [@baderbook] or MBIS [@mbis], which would require analytic derivatives of the density with respect to the field.
+For the binary systems, we handled this by taking the difference $\Delta \chi$, which subtracts off $\chi$, and derived a more general solution for the $n$-atom case.
+There was an additional complication because we used a variant of Hirshfeld-I charges, in which the boundary between atoms depends on their charges.
+This was solved by computing a correction for the boundary response, which to our knowledge has not yet appeared in the literature.
+A more complicated correction would be required to use more flexible partial charge definitions like Bader charges [@baderbook] or MBIS [@mbis].
 
 ## Conclusions
 
