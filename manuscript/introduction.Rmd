@@ -6,16 +6,15 @@ In the last decade, machine learning interatomic potentials (MLIPs) have promise
 In the past few years, datasets of the scale required for machine learning, containing off-equilibrium geometries annotated with force for each atom, have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
 It is therefore timely to ask how to best construct datasets like these.
 
-Besides force, another important atomic property is partial charge.
+Besides force, another important atomic property included in some datasets [@comp6,@omol25] is partial charge.
 In both polarizable force fields [@polarizableFFReviewJing] and some MLIPs [@Anstine2023], energy is partitioned into a short-range component and a long-range electrostatic component, and the electrostatic component is computed using charges predicted from the geometry.
 In traditional force fields, charge is typically predicted using  charge equilibration (QEq) [@rappe1991charge], and the idea has been revived in "fourth-generation" MLIPs [@fourGenerations].
 
-Some datasets also include the charges of each atom [@comp6,@omol25].
 Although charge models such as QEq can be trained on system-level observables such as dipole moments [@chemicalPotentialEqualization], when training data are annotated with charge, the models can be trained by minimizing error in charge prediction [@verstraelenElectronegativityParameters].
 
 Interestingly, training of QEq models has sometimes included systems perturbed by potentials such as the electrical potential from a nearby point charge [@verstraelenElectronegativityParameters,@verstraelenSilicatesResponse].
-ML-scale datasets do not currently include such perturbations.
-Electron densities distorted by external potentials could help models generalize to chemical environments not directly present in the training data.
+ML-scale training datasets do not currently include such perturbations.
+Including electron densities distorted by external potentials could help models generalize to chemical environments not directly present in the training data.
 
 Our purpose in this work will be to propose not only the inclusion of external potentials in MLIP training datasets, but to annotate these electronically distorted systems with an additional atomic property.
 This atomic property is associated with a distorted electron density just as force is associated with a distorted geometry.
@@ -25,16 +24,16 @@ The property is electronegativity, as defined in conceptual DFT [@geerlingsconce
 Conceptual DFT began with a new definition of the electronegativity of a system: the negative of the chemical potential of the electrons [@parrcdftelectronegativity].
 Defined this way, the electronegativity $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but also an ion, a molecule, or a material.
 For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
-The familiar concept of an electronegativity associated with an element is recovered by considering the electronegativity $\chi(0)$ of a neutral atom, which (ignoring technicalities) turns out to be the Mulliken electronegativity [@originalMulliken].
+The familiar concept of an electronegativity associated with an element is recovered by considering the electronegativity $\chi(0)$ of a neutral atom, which (ignoring technicalities) turns out to be the Mulliken electronegativity.
 
 Defining not only the electronegativity $\chi$ of a system, but also the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal], provides the foundation for charge prediction with QEq.
 QEq methods predict charge by electronegativity equalization: that is, solving for the atomic charges $\vect{q}$ such that all atomic electronegativities $\chi_k(\vect{q})$ are equal, under a constraint on total charge.
-For example, while a neutral chlorine atom is more electronegative than a neutral hydrogen atom, in hydrogen chloride, the negative chlorine and the positive hydrogen have equal electronegativities.
+For example, a neutral chlorine atom is more electronegative than a neutral hydrogen atom, but after combining to form hydrogen chloride, the negative chlorine and the positive hydrogen have equal electronegativities.
 
 <!-- Analogy to force -->
 The electronegativity equalization condition is analogous to the condition that equilibrium geometries have zero force, since like force, $\chi_k$ is a derivative of energy.
 This seems to imply that electronegativity is not an interesting atomic property, since it is the same for all atoms in a system.
-However, as we will explain, systems with an external potential imposed can be regarded has having non-equalized electronegativities.
+However, as we will explain, systems with an external potential imposed can be regarded as having non-equalized electronegativities.
 From this perspective, such systems have off-equilibrium electron densities, analogous to the off-equilibrium geometries currently included in MLIP training data.
 
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
