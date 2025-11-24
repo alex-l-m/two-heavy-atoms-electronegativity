@@ -18,7 +18,7 @@ Another complication is that the relationship between $\chi_k$ and the imposed e
 For the binary systems, we handled this by taking the difference $\Delta \chi$, which subtracts off $\chi$, and derived a more general solution for the $n$-atom case.
 There was an additional complication because we used a variant of Hirshfeld-I charges, in which the boundary between atoms depends on their charges.
 This was solved by computing a correction for the boundary response, which to our knowledge has not yet appeared in the literature.
-A more complicated correction would be required to use more flexible partial charge definitions like Bader charges [@baderbook] or MBIS [@mbis].
+In our case the correction could be easily computed with an integral against the density, but it would be more difficult to compute for more flexible partial charge definitions like Bader charges [@baderbook] or MBIS [@mbis].
 
 ## Conclusions
 
