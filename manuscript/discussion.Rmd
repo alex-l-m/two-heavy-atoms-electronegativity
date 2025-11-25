@@ -20,16 +20,25 @@ There was an additional complication because we used a variant of Hirshfeld-I ch
 This was solved by computing a correction for the boundary response, which to our knowledge has not yet appeared in the literature.
 In our case the correction could be easily computed with an integral against the density, but it would be more difficult to compute for more flexible partial charge definitions like Bader charges [@baderbook] or MBIS [@mbis].
 
-## Conclusions
+## Conclusions and future directions
 
-The current generation of MLIP training datasets includes off-equilibrium geometries and associated forces, and sometimes atomic charges $q_k$.
-We have shown that when constructing the next generation, it is feasible to include off-equilibrium electron densities, and associated electronegativities $\chi_k$, which are the derivatives of the energy with respect to the charges.
-Constructing such a dataset is straightforward with appropriately shaped potentials, or with existing constrained DFT implementations.
+We have shown that it is feasible for the next generation of MLIP training data to include off-equilibrium electron densities, annotated with charge-dependent, non-equalized atomic electronegativities $\chi_k$.
+This can be accomplished by performing DFT using potentials with random $\lambda_k$ values as input, or by performing constrained DFT with randomly perturbed $q_k$ and reading $\lambda_k$ from the converged Lagrange multipliers.
+The simplest implementation would be to use a charge definition with fixed weight functions (such as Hirshfeld [@originalHirshfeld] or Becke [@originalBecke] charges), either applying potentials in the shape of the weight functions, or using an existing constrained DFT implementation such as the one in Q-Chem.
+Not only does this require a minimum of implementation effort, but $\chi_k$ can be simply equated with $\lambda_k$, up to an additive constant.
+For Hirshfeld-I charges [@hirshfeldi], we have shown how to correct for boundary adjustment, and it should be possible to derive corrections for charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density.
+However, for the next generation of MLIP training datasets, it may be better to use fixed weight weight functions for ease of implementation, and only add sophistication if this proves its value.
 
-Off-equilibrium electron densities are valuable on on their own for providing information about polarizability.
-One issue this raises is that the shaped potentials required for $\chi_k$ computation are of a different form than the potentials that would be encountered in applications such as QM/MM.
-This issue could be addressed with richer atomic density descriptors than charge, including atomic polarization or higher moments.
-
-The most direct value of annotating data with $\chi_k$ is to train QEq models, which could be useful for fourth-generation MLIPs.
-However, thinking beyond MLIPs, $\chi_k$ may also be a useful training target for models of electronic structure.
-For electronic structure, the $\chi$-prediction problem is to map electron density to the parameters $\lambda_k$ of the potential, which can be in principle be done exactly [@hohenbergKohn].
+The resulting off-equilibrium electron densities should be valuable as training data by providing information about polarizability, which could help generalization or open up applications to QM/MM [@polarizableQMMM].
+But this raises the issue that the shaped potentials required for $\chi_k$ computation are of a different form than realistic potentials that may be encountered in applications.
+Considering that there is some conflict between the goals of imposing realistic potentials and annotating with $\chi_k$, it is important to consider what annotating with electronegativities really adds.
+As we have demonstrated, it enables training QEq models in the $\chi$-prediction task, which could be useful for fourth-generation MLIPs.
+However, recent efforts have shown that standard transformer architectures will implicitly learn the long-range electrostatics that are explicitly modeled by MLIPs.
+It is possible that the role for physical understanding will not be in the model architecture but in the construction of the training dataset.
+In this case, we believe that the concept of a "generalized force" will prove useful: an energy derivative with respect to a constraint.
+Any perturbation that makes the dataset larger and richer should also add a new generalized force to the descriptors.
+Off-equilibrium geometries constrain coordinates, and add force as a descriptor.
+Off-equilibrium electron densities that constrain atomic charges add electronegativity as a descriptor.
+The same philosophy can be brought to atomic dipoles, spin density, or other physical quantities of interest, and the result will be not only larger and more diverse datasets but more detailed annotation with energy derivatives.
+A richer set of constraints and descriptors should also be compatible with more realistic imposed potentials.
+Such descriptors may be useful not only for MLIPs but for models of electronic structure.
