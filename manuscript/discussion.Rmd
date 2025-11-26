@@ -27,17 +27,16 @@ With fixed weight functions, $\chi_k$ can be simply equated with $\lambda_k$, up
 For Hirshfeld-I charges [@hirshfeldi], we have shown how to correct for the boundary response, and it should be possible to derive corrections for charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density.
 However, this additional complexity can be deferred until the simpler calculation with fixed weight functions has showed its value in a major MLIP dataset.
 
-Off-equilibrium electron densities should be valuable as training data by providing information about polarizability, which may improve model generalization or open up applications to QM/MM [@polarizableQMMM].
-But this raises the issue that the shaped potentials required for $\chi_k$ computation are of a different form than realistic potentials that may be encountered in applications.
+Off-equilibrium electron densities should be valuable as training data by providing information about polarizability, which may help models generalize or open up applications to QM/MM [@polarizableQMMM].
+However, the shaped potentials required for $\chi_k$ computation differ from realistic external potentials that may be encountered in applications.
 This tension between applying realistic fields and annotating with $\chi_k$ means we must seriously consider what the electronegativity labels contribute.
 
-As we have demonstrated, the electronegativity labels make it possible to train QEq models in the $\chi$-prediction task, which could be useful for fourth-generation MLIPs [@fourGenerations].
-But recent work suggests that transformer-based architectures can implicitly learn long-range electrostatics [@tobyAditi], reducing the need to encode that physics explicitly in the model design.
-The place for physical concepts, then, may not be in the model architecture, but in the generation of training data.
+As we have demonstrated, the electronegativity labels make it possible to train QEq models in the $\chi$-prediction task, and this has a direct application for training the electronegativity prediction network in fourth-generation MLIPs [@fourGenerations].
+However, the need for explicit charge and electronegativity models is undermined by the recent result that transformers can implicitly learn long-range electrostatics [@tobyAditi].
+The place for physical concepts like electronegativity may not be in the model architecture, but in the generation of training data.
 
-For generating richer training data, a concept of a "generalized force" may be useful: an energy derivative with respect to a constraint.
-Off-equilibrium geometries constrain coordinates, and add force as a descriptor.
-Off-equilibrium electron densities that constrain atomic charges add electronegativity as a descriptor.
-The same philosophy can be brought to atomic dipoles, spin density, or other physical quantities of interest, and the result will be not only larger and more diverse datasets but more detailed annotation with energy derivatives.
-A richer set of constraints and descriptors should also be compatible with more realistic imposed potentials.
-Such descriptors may be useful not only for MLIPs but for models of electronic structure.
+$\chi_k$ is the generalized force [@thermo-dynamics] associated with charge.
+Perturbing charges is just one way to make a training dataset larger and richer, and every adjustable atomic parameter has an associated generalized force.
+Others could include dipole or higher moments of atomic density, or spin.
+With a richer set of generalized forces, there may be no conflict between the shaped potentials required to compute them and the goal of modeling the response to realistic potentials in applications such as QM/MM.
+Our demonstration of training a charge model with $\chi_k$ indicates that there is information contained in these generalized forces, and the importance may be greater considering that ML-scale datasets are being used not just to train MLIPs but also models of the electron density.
