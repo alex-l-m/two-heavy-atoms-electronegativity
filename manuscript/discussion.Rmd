@@ -1,42 +1,41 @@
 # Discussion
 
 We have, for the first time, trained a charge prediction model by minimizing error in the $\chi$-prediction task.
-We created a training dataset of binary materials, and for each material, sampled a continuum of charge states ("frames") by imposing an external potential.
-We computed $\Delta \chi$ for each frame, using a relationship with the strength of the imposed potential.
-Then, we trained a QEq model using least squares linear regression.
-In the linear regression framing, the independent variables were computed from the atomic partial charges, and the dependent variable was $\Delta \chi$.
+We constructed a training dataset of binary materials and, for each material, simulated a continuous series of charge states ("frames") by imposing an external potential of increasing strength.
+From each frame, we obtained the charge-dependent electronegativity difference $\Delta \chi$ from the strength of the imposed potential.
+Then, we trained a QEq model using least squares linear regression, with independent variables based on the atomic charges $q_k$ and with $\Delta \chi$ as the dependent variable.
 Once the QEq model was trained in this $\chi$-prediction task, we used it for the $q$-prediction task by equalizing electronegativity.
-Since classical QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction problem it corresponds to training a linear model, the most basic model in machine learning.
+Since QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction task it corresponds to training a linear model, the most basic model in machine learning.
 
-An intuitive picture of the meaning of our calculation of $\Delta \chi$ is provided by considering the final frame in each series, in which the charges of both atoms are zero.
-The atoms are being held in the neutral state by the electric field.
-The electronegativity difference $\Delta \chi^0$ is being measured by the strength of the field required to prevent charge transfer.
+For intuition about the meaning of our calculation of $\Delta \chi$, consider the final frame in each series, in which both atoms are neutral.
+In this state, the imposed potential is just strong enough to counteract the natural charge transfer between the atoms.
+We measure the electronegativity difference $\Delta \chi^0$ by the strength of this potential.
 
 In the course of our demonstration of training with $\chi$-prediction, three main technical challenges emerged, but were ultimately solvable.
-The most important is that the shape of the field has to be matched to the shape of the weight functions used to define the partial charge.
-Another complication is that the relationship between $\chi_k$ and the imposed potential $\lambda_k$ involves the system electronegativity $\chi$.
-For the binary systems, we handled this by taking the difference $\Delta \chi$, which subtracts off $\chi$, and for the $n$-atom case we derived a more general solution.
-There was an additional complication because we used a variant of Hirshfeld-I charges, in which the boundary between atoms depends on their charges.
+The first was that the shape of the imposed potential had to be matched to the shape of the weight functions used to define the partial charges.
+Another complication was that the potential only defines the atomic electronegativities up to a constant, the system electronegativity $\chi$.
+For the two-atom systems in our dataset, we eliminated $\chi$ by taking the difference $\Delta \chi$, and for the $n$-atom case we derived a more general solution.
+The last major complication emerged because we used a variant of Hirshfeld-I charges [@hirshfeldi], in which the boundary between atoms depends on their charges.
 This was solved by computing a correction for the boundary response, which to our knowledge has not yet appeared in the literature.
-In our case the correction could be easily computed with an integral against the density, but it would be more difficult to compute for more flexible partial charge definitions like Bader charges [@baderbook] or MBIS [@mbis].
 
 ## Conclusions and future directions
 
-We have shown that it is feasible for the next generation of MLIP training data to include off-equilibrium electron densities, annotated with charge-dependent, non-equalized atomic electronegativities $\chi_k$.
-This can be accomplished by performing DFT using potentials with random $\lambda_k$ values as input, or by performing constrained DFT with randomly perturbed $q_k$ and reading $\lambda_k$ from the converged Lagrange multipliers.
-The simplest implementation would be to use a charge definition with fixed weight functions (such as Hirshfeld [@originalHirshfeld] or Becke [@originalBecke] charges), either applying potentials in the shape of the weight functions, or using an existing constrained DFT implementation such as the one in Q-Chem.
-Not only does this require a minimum of implementation effort, but $\chi_k$ can be simply equated with $\lambda_k$, up to an additive constant.
-For Hirshfeld-I charges [@hirshfeldi], we have shown how to correct for boundary adjustment, and it should be possible to derive corrections for charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density.
-However, for the next generation of MLIP training datasets, it may be better to use fixed weight weight functions for ease of implementation, and only add sophistication if this proves its value.
+Our results indicate that the next generation of MLIP training datasets could feasibly include systems with off-equilibrium electron densities, in which each atom $k$ is annotated with a charge-dependent, non-equalized atomic electronegativity $\chi_k$.
+Such data can be generated by performing DFT using potentials with random $\lambda_k$ values, or by performing constrained DFT with randomly perturbed $q_k$ and extracting the converged Lagrange multipliers $\lambda_k$.
+The simplest implementation would be to use a charge definition with fixed weight functions (such as Hirshfeld [@originalHirshfeld] or Becke [@originalBecke] charges), either applying potentials in the shape of the weight functions, or using an existing constrained DFT implementation.
+With fixed weight functions, $\chi_k$ can be simply equated with $\lambda_k$, up to an additive constant.
+For Hirshfeld-I charges [@hirshfeldi], we have shown how to correct for the boundary response, and it should be possible to derive corrections for charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density.
+However, this additional complexity can be deferred until the simpler calculation with fixed weight functions has showed its value in a major MLIP dataset.
 
-The resulting off-equilibrium electron densities should be valuable as training data by providing information about polarizability, which could help generalization or open up applications to QM/MM [@polarizableQMMM].
+Off-equilibrium electron densities should be valuable as training data by providing information about polarizability, which may improve model generalization or open up applications to QM/MM [@polarizableQMMM].
 But this raises the issue that the shaped potentials required for $\chi_k$ computation are of a different form than realistic potentials that may be encountered in applications.
-Considering that there is some conflict between the goals of imposing realistic potentials and annotating with $\chi_k$, it is important to consider what annotating with electronegativities really adds.
-As we have demonstrated, it enables training QEq models in the $\chi$-prediction task, which could be useful for fourth-generation MLIPs.
-However, recent efforts have shown that standard transformer architectures will implicitly learn the long-range electrostatics that are explicitly modeled by MLIPs.
-It is possible that the role for physical understanding will not be in the model architecture but in the construction of the training dataset.
-In this case, we believe that the concept of a "generalized force" will prove useful: an energy derivative with respect to a constraint.
-Any perturbation that makes the dataset larger and richer should also add a new generalized force to the descriptors.
+This tension between applying realistic fields and annotating with $\chi_k$ means we must seriously consider what the electronegativity labels contribute.
+
+As we have demonstrated, the electronegativity labels make it possible to train QEq models in the $\chi$-prediction task, which could be useful for fourth-generation MLIPs [@fourGenerations].
+But recent work suggests that transformer-based architectures can implicitly learn long-range electrostatics [@tobyAditi], reducing the need to encode that physics explicitly in the model design.
+The place for physical concepts, then, may not be in the model architecture, but in the generation of training data.
+
+For generating richer training data, a concept of a "generalized force" may be useful: an energy derivative with respect to a constraint.
 Off-equilibrium geometries constrain coordinates, and add force as a descriptor.
 Off-equilibrium electron densities that constrain atomic charges add electronegativity as a descriptor.
 The same philosophy can be brought to atomic dipoles, spin density, or other physical quantities of interest, and the result will be not only larger and more diverse datasets but more detailed annotation with energy derivatives.
