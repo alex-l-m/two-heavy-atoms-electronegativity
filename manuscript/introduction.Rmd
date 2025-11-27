@@ -22,7 +22,7 @@ This property is electronegativity, as defined in conceptual DFT [@geerlingsconc
 
 Conceptual DFT began with a new definition of the electronegativity of a system: the negative of the chemical potential of the electrons [@parrcdftelectronegativity].
 Defined this way, the electronegativity $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but also an ion, a molecule, or a material.
-For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluorine anion less so (smaller $\chi(-1)$).
+For example, the fluorine atom is very electronegative (high $\chi(0)$), but the fluoride anion less so (smaller $\chi(-1)$).
 This charge-dependent concept departs from the traditional concept in which electronegativity is a property of an element, but recovers the familiar Mulliken electronegativity from $\chi(0)$ of a neutral atom.
 
 Defining not only the electronegativity $\chi$ of a system, but also the electronegativity $\chi_k$ of an atom $k$ within the system [@conceptualDFTElectronegativityOriginal], provides the foundation for charge prediction with QEq.
@@ -38,6 +38,6 @@ From this perspective, such systems have off-equilibrium electron densities, ana
 <!-- 5. q-prediction and partial charge / We currently only do q-prediction, but... -->
 <!-- 6. χ-prediction / We should be doing χ-prediction instead -->
 Like force, atomic electronegativity $\chi_k$ can be used as a prediction target when training models.
-To demonstrate this, we train a QEq model on a dataset of binary materials, determining its parameters of by minimizing the error in predicting $\chi_k$.
+To demonstrate this, we train a QEq model on a dataset of binary materials, determining its parameters by minimizing the error in predicting $\chi_k$.
 Although QEq has a natural framing as a linear model for this $\chi$-prediction task, our study is the first to train a QEq model on electronegativities, rather than charges, extracted from DFT.
 After training, we use the resulting model for charge prediction (the $q$-prediction task) by equalizing electronegativity.

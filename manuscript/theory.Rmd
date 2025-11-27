@@ -1,6 +1,6 @@
-# Supplementary theory
+# Supplementary theory {#sec:supplementary-theory}
 
-## Definition of energy
+## Definition of energy {#sec:definition-of-energy}
 
 We will probe electronegativity by imposing an external electric field that adds a potential $\imposedPotential$.
 Let $\hamiltonianNuc$ be the Hamiltonian with no potential imposed (except the potential of the nuclei).
@@ -23,7 +23,7 @@ Considering both energies as density functionals $\energyNuc [ \electronDensity 
   (\#eq:EnergyTotalSplitDensityFunctional)
 \end{equation}
 
-## Functional derivative of energy
+## Functional derivative of energy {#sec:functional-derivative-of-energy}
 
 $\energyTot$ is stationary with respect to variations in the density:
 
@@ -56,7 +56,7 @@ Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yiel
   (\#eq:RelateNucPotential)
 \end{equation}
 
-## Definition of atomic electron populations and charges
+## Definition of atomic electron populations and charges {#sec:atomic-populations-and-charges}
 
 To transition to considering individual atoms, we will begin with a definition of the electron population $N_k$ of atom $k$ in terms of a weight function $\weightFunc{k}{\vect{N}}$:
 
@@ -84,7 +84,7 @@ For these derivations, we will work with atomic electron populations, but for th
 \end{equation}
 where $Z_k$ is the nuclear charge of atom $k$.
 
-## Definition of atomic electronegativity
+## Definition of atomic electronegativity {#sec:atomic-electronegativity}
 
 Following the approach of conceptual density functional theory, the electronegativity of an atom will be defined in terms of the chemical potential.
 The chemical potential of an atom will be defined as the derivative of the energy of the system (considering only the potential of the nuclei) with respect to the electron population of that atom, while holding the electron populations of all other atoms constant:
@@ -111,7 +111,7 @@ In terms of charge, equation \@ref(eq:ChemicalPotentialDef) becomes
   (\#eq:AtomicElectronegativityDef)
 \end{equation}
 
-## Measuring atomic electronegativity by imposing a potential
+## Measuring atomic electronegativity by imposing a potential {#sec:measuring-atomic-electronegativity}
 
 In order to obtain a relationship between the atomic chemical potential and the imposed potential analogous to Equation \@ref(eq:RelateNucPotential), we will also require that the imposed potential has a shape defined by the weight functions:
 
@@ -156,7 +156,7 @@ and $\popChangeFixed{k}$ is the change in electron population of atom $k$ while 
   (\#eq:PopChangeFixedK)
 \end{equation}
 
-### Special case: fixed weight functions
+### Special case: fixed weight functions {#sec:fixed-weight-functions}
 
 If these are Hirshfeld weight functions according to the original scheme with fixed neutral protatoms, then we have:
 
@@ -195,7 +195,7 @@ Flipping the sign, we obtain the relationship between the atomic electronegativi
   (\#eq:ChiKFixedWeights)
 \end{equation}
 
-### Accounting for the shift in the atom boundary
+### Accounting for the shift in the atom boundary {#sec:accounting-for-boundary-shift}
 
 When $\weightFunc{k}{\vect{N}}$ depends on the set of populations \(\{N_j\}\), the change in \(N_k\) contains both the change in the electron density and in the atom boundaries:
 \begin{equation}
@@ -225,7 +225,7 @@ where
   (\#eq:AvgWeightDerivDef)
 \end{equation}
 
-Solving for the fixed‑weight population change gives
+Solving for the fixed-weight population change gives
 \begin{equation}
   \popChangeFixed{k}
   = \popChange{k}
@@ -283,7 +283,7 @@ Flipping signs to put it in terms of electronegativity:
 
 Since each element is an integral against the density, it is computable from simulation output provided the derivatives \(\weightDerivValue{k}{j}\) can be evaluated.
 
-### Special case for two atoms
+### Special case for two atoms {#sec:two-atom-moving-boundary}
 
 Considerable simplification is possible in the case examined in our computational studies, in which there are only two atoms, a donor atom $D$ and an acceptor atom $A$, and the field weights are
 \begin{equation}
@@ -352,7 +352,7 @@ Then, the difference of chemical potentials in equation \@ref(eq:TwoAtomMuDelta)
 
 This is also the electronegativity difference $\Delta \chi = \chi_A - \chi_D$.
 
-## Linear regression model for atomic electronegativities
+## Linear regression model for atomic electronegativities {#sec:linear-regression-electronegativities}
 
 The fundamental physical approximation made in charge equilibration models is that the energy is second-order in the atomic partial charges, or equivalently, that the atomic electronegativities are first-order in the charges.
 This can be expressed as, for atom $i$ of a system,
@@ -388,7 +388,7 @@ And the right hand side is linear in unknown model parameters $\chi_e^0$ and $\e
 The independent variables of the model are the charges and element indicators.
 Collecting each such equation into a linear system, parameters can then be fit with least squares linear regression.
 
-### Special case for two atoms
+### Special case for two atoms {#sec:two-atom-regression}
 
 In this work, we analyze only two-atom systems, which we index as the donor $D$ and the acceptor $A$.
 We also assume the interaction term is zero, absorbing interactions into the hardness parameters.
@@ -404,7 +404,7 @@ Then, for every pair of equations in \@ref(eq:LambdaLinearModelElement), subtrac
 \end{equation}
 where $eD$ is the donor element and $eA$ is the acceptor element.
 
-### Example
+### Example {#sec:linear-regression-example}
 
 Consider two materials, each simulated at a single field strength, and with the same donor element $e$ but different acceptor elements $f$ and $g$:
 
@@ -447,12 +447,12 @@ This is of the form of a regression problem $y = X \beta$, where $y$ is the depe
 Additional frames of the simulations of these systems with different field strengths add additional rows to this system.
 Additional systems add more rows, and also more columns if they involve additional elements.
 
-### Zero of the electronegativity scale in regression
+### Zero of the electronegativity scale in regression {#sec:zero-of-electronegativity-scale}
 
 In charge equilibration, electronegativities $\chi^0$ are considered as differences from an arbitrary reference electronegativity.
 In the regression framework, this is handled by removing the corresponding column from the design matrix, which is equivalent to setting one of the unknown parameters to zero.
 
-### Primitive Hirshfeld-I
+### Primitive Hirshfeld-I {#sec:primitive-hirshfeld-i}
 
 We use a variant of the Hirshfeld-I method, one of a class of methods in which electron populations of atoms are defined as integrals of a weight function:
 

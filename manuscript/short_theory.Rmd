@@ -1,8 +1,12 @@
 # Summary of Theory
 
+Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$
+In the Supplementary Theory all results are derived for an arbitrary number of atoms and specialized for the special case of two atoms.
+In what follows we give the formulas derived, where appropriate in the two-atom special case.
+
 ## Defining atomic charge
 
-The charge definition we use is our primitive Hirshfeld-I method, defined in full in the Supplementary Theory.
+The charge definition we use is our primitive Hirshfeld-I method, defined in full in Supplementary Theory section \@ref(sec:primitive-hirshfeld-i).
 As in the original Hirshfeld-I method, electron populations $N_k$ are defined as integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function, where the weight function depends on both the element and on the electron populations of each atom:
 \begin{equation}
 N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \, \electronDensityValue}
@@ -17,7 +21,9 @@ where $Z_k$ is the atomic number.
 
 ## Defining atomic electronegativity
 
-To define electronegativities, we consider the energy $\energyNuc$ (defined formally in the Supplementary Theory), which includes the Coulomb potential of the nuclei but not the imposed potential.
+In our simulations we manipulate charge by imposing an external potential.
+To define electronegativities, we consider the energy $\energyNuc$ (defined formally in the Supplementary Theory section \@ref(sec:definition-of-energy)), which includes the Coulomb potential of the nuclei but not the imposed potential.
+
 The electronegativities are
 \begin{equation}
 \chi_D = \constDeriv{\energyNuc}{q_D}{q_A} \qquad \chi_A = \constDeriv{\energyNuc}{q_A}{q_D}
@@ -47,8 +53,7 @@ In order to relate the imposed potential to atomic electronegativities, the fiel
 (\#eq:ElectricalPotentialSummary)
 \end{equation}
 
-Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$.
-We impose a shaped potential such that $\lambda_A = -\lambda_D = \lambda$ so that
+For our two-atom systems, we impose a shaped potential such that $\lambda_A = -\lambda_D = \lambda$ so that
 \begin{equation}
 \imposedPotentialValue{} = \lambda \, \weightFunc{A}{N_D, N_A} - \lambda \, \weightFunc{D}{N_D, N_A}
 (\#eq:TwoAtomPotentialSummary)
@@ -57,8 +62,6 @@ $\lambda$ can be taken as a measure of the strength of the imposed potential.
 This potential is positive on the acceptor to push electron density back onto the donor, but interpreted it as an electrical potential, it is electrically negative on the acceptor to repel electrons back to the donor.
 
 To measure $\Delta \chi$, we rely on a relationship with the strength of the field applied to each atom.
-In the Supplementary Theory, we show the derivation of the relationship for an arbitrary number of atoms, and an arbitrary vector of field coefficients $\lambda_k$.
-For two atoms and specific form of the field, it simplifies considerably.
 If the weight functions did not depend on the electron populations, the relationship would be
 \begin{equation}
 \Delta \chi = 2 \, \lambda
@@ -70,8 +73,8 @@ Including the shift in the definition of atoms requires another factor in this r
 \Delta \chi = 2\,\left( 1 - \avgWeightDerivSubscript{A}{A}{N} \right)\lambda
 (\#eq:DeltaChiWithBoundarySummary)
 \end{equation}
-where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight function integrated against the electron density, discussed in more detail in the Supplementary Theory.
-We evaluate this constant by numerical integration.
+where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight function integrated against the electron density, discussed in more detail in the Supplementary Theory section \@ref(sec:accounting-for-boundary-shift).
+We evaluate this factor by numerical integration.
 
 <!-- Constrained density functional theory -->
 In constrained density functional theory, the penalty term enforcing the charge constraint can be interpreted as a potential of the form in Equation \@ref(eq:ElectricalPotentialSummary), and Equation \@ref(eq:DeltaChiNoBoundarySummary) follows from a "thermodynamic relation" between the Lagrange multiplier and the chemical potential [@KadukConstrainedDFTReview].
@@ -80,13 +83,15 @@ This makes it a "generalized force" in the terminology of @thermo-dynamics.
 
 ## Predictive model
 
-The linear model underlying QEq, in the two-atom case excluding the Coulomb interaction term, is
+The linear model underlying QEq, in the two-atom case, is
 \begin{equation}
 \widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A + \eta_{e(D)} \, q_D
 (\#eq:QEqLinearModelSummary)
 \end{equation}
 where $\widehat{\Delta \chi}$ is the estimated value of $\Delta \chi$ using these model parameters.
-The estimate of charge is obtained by electronegativity equalization, that is, setting $\widehat{\Delta \chi}=0$ and $q_D+q_A=0$ in Equation \@ref(eq:QEqLinearModelSummary), which after solving for $q_A$ yields
+This model does not include the Coulomb interaction term typically included in QEq models, but our Supplementary Theory treats the general case with interaction terms.
+
+Charge is predicted by electronegativity equalization, that is, setting $\widehat{\Delta \chi}=0$ and $q_D+q_A=0$ in Equation \@ref(eq:QEqLinearModelSummary), which after solving for $q_A$ yields
 \begin{equation}
 -\hat{q}_A = \frac{\chi_{e(A)}^0 - \chi_{e(D)}^0}{\eta_{e(A)} + \eta_{e(D)}}
 (\#eq:ChargeEstimateSummary)
