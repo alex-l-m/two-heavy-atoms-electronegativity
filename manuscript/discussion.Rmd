@@ -1,37 +1,36 @@
 # Discussion
 
 We have, for the first time, trained a charge prediction model by minimizing error in the $\chi$-prediction task.
-We constructed a training dataset of binary materials and, for each material, simulated a continuous series of charge states ("frames") by imposing an external potential of increasing strength.
+We constructed a training dataset of binary materials and, for each material, simulated a smooth sequence of charge states ("frames") by imposing an external potential of increasing strength.
 From each frame, we obtained the charge-dependent electronegativity difference $\Delta \chi$ from the strength of the imposed potential.
 Then, we trained a QEq model using least squares linear regression, with independent variables based on the atomic charges $q_k$ and with $\Delta \chi$ as the dependent variable.
 Once the QEq model was trained in this $\chi$-prediction task, we used it for the $q$-prediction task by equalizing electronegativity.
 Since QEq is one of the simplest empirical models of charge, it is satisfying that in the $\chi$-prediction task it corresponds to training a linear model, the most basic model in machine learning.
 
 For intuition about the meaning of our calculation of $\Delta \chi$, consider the final frame in each series, in which both atoms are neutral.
-In this state, the imposed potential is just strong enough to prevent charge transfer between the atoms.
-We measure the electronegativity difference $\Delta \chi^0$ by the strength of this potential.
+In this neutralized state, the imposed potential is just strong enough to prevent charge transfer between the atoms.
+The strength of this potential is the basis of our measurement of the electronegativity difference $\Delta \chi^0$.
 
 <!-- Three technical challenges -->
 <!-- First: Shape of the potential -->
 In the course of our demonstration of training with $\chi$-prediction, three main technical issues had to be addressed.
-The first was that the shape of the imposed potential had to be have a specific form matched to the partial charge definition (Equation \@ref(eq:ImposedPotentialSummary)) in order to obtain a relationship between the strength of the potential and the electronegativity difference (Equation \@ref(eq:DeltaChiWithBoundarySummary)).
-This must be considered when computing atomic electronegativities $\chi_k$ by inputting a potential to the DFT simulation.
-$\chi_k$ can also be computed with constrained DFT, and existing constrained DFT implementations already match the penalty to the charge definition as required.
+The first was that the shape of the imposed potential must have a specific form matched to the partial charge definition (Equation \@ref(eq:ImposedPotentialSummary)) in order to relate the strength of the potential with the electronegativity difference (Equation \@ref(eq:DeltaChiWithBoundarySummary)).
+This requirement must be kept in mind whenever atomic electronegativities $\chi_k$ are computed by applying an external potential in a DFT calculation, as in our demonstration.
+Another option is to compute $\chi_k$ with constrained DFT, and existing constrained DFT implementations already match the penalty to the charge definition as required.
 An issue raised by these shaped potentials is that they differ from realistic external potentials that may be encountered in applications.
 This issue may be addressed in the future with a richer set of generalized forces, perhaps including dipole or higher moments of atomic density.
 
 <!-- Second: Arbitrary constant -->
-Another complication was that we did not really compute each atomic electronegativity $\chi_D$ and $\chi_A$, but the difference $\Delta \chi$.
-Without knowing the system electronegativity $\chi$, electronegativities can be computed only up to a constant, and from $n$ atoms only $n-1$ independent values can be obtained.
-To use these values as training data, we derived our regression model for $\widehat{\Delta \chi}$, and showed in our Supplementary Theory how the regression model could work for more than two atoms.
-Models besides linear regression may require different solutions.
+Another complication was that our simulations provide not the atomic electronegativities $\chi_D$ and $\chi_A$, but only their difference $\Delta \chi$.
+Without knowing the system electronegativity $\chi$, electronegativities can be computed only up to an additive constant, and from $n$ atoms only $n-1$ independent values can be obtained.
+To use these values as training data, we derived our linear model for $\widehat{\Delta \chi}$, and showed in our Supplementary Theory how the model could be trained for more than two atoms.
+Training with more sophisticated techniques than linear regression may require different solutions.
 
 <!-- Third: boundary response -->
-The last major complication emerged because the boundary between atoms depends on their charges.
-The relationship between the sterngth of the potential and $\Delta \chi$ required a correction for this boundary response, which to our knowledge has not yet appeared in the literature.
-No such correction is required to compute electronegativities with a charge definition with fixed weight functions (such as Hirshfeld [@originalHirshfeld] or Becke [@originalBecke] charges), in which case $\chi_k$ can be simply equated with $\lambda_k$, up to an additive constant.
-For charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density, more theoretical work would be required to compute the correction from individual frames, since the weight function derivatives in our correction depend on the response of the density to the potential.
-However, this additional complexity can be deferred until the simpler calculation with fixed weight functions has shown its value in a major MLIP dataset.
+The last major complication emerged because, in the computation of atomic electron populations from the electron density, the boundary between the atoms depends on their charges.
+The relationship between the strength of the potential and $\Delta \chi$ required a correction for this boundary response, which to our knowledge has not yet appeared in the literature.
+No such correction is required to compute electronegativities with a charge definition with fixed boundaries (such as Hirshfeld [@originalHirshfeld] or Becke [@originalBecke] charges), in which case $\chi_k$ can be simply equated with $\lambda_k$, up to an additive constant.
+For charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density, more theoretical work would be required to compute the correction from individual frames, since the weight function derivatives in our correction would depend on the response of the density to the potential.
 
 ## Conclusions
 
@@ -39,10 +38,9 @@ Our results indicate that the next generation of MLIP training datasets could fe
 Such data can be generated by imposing appropriately shaped potentials in DFT, or by performing constrained DFT with perturbed $q_k$ and extracting the converged Lagrange multipliers $\lambda_k$.
 Furthermore, we indicated the value of the electronegativity labels by using them to train a QEq model.
 This has a direct application for training the electronegativity prediction network in fourth-generation MLIPs [@fourGenerations].
+However, the place for physical concepts like electronegativity may not be in the model architecture, but in the generation of training data, especially considering the recent result that transformers can implicitly learn long-range electrostatics [@tobyAditi].
 
 $\chi_k$ is the generalized force [@thermo-dynamics] associated with charge.
-Since every adjustable atomic parameter has an associated generalized force, perturbations that add variety to a dataset also enrich the set of potential training targets.
-The need for explicit charge assignment in MLIPs is undermined by the recent result that transformers can implicitly learn long-range electrostatics [@tobyAditi].
-The place for physical concepts like electronegativity may not be in the model architecture, but in the generation of training data.
-Our demonstration of training a charge model with $\chi_k$ indicates the value of the information in these generalized forces, whether or not future MLIPs include explicit charge prediction.
+Since every adjustable atomic parameter has an associated generalized force, perturbations that add variety to a dataset also enrich the set of training targets.
+Our demonstration of training a charge model with $\chi_k$ indicates the value of the information in these generalized forces.
 These electronic responses may be especially important considering that the same large datasets are now being used to train not only MLIPs but models of electronic structure [@omol25ElectronicStructureModel].
