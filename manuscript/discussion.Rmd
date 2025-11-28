@@ -14,20 +14,21 @@ We measure the electronegativity difference $\Delta \chi^0$ by the strength of t
 <!-- Three technical challenges -->
 <!-- First: Shape of the potential -->
 In the course of our demonstration of training with $\chi$-prediction, three main technical issues had to be addressed.
-The first was that the shape of the imposed potential had to be matched to the shape of the weight functions used to define the partial charges.
-This must be considered in implementations such as ours that input a potential to the DFT simulation, but is already taken care of in constrained DFT implementations through the form of the penalty.
-Part of the expected benefit of imposing potentials on the training data is to help the model, but the shaped potentials required for $\chi_k$ computation differ from realistic external potentials that may be encountered in applications.
+The first was that the shape of the imposed potential had to be have a specific form matched to the partial charge definition (Equation \@ref(eq:ImposedPotentialSummary)) in order to obtain a relationship between the strength of the potential and the electronegativity difference (Equation \@ref(eq:DeltaChiWithBoundarySummary)).
+This must be considered when computing atomic electronegativities $\chi_k$ by inputting a potential to the DFT simulation.
+$\chi_k$ can also be computed with constrained DFT, and existing constrained DFT implementations already match the penalty to the charge definition as required.
+An issue raised by these shaped potentials is that they differ from realistic external potentials that may be encountered in applications.
 This issue may be addressed in the future with a richer set of generalized forces, perhaps including dipole or higher moments of atomic density.
 
 <!-- Second: Arbitrary constant -->
 Another complication was that we did not really compute each atomic electronegativity $\chi_D$ and $\chi_A$, but the difference $\Delta \chi$.
-Without knowing the system electronegativity $\chi$, electronegativities can be computed only up to a constant, and from $n$ atoms only $n-1$ independent values are obtained.
+Without knowing the system electronegativity $\chi$, electronegativities can be computed only up to a constant, and from $n$ atoms only $n-1$ independent values can be obtained.
 To use these values as training data, we derived our regression model for $\widehat{\Delta \chi}$, and showed in our Supplementary Theory how the regression model could work for more than two atoms.
-Models besides linear regression may require somewhat different solutions.
+Models besides linear regression may require different solutions.
 
 <!-- Third: boundary response -->
 The last major complication emerged because the boundary between atoms depends on their charges.
-This was solved by computing a correction for the boundary response, which to our knowledge has not yet appeared in the literature.
+The relationship between the sterngth of the potential and $\Delta \chi$ required a correction for this boundary response, which to our knowledge has not yet appeared in the literature.
 No such correction is required to compute electronegativities with a charge definition with fixed weight functions (such as Hirshfeld [@originalHirshfeld] or Becke [@originalBecke] charges), in which case $\chi_k$ can be simply equated with $\lambda_k$, up to an additive constant.
 For charge definitions like MBIS [@mbis] or Bader charges [@baderbook] that can closely fit the details of the electron density, more theoretical work would be required to compute the correction from individual frames, since the weight function derivatives in our correction depend on the response of the density to the potential.
 However, this additional complexity can be deferred until the simpler calculation with fixed weight functions has shown its value in a major MLIP dataset.
@@ -40,7 +41,7 @@ Furthermore, we indicated the value of the electronegativity labels by using the
 This has a direct application for training the electronegativity prediction network in fourth-generation MLIPs [@fourGenerations].
 
 $\chi_k$ is the generalized force [@thermo-dynamics] associated with charge.
-Since every adjustable atomic parameter has an associated generalized force, perturbations that add variety to a dataset also enrich the set of descriptors.
+Since every adjustable atomic parameter has an associated generalized force, perturbations that add variety to a dataset also enrich the set of potential training targets.
 The need for explicit charge assignment in MLIPs is undermined by the recent result that transformers can implicitly learn long-range electrostatics [@tobyAditi].
 The place for physical concepts like electronegativity may not be in the model architecture, but in the generation of training data.
 Our demonstration of training a charge model with $\chi_k$ indicates the value of the information in these generalized forces, whether or not future MLIPs include explicit charge prediction.
