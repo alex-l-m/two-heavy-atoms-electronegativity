@@ -11,13 +11,13 @@ Partial charges are used to compute the electrostatic component of energy in som
 In traditional polarizable force fields, charge is typically predicted using charge equilibration (QEq) [@rappe1991charge], and the idea has been revived in "fourth-generation" MLIPs [@fourGenerations].
 
 Although QEq models can be trained using system-level observables such as dipole moments [@chemicalPotentialEqualization], the availability of per-atom charge annotations enables a more direct strategy: training the model by minimizing errors in the predicted charges themselves [@verstraelenElectronegativityParameters].
-Notably, some prior work has augmented this training by including systems subjected to external perturbations—such as the electrostatic potential created by a nearby point charge—to probe how charges respond under imposed fields [@verstraelenElectronegativityParameters; @verstraelenSilicatesResponse].
+Interestingly, some QEq has been trained on data including systems subjected to external perturbations, such as the electrostatic potential created by a nearby point charge, to probe how charges respond [@verstraelenElectronegativityParameters; @verstraelenSilicatesResponse].
 
 ML-scale training datasets do not currently include this kind of externally perturbed system.
 Using external potentials to augment ML training datasets with distorted electron densities could help models generalize to chemical environments not directly present in the training data, or help with QM/MM applications [@polarizableQMMM].
 
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
-The possibility we will explore in this work is not just distorting electron densities via external potentials, but annotating the data with an new atomic property, associated with distorted densities just as force is associated with distorted geometries.
+The possibility we will explore in this work is not just distorting electron densities via external potentials, but annotating the data with a new atomic property, associated with distorted densities just as force is associated with distorted geometries.
 This property is electronegativity, as defined in conceptual DFT [@geerlingsconceptualDFTreview].
 
 Conceptual DFT began with a new definition of the electronegativity of a system: the negative of the chemical potential of the electrons [@parrcdftelectronegativity].

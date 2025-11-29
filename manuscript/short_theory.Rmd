@@ -1,6 +1,6 @@
 # Summary of Theory
 
-Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$
+Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$.
 In the Supplementary Theory all results are derived for an arbitrary number of atoms and specialized for the special case of two atoms.
 In what follows we give the formulas derived, where appropriate in the two-atom special case.
 
