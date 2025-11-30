@@ -2,7 +2,7 @@
 
 <!-- 1. Identify the problem: what to include in a dataset? / We can include electronegativity in datasets -->
 Atomistic simulation has long involved a trade-off: *ab initio* methods are accurate but computationally expensive, while force fields sacrifice accuracy for speed.
-Over the past decade, machine learning interatomic potentials (MLIPs) have aimed to approach DFT-level accuracy with force-field efficiency, but training them requires large datasets generated from *ab initio* calculations [@MILPReview2025].
+Over the past decade, machine learning interatomic potentials (MLIPs) have aimed to approach _ab initio_ accuracy with force-field efficiency, but training them requires large datasets generated from *ab initio* calculations [@MILPReview2025].
 In the past few years, datasets of the scale required for machine learning, containing off-equilibrium geometries annotated with force for each atom, have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
 It is therefore timely to ask what information such datasets should include.
 
@@ -18,7 +18,7 @@ Using external potentials to augment ML training datasets with distorted electro
 
 <!-- 2. Conceptual DFT / Electronegativity is a real thing -->
 The possibility we will explore in this work is not just distorting electron densities via external potentials, but annotating the data with a new atomic property, associated with distorted densities just as force is associated with distorted geometries.
-This property is electronegativity, as defined in conceptual DFT [@geerlingsconceptualDFTreview].
+This property is electronegativity, as defined in conceptual density functional theory (DFT) [@geerlingsconceptualDFTreview].
 
 Conceptual DFT began with a new definition of the electronegativity of a system: the negative of the chemical potential of the electrons [@parrcdftelectronegativity].
 Defined this way, the electronegativity $\chi(q)$ is an increasing function of charge $q$, and can be associated with any system, not just a neutral atom but also an ion, a molecule, or a material.
