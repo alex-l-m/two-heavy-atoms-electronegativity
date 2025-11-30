@@ -1,17 +1,15 @@
 # Abstract
 <!-- Basic introduction -->
-Drug discovery and materials discovery rely on atomistic simulations of larger systems, longer timescales, and larger numbers of systems than is feasible with _ab initio_ computational chemistry.
+In atomistic simulation, _ab initio_ methods are accurate but too computationally expensive for large systems, long trajectories, or high-throughput screening.
 <!-- More detailed background -->
-Recently, machine-learned interatomic potentials (MLIPs) have approached the accuracy of _ab initio_ methods at speeds closer to traditional force fields.
-MLIPs are trained using large datasets of _ab initio_ simulations.
-These training datasets contain off-equilibrium geometries labelled with a force for each atom, and sometimes atomic charge.
+Machine-learned interatomic potentials (MLIPs) are approaching the accuracy of _ab initio_ methods at speeds closer to traditional force fields by training on large datasets of _ab initio_ results.
+These training datasets contain off-equilibrium geometries labeled with the force on each atom, and, in some datasets, atomic partial charges.
 <!-- General problem addressed -->
 <!-- Project concept in a sentence -->
 We propose adding diversity to the training data by perturbing atomic charge, and annotating atoms with a corresponding additional label: electronegativity, as defined in conceptual density functional theory.
 <!-- Summary of new results for specialists -->
-As a demonstration, we created a training dataset consisting of crystals with two-atom unit cells, with the charge transfer between the atoms controlled by an external potential.
-By matching the form of the potential to the charge definition, we computed the electronegativity difference from the strength of the potenial.
-Training a linear model for the electronegativity difference yielded the parameters of a charge equilibration model as weights.
+To demonstrate this proposal, we construct a training dataset of crystals with two-atom unit cells, controlling the charge transfer between the atoms by imposing an external potential.
+By matching the form of the potential to the charge partitioning scheme, we computed the electronegativity difference from the strength of the imposed potential.
+Fitting these electronegativity differences with linear regression yields the parameters of a charge equilibration model.
 <!-- Statement of impact to specialists -->
-Our results demonstrate a new way of training the charge assignment models which are incorporated into some MLIPs.
-Furthermore, we show a path towards increasing the diversity of MLIP training datasets while simultaneously enriching the atomic descriptors that can be used as training targets.
+Our results demonstrate a new way of training the charge assignment models which are incorporated into some MLIPs, and show how to diveristy MLIP training datasets while simultaneously adding atom-level response properties that can be used as training targets.
