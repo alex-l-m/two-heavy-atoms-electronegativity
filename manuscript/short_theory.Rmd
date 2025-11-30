@@ -50,7 +50,7 @@ Since $\chi_k$ is the negative of a chemical potential, the underlying principle
 In order to relate the imposed potential to atomic electronegativities, the field must have a form defined by the weight functions from the charge definition in equation \@ref(eq:AtomicPopulationSummary).
 \begin{equation}
 \imposedPotentialValue{} = \sum_k \lambda_k \, \weightFunc{k}{\vect{N}}
-(\#eq:ElectricalPotentialSummary)
+(\#eq:ImposedPotentialSummary)
 \end{equation}
 
 For our two-atom systems, we impose a shaped potential such that $\lambda_A = -\lambda_D = \lambda$ so that
@@ -77,7 +77,7 @@ where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight functi
 We evaluate this factor by numerical integration.
 
 <!-- Constrained density functional theory -->
-In constrained density functional theory, the penalty term enforcing the charge constraint can be interpreted as a potential of the form in Equation \@ref(eq:ElectricalPotentialSummary), and Equation \@ref(eq:DeltaChiNoBoundarySummary) follows from a "thermodynamic relation" between the Lagrange multiplier and the chemical potential [@KadukConstrainedDFTReview].
+In constrained density functional theory, the penalty term enforcing the charge constraint can be interpreted as a potential of the form in Equation \@ref(eq:ImposedPotentialSummary), and Equation \@ref(eq:DeltaChiNoBoundarySummary) follows from a "thermodynamic relation" between the Lagrange multiplier and the chemical potential [@KadukConstrainedDFTReview].
 From this perspective, the electronegativity is a derivative of the energy with respect to a constraint.
 This makes it a "generalized force" in the terminology of @thermo-dynamics.
 
