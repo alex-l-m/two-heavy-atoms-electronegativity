@@ -1,5 +1,5 @@
 ---
-title: "Training Models of Atomic Charge by Predicting Atomic Electronegativity"
+title: "Training Models of Atomic Charge by Predicting A Generalized Force"
 author: "Alexander Davis, Zhibo Wang, Oleksandr Voznyy"
 site: bookdown::bookdown_site
 documentclass: article
