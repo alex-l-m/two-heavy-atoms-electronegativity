@@ -5,12 +5,12 @@ Atomistic simulation has long involved a trade-off: *ab initio* methods are accu
 Over the past decade, machine learning interatomic potentials (MLIPs) have aimed to approach _ab initio_ accuracy with force-field efficiency, but training them requires large datasets generated from *ab initio* calculations [@MILPReview2025].
 In the past few years, datasets of the scale required for machine learning have been released for both molecules [@comp6,@isayevani2,@omol25] and crystal structures [@chgnet,@omat24].
 
-A trend in the development of these datasets has been inclusion of increasingly distorted geometries.
-In organic chemistry, conformer generation is standard practice, but for crystal structures, datasets progressed from having only equilibrium geometries, to including relaxation paths, and most recently to inclusion of more distorted off-equilibrium geometries.
-Highly distorted geometries not only help the model learn configurations that may appear during simulations, but even help prediction of properties for the equilibrium geometry.
-Off-equilibrium geometries are annotated with forces for each atom, and the use of forces assists in training, relative to training with only the energies.
+A trend in the development of these datasets has been the inclusion of increasingly distorted geometries.
+Although conformer generation has long been standard practice in computational organic chemistry, early machine learning datasets included only equilibrium geometries [@qm9,@tmqm].
+More recent datasets have included conformers and MD trajectories [@comp6,@omol25], and crystal datasets have followed a similar progression: starting with equilibrium geometries [@matproj], then adding relaxation trajectories [@chgnet,@oc20], and now using Boltzmann sampling and molecular dynamics [@omat24].
+In these off-equilibrium geometries, atoms are annotated with forces, and including forces in MLIP training results in lower test errors than training on energies only [@pinheiro2021].
 
-Besides force, another important atomic property included in some datasets [@comp6,@omol25] is partial charge.
+Besides force, another atomic property included in some datasets [@comp6,@omol25] is partial charge.
 Partial charges are used to compute the electrostatic component of energy in some traditional force fields [@polarizableFFReviewJing] and MLIPs [@Anstine2023].
 In traditional polarizable force fields, charge is typically predicted using charge equilibration (QEq) [@rappe1991charge], a family of related empirical models based on solving a linear system.
 QEq has also become a component of "fourth-generation" MLIPs [@fourGenerations], with the innovation of environment-dependent QEq parameters.
