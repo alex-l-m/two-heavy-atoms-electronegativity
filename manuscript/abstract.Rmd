@@ -7,10 +7,10 @@ Some datasets include atomic partial charges, which are convenient for training 
 <!-- General problem addressed -->
 <!-- Project concept in a sentence -->
 We propose adding diversity to the training data by perturbing atomic charge, and annotating atoms with corresponding energy derivatives.
-These additional labels are identical to the electronegativity of atoms, as defined in conceptual density functional theory.
+These additional atom-level labels are identical to electronegativity as defined in conceptual density functional theory.
 <!-- Summary of new results for specialists -->
 To demonstrate this proposal, we construct a training dataset of crystals with two-atom unit cells, controlling the charge transfer between the atoms by imposing an external potential.
 By matching the form of the potential to the charge partitioning scheme, we compute the electronegativity difference from the strength of the imposed potential, and observe a near-linear relationship with charge transfer.
 Fitting these electronegativity differences with linear regression yields the parameters of a charge equilibration model.
 <!-- Statement of impact to specialists -->
-Our results demonstrate a new way of training charge assignment models, and show how to diversify MLIP training datasets while simultaneously adding atom-level response properties that can be used as training targets.
+Our results demonstrate a new way of training charge prediction models, and show how to diversify MLIP training datasets while simultaneously adding atom-level response properties that can be used as training targets.
