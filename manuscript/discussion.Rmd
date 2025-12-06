@@ -42,6 +42,5 @@ However, the need to incorporate charge models like QEq into MLIP architectures 
 In the long term, the place for physical concepts like electronegativity may be solely to enrich the training data, without any direct correspondence to the model architecture.
 
 $\chi_k$ is the generalized force [@thermo-dynamics] associated with charge.
-Since every adjustable atomic parameter has an associated generalized force, perturbations that add variety to a dataset also enrich the set of training targets.
-Our demonstration of training a charge model with $\chi_k$ indicates the value of the information in these generalized forces.
-These electronic responses may be especially important considering that the same large datasets are now being used to train not only MLIPs but models of electronic structure [@omol25ElectronicStructureModel].
+Other atomic properties can also be perturbed to diversify the dataset, with each perturbed property contributing its own conjugate generalized force.
+Our demonstration of training a charge model with $\chi_k$ indicates the value of these generalized forces for training machine learning models.
