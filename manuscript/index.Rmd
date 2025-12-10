@@ -18,6 +18,7 @@ output:
     pandoc_args:
       - --lua-filter=section-bibliographies.lua
       - --lua-filter=hide-level1-headers.lua
+reference-section-title: "References"
 citeproc: false
 ---
 
