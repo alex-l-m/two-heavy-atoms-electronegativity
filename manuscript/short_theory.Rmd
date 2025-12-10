@@ -85,7 +85,7 @@ This makes it a "generalized force" in the terminology of @thermo-dynamics.
 
 The linear model underlying QEq, in the two-atom case, is
 \begin{equation}
-\widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A + \eta_{e(D)} \, q_D
+\widehat{\Delta \chi} = \chi_{e(A)}^0 - \chi_{e(D)}^0 + \eta_{e(A)} \, q_A - \eta_{e(D)} \, q_D
 (\#eq:QEqLinearModelSummary)
 \end{equation}
 where $\widehat{\Delta \chi}$ is the estimated value of $\Delta \chi$ using these model parameters.
