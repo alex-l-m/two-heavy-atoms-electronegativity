@@ -1,4 +1,4 @@
-# Acknowledgments
+## Acknowledgments
 
 The authors acknowledge support from the Alliance for AI-Accelerated Materials Discovery (A3MD).
 This work benefitted from discussions with Kareem Gameel, Ihor Neporizhnii, Martin Head-Gordon, Paul Ayers and Toon Verstraelen.

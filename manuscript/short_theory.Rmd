@@ -1,10 +1,10 @@
-# Summary of Theory
+## Summary of Theory
 
 Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$.
 In the Supplementary Theory all results are derived for an arbitrary number of atoms and specialized for the special case of two atoms.
 In what follows we give the formulas derived, where appropriate in the two-atom special case.
 
-## Defining atomic charge
+### Defining atomic charge
 
 The charge definition we use is our primitive Hirshfeld-I method, defined in full in Supplementary Theory section \@ref(sec:primitive-hirshfeld-i).
 As in the original Hirshfeld-I method, electron populations $N_k$ are defined as integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function, where the weight function depends on both the element and on the electron populations of each atom:
@@ -19,7 +19,7 @@ q_k = Z_k - N_k
 \end{equation}
 where $Z_k$ is the atomic number.
 
-## Defining atomic electronegativity
+### Defining atomic electronegativity
 
 In our simulations we manipulate charge by imposing an external potential.
 To define electronegativities, we consider the energy $\energyNuc$ (defined formally in the Supplementary Theory section \@ref(sec:definition-of-energy)), which includes the Coulomb potential of the nuclei but not the imposed potential.
@@ -42,7 +42,7 @@ In our simulations we will smoothly vary the imposed potential while the total e
 The derivative of the energy of a system with respect to its electron population is piecewise linear [@piecewiseLinearEnergy].
 However, the derivative in Equation \@ref(eq:EnergyDerivativeDeltaChiSummary) describes charge transfer within a system of fixed total electron population, and will not be piecewise linear.
 
-## Measuring atomic electronegativity
+### Measuring atomic electronegativity
 
 We will measure atomic electronegativities $\chi_k$ by performing DFT simulations with an additional potential imposed.
 Since $\chi_k$ is the negative of a chemical potential, the underlying principle is measuring an "internal" chemical potential with an "external" potential imposed on the system, in the terminology of @kittel1980thermal.
@@ -81,7 +81,7 @@ In constrained density functional theory, the penalty term enforcing the charge 
 From this perspective, the electronegativity is a derivative of the energy with respect to a constraint.
 This makes it a "generalized force" in the terminology of @thermo-dynamics.
 
-## Predictive model
+### Predictive model
 
 The linear model underlying QEq, in the two-atom case, is
 \begin{equation}
@@ -107,7 +107,7 @@ Conceptually, estimating charge requires taking into account every atom that is 
 
 The sensitivity of the charge predictions to error in the model parameters can be computed by differentiating the electronegativity equalization equation \@ref(eq:ChargeEstimateSummary) with respect to the model parameters, showing that the higher the hardnesses, the less the error propagates.
 
-## Loss function for training the model
+### Loss function for training the model
 
 We train the model by minimizing the loss function
 \begin{equation}

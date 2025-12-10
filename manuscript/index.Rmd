@@ -10,14 +10,18 @@ output:
     includes:
       in_header: preamble.tex
     latex_engine: pdflatex
-    citation_package: natbib
     keep_tex: yes
     toc_depth: 3
     toc_unnumbered: yes
     toc_appendix: yes
     extra_dependencies: ["placeins"]
+    pandoc_args:
+        - --lua-filter=section-bibliographies.lua
+citeproc: false
 ---
 
 ```{r setup, echo=FALSE, include=FALSE, results=FALSE}
 library(tidyverse)
 ```
+
+# Main

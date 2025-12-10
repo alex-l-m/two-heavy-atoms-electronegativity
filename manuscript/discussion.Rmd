@@ -1,4 +1,4 @@
-# Discussion
+## Discussion
 
 We have, for the first time, trained a charge prediction model by minimizing error in the $\chi$-prediction task.
 We constructed a training dataset of binary materials and, for each material, simulated a smooth sequence of charge states ("frames") by imposing an external potential of increasing strength.

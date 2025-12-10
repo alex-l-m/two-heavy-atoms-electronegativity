@@ -1,6 +1,6 @@
-# Results
+## Results
 
-## Dataset
+### Dataset
 
 (ref:dataset-illustration-figure-caption) **A** Circuit diagram, depicting an electrical potential that moves electron density from the acceptor atom A back onto the donor atom D. **B** In gallium phosphide, the rise of energy as the phosphorus approaches neutrality, including only the potential of the nuclei and not the potential of the imposed field in the energy calculation. **C** The electronegativity difference, computed in two ways: by numerical differentiation of the energy curve and by using a relationship with the strength of the potential ($\lambda$).
 
@@ -20,7 +20,7 @@ We also obtained $\Delta \chi$ from each frame individually without taking diffe
 The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C), with deviation in each case less than 0.1 eV (Supplementary Figure \@ref(fig:all-electronegativities-figure), Supplementary Table \@ref(tab:electronegativity-max-deviations-table)).
 The curves shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral.
 
-## Model
+### Model
 
 (ref:linear-model-figure-caption) **A** Electronegativity difference as a function of charge for all materials in the III-V zincblende dataset, separated into panels by anion element. Curves were colored according to the cation element. Dotted lines are predicted lines from the leave-one-out cross-validation. **B** Pauling electronegativity compared to the $\chi^0$ parameter extracted from a linear regression fit. **C** Comparison of the charge of the anion in each material to the predicted charge from the leave-one-out cross-validation of the linear model.
 

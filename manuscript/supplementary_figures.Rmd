@@ -1,4 +1,4 @@
-# Supplementary figures and tables
+## Supplementary figures and tables
 
 (ref:all-energies-caption) $\energyNuc$ for each system as a function of charge, with quadratic fit, and a dot indicating the frame with no field applied.
 

@@ -1,4 +1,4 @@
-# Abstract
+## Abstract
 <!-- Basic introduction -->
 In atomistic simulation, _ab initio_ methods are accurate but too computationally expensive for large systems, long trajectories, or high-throughput screening.
 <!-- More detailed background -->

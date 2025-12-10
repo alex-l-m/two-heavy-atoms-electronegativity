@@ -1,4 +1,4 @@
-# Introduction
+## Introduction
 
 <!-- 1. Identify the problem: what to include in a dataset? / We can include electronegativity in datasets -->
 Atomistic simulation has long involved a trade-off: *ab initio* methods are accurate but computationally expensive, while force fields sacrifice accuracy for speed.

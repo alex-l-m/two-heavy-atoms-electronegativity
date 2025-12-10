@@ -1,4 +1,4 @@
-# Computational methods
+## Computational methods
 
 Binary materials were constructed from pairs of a formal cation and a formal anion from periods 2 to 4.
 Each material the consisted of a formal cation from group III (starting with boron) and a formal anion from group V (starting with nitrogen).
