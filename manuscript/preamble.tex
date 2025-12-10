@@ -58,3 +58,25 @@
 \newcommand{\weightDerivSubscript}[3]{\left(\weightDeriv{#1}{#2}\right)_{#3}(\position)} % (\partial w_k / \partial N1)_{N2}
 
 \newcommand{\avgWeightDerivSubscript}[3]{\left\langle \left( \weightDeriv{#1}{#2} \right)_{#3} \right\rangle}
+
+% Reset counters and switch to S-prefixed numbering for supplementary material
+% https://stackoverflow.com/questions/50223141/rmarkdown-bookdown-separate-figure-numbering-for-supplemental-section
+\newcommand{\beginsupplement}{
+  % --- sections ---
+  \setcounter{section}{0}
+  \renewcommand{\thesection}{S\arabic{section}}
+  % keep subsections as S1.1, S1.2, ...
+  \renewcommand{\thesubsection}{S\arabic{section}.\arabic{subsection}}
+  \renewcommand{\thesubsubsection}{S\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+  % avoid duplicate PDF destinations with hyperref
+  \renewcommand{\theHsection}{S\arabic{section}}
+  \renewcommand{\theHsubsection}{S\arabic{section}.\arabic{subsection}}
+  \renewcommand{\theHsubsubsection}{S\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+  % --- figures / tables / equations
+  \setcounter{figure}{0}
+  \renewcommand{\thefigure}{S\arabic{figure}}
+  \setcounter{table}{0}
+  \renewcommand{\thetable}{S\arabic{table}}
+  \setcounter{equation}{0}
+  \renewcommand{\theequation}{S\arabic{equation}}
+}

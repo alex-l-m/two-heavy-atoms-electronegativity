@@ -1,0 +1,10 @@
+<!-- This file should just be placed between the main tax and the supplement.
+It shouldn't display any text, just contain the breaking code -->
+
+# Supplement
+<!-- I'm not sure why the equals sign before "latex" is necessary, but it is as of 9 Dec 2026
+https://bookdown.org/yihui/rmarkdown-cookbook/raw-latex.html -->
+```{=latex}
+\clearpage
+\beginsupplement
+```

@@ -9,5 +9,6 @@ rmd_files:
   - discussion.Rmd
   - computation.Rmd
   - acknowledgments.Rmd
+  - begin_supplement.Rmd
   - theory.Rmd
   - supplementary_figures.Rmd
