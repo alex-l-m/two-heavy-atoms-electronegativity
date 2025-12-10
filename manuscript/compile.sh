@@ -1,2 +1,2 @@
 # Compile bookdown
-Rscript compile.R
+Rscript render_book.R
