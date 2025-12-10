@@ -6,7 +6,7 @@ In what follows we give the formulas derived, where appropriate in the two-atom 
 
 ### Defining atomic charge
 
-The charge definition we use is our primitive Hirshfeld-I method, defined in full in Supplementary Theory section \@ref(sec:primitive-hirshfeld-i).
+The charge definition we use is our primitive Hirshfeld-I method, defined in full in the Supplementary Theory.
 As in the original Hirshfeld-I method, electron populations $N_k$ are defined as integrals of a weight function $\weightFunc{k}{\vect{N}}$ against the density function, where the weight function depends on both the element and on the electron populations of each atom:
 \begin{equation}
 N_k = \spaceIntegral{\weightFunc{k}{\vect{N}} \, \electronDensityValue}
@@ -22,7 +22,7 @@ where $Z_k$ is the atomic number.
 ### Defining atomic electronegativity
 
 In our simulations we manipulate charge by imposing an external potential.
-To define electronegativities, we consider the energy $\energyNuc$ (defined formally in the Supplementary Theory section \@ref(sec:definition-of-energy)), which includes the Coulomb potential of the nuclei but not the imposed potential.
+To define electronegativities, we consider the energy $\energyNuc$ (defined formally in equation \@ref(eq:EnergyDefs)), which includes the Coulomb potential of the nuclei but not the imposed potential.
 
 The electronegativities are
 \begin{equation}
@@ -73,7 +73,7 @@ Including the shift in the definition of atoms requires another factor in this r
 \Delta \chi = 2\,\left( 1 - \avgWeightDerivSubscript{A}{A}{N} \right)\lambda
 (\#eq:DeltaChiWithBoundarySummary)
 \end{equation}
-where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight function integrated against the electron density, discussed in more detail in the Supplementary Theory section \@ref(sec:accounting-for-boundary-shift).
+where $\avgWeightDerivSubscript{A}{A}{N}$ is the derivative of the weight function integrated against the electron density, defined fully in equation \@ref(eq:TwoAtomAvgWeightDerivRelation).
 We evaluate this factor by numerical integration.
 
 <!-- Constrained density functional theory -->

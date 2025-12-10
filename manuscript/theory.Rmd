@@ -341,6 +341,7 @@ Then,
 Integrating,
 \begin{equation}
   \avgWeightDerivSubscript{A}{A}{N} = \avgWeightDerivSubscript{A}{A}{N_D} - \avgWeightDerivSubscript{A}{D}{N_A}
+  (#eq:TwoAtomAvgWeightDerivRelation)
 \end{equation}
 
 Then, the difference of chemical potentials in equation \@ref(eq:TwoAtomMuDelta) can be written as

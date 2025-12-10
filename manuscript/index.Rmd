@@ -15,6 +15,7 @@ output:
     toc_unnumbered: yes
     toc_appendix: yes
     extra_dependencies: ["placeins"]
+    number_sections: false
     pandoc_args:
       - --lua-filter=section-bibliographies.lua
       - --lua-filter=hide-level1-headers.lua
