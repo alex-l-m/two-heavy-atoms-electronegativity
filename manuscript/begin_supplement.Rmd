@@ -1,4 +1,4 @@
-<!-- This file should just be placed between the main tax and the supplement.
+<!-- This file should just be placed between the main text and the supplement.
 It shouldn't display any text, just contain the breaking code -->
 
 # Supplement

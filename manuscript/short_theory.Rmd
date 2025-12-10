@@ -1,8 +1,8 @@
 ## Summary of Theory
 
 Our simulations will be of systems of two atoms, which we refer to as a donor atom $D$ and an acceptor atom $A$.
-In the Supplementary Theory all results are derived for an arbitrary number of atoms and specialized for the special case of two atoms.
-In what follows we give the formulas derived, where appropriate in the two-atom special case.
+In the Supplementary Theory all results are derived for an arbitrary number of atoms and specialized for the case of two atoms.
+In what follows we give the formulas without derivations, in the two-atom special case where appropriate.
 
 ### Defining atomic charge
 
@@ -59,7 +59,7 @@ For our two-atom systems, we impose a shaped potential such that $\lambda_A = -\
 (\#eq:TwoAtomPotentialSummary)
 \end{equation}
 $\lambda$ can be taken as a measure of the strength of the imposed potential.
-This potential is positive on the acceptor to push electron density back onto the donor, but interpreted it as an electrical potential, it is electrically negative on the acceptor to repel electrons back to the donor.
+This potential is positive on the acceptor to push electron density back onto the donor, but interpreted as an electrical potential, it is electrically negative on the acceptor to repel electrons back to the donor.
 
 To measure $\Delta \chi$, we rely on a relationship with the strength of the field applied to each atom.
 If the weight functions did not depend on the electron populations, the relationship would be

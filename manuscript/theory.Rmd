@@ -14,12 +14,12 @@ Define energies
 \end{equation}
 Then,
 \begin{equation}
-  \energyTot [ \Psi ] = \energyNuc [ \Psi ] + \spaceIntegral{ \imposedPotentialValue \electronDensityValue }
+  \energyTot [ \Psi ] = \energyNuc [ \Psi ] + \spaceIntegral{ \imposedPotentialValue{} \electronDensityValue }
   (\#eq:EnergyTotalSplit)
 \end{equation}
 Considering both energies as density functionals $\energyNuc [ \electronDensity ]$ and $\energyTot [ \electronDensity ]$, this becomes
 \begin{equation}
-  \energyTot [ \electronDensity ] = \energyNuc [ \electronDensity ] + \spaceIntegral{ \imposedPotentialValue \electronDensityValue }
+  \energyTot [ \electronDensity ] = \energyNuc [ \electronDensity ] + \spaceIntegral{ \imposedPotentialValue{} \electronDensityValue }
   (\#eq:EnergyTotalSplitDensityFunctional)
 \end{equation}
 
@@ -44,7 +44,7 @@ However, we will continue to work with chemical potentials for theoretical deriv
 Beginning with equation \@ref(eq:EnergyTotalSplitDensityFunctional), taking the functional derivative with respect to the density yields
 \begin{equation}
   \funcDerivValue{\energyTot}{\electronDensity}
-    = \funcDerivValue{\energyNuc}{\electronDensity} + \imposedPotentialValue
+    = \funcDerivValue{\energyNuc}{\electronDensity} + \imposedPotentialValue{}
   (\#eq:EnergySplit)
 \end{equation}
 
@@ -52,7 +52,7 @@ Combining Equations \@ref(eq:StationaryCondition) and \@ref(eq:EnergySplit) yiel
 
 \begin{equation}
   \funcDerivValue{\energyNuc}{\electronDensity}
-    = \mu - \imposedPotentialValue
+    = \mu - \imposedPotentialValue{}
   (\#eq:RelateNucPotential)
 \end{equation}
 
@@ -116,7 +116,7 @@ In terms of charge, equation \@ref(eq:ChemicalPotentialDef) becomes
 In order to obtain a relationship between the atomic chemical potential and the imposed potential analogous to Equation \@ref(eq:RelateNucPotential), we will also require that the imposed potential has a shape defined by the weight functions:
 
 \begin{equation}
-  \imposedPotentialValue
+  \imposedPotentialValue{}
     = \sum_{k} \lambda_k \, \weightFunc{k}{\vect{N}}
   (\#eq:ImposedPotential)
 \end{equation}
@@ -158,7 +158,7 @@ and $\popChangeFixed{k}$ is the change in electron population of atom $k$ while 
 
 #### Special case: fixed weight functions {#sec:fixed-weight-functions}
 
-If these are Hirshfeld weight functions according to the original scheme with fixed neutral protatoms, then we have:
+If these are Hirshfeld weight functions according to the original scheme with fixed neutral proatoms, then we have:
 
 \begin{equation}
   \popChangeFixed{k} = \popChange{k}
@@ -362,8 +362,7 @@ This can be expressed as, for atom $i$ of a system,
   (\#eq:ChiLinearModel)
 \end{equation}
 
-$c_{ij}$ is a symmetric ($c_{ij}=c_{ji}$) interaction term, assumed to have some explicit functional form as a function of the distance between the atoms.
-Whereas $\chi_i^0$ and $\eta_i$ depend on empirical parameters of the model.
+$c_{ij}$ is a symmetric ($c_{ij}=c_{ji}$) interaction term, assumed to have some explicit functional form as a function of the distance between the atoms, whereas $\chi_i^0$ and $\eta_i$ depend on empirical parameters of the model.
 
 It is not the electronegativities $\chi_i$ that are directly observed, but the field strengths $\lambda_i$ that were imposed. We can express $\chi_i-\chi$ in terms of the field strengths by rearranging Equation \@ref(eq:ChiKGeneral).
 \begin{equation}
@@ -403,7 +402,7 @@ Then, for every pair of equations in \@ref(eq:LambdaLinearModelElement), subtrac
       + \eta_{e(A)} \, q_A - \eta_{e(D)} \, q_D
   (\#eq:DeltaLambdaLinearModel)
 \end{equation}
-where $eD$ is the donor element and $eA$ is the acceptor element.
+where $e(D)$ is the donor element and $e(A)$ is the acceptor element.
 
 #### Example {#sec:linear-regression-example}
 

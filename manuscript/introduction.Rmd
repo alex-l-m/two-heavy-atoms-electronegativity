@@ -16,7 +16,7 @@ In traditional polarizable force fields, charge is typically predicted using cha
 QEq has also become a component of "fourth-generation" MLIPs [@fourGenerations], with the innovation of environment-dependent QEq parameters.
 
 Although QEq models can be trained using system-level observables such as dipole moments [@chemicalPotentialEqualization], the availability of per-atom charge annotations enables a more direct strategy: training the model by minimizing errors in the predicted charges themselves [@verstraelenElectronegativityParameters].
-Interestingly, some QEq has been trained on data including systems subjected to external perturbations, such as the electrostatic potential created by a nearby point charge, to probe how charges respond [@verstraelenElectronegativityParameters; @verstraelenSilicatesResponse].
+Interestingly, QEq has sometimes been trained on data including systems subjected to external perturbations, such as the electrostatic potential created by a nearby point charge, to probe how charges respond [@verstraelenElectronegativityParameters; @verstraelenSilicatesResponse].
 
 ML-scale training datasets do not currently include this kind of externally perturbed system.
 Using external potentials to augment ML training datasets with distorted electron densities could help models generalize to chemical environments not directly present in the training data, or help with QM/MM applications [@polarizableQMMM].

@@ -18,7 +18,7 @@ The energy $\energyNuc$ at each frame tended to be approximately quadratic as a 
 The electronegativity difference $\Delta \chi$ is the derivative of this curve (Equation \@ref(eq:EnergyDerivativeDeltaChiSummary)), and can be obtained by numerically differentiating the $\energyNuc$ curve by taking differences between frames.
 We also obtained $\Delta \chi$ from each frame individually without taking differences, using Equation \@ref(eq:DeltaChiWithBoundarySummary).
 The two methods for obtaining the electronegativity difference match closely (Figure \@ref(fig:dataset-illustration-figure)C), with deviation in each case less than 0.1 eV (Supplementary Figure \@ref(fig:all-electronegativities-figure), Supplementary Table \@ref(tab:electronegativity-max-deviations-table)).
-The curves shows a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral.
+The curves show a nearly linear progression between the first frame of the series, the equilibrium electron density with $\Delta \chi=0$, and the last frame, in which the atoms are neutral.
 
 ### Model
 
