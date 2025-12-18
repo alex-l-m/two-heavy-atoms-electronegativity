@@ -1,6 +1,22 @@
 ---
 title: "Training Models of Atomic Charge by Predicting a Generalized Force"
-author: "Alexander Davis, Zhibo Wang, Oleksandr Voznyy"
+author:
+  - Alexander Davis:
+      institute: [uoft-scar, a3md]
+      email: alexander.davis@utoronto.ca
+      correspondence: true
+  - Zhibo Wang:
+      institute: [uoft, uoft-scar, a3md]
+      email: zhibo.wang@mail.utoronto.ca
+      correspondence: false
+  - Oleksandr Voznyy:
+      institute: [uoft, uoft-scar, a3md]
+      email: o.voznyy@utoronto.ca
+      correspondence: true
+institute:
+  - uoft: Department of Chemistry, University of Toronto
+  - uoft-scar: Department of Physical and Environmental Sciences, University of Toronto Scarborough
+  - a3md: The Alliance for AI-Accelerated Materials Discovery
 site: bookdown::bookdown_site
 documentclass: article
 bibliography: ../bibliography/eeq.bib
@@ -19,6 +35,8 @@ output:
     pandoc_args:
       - --lua-filter=section-bibliographies.lua
       - --lua-filter=hide-level1-headers.lua
+      - --lua-filter=scholarly-metadata.lua
+      - --lua-filter=author-info-blocks.lua
 reference-section-title: "References"
 citeproc: false
 ---
