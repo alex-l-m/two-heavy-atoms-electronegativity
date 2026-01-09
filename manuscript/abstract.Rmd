@@ -2,15 +2,21 @@
 <!-- Basic introduction -->
 In atomistic simulation, _ab initio_ methods are accurate but too computationally expensive for large systems, long trajectories, or high-throughput screening.
 <!-- More detailed background -->
-Recently, machine-learned interatomic potentials (MLIPs) are approaching the accuracy of _ab initio_ methods at speeds closer to traditional force fields by training on large datasets of _ab initio_ results.
-Some datasets include atomic partial charges, which are convenient for training models with explicit charge assignments.
+Recently, machine-learned interatomic potentials (MLIPs) are approaching the accuracy of _ab initio_ methods, at computational cost closer to traditional force fields.
+MLIPs are trained on large datasets of _ab initio_ results, and their performance reflects the information represented in that training data, motivating careful consideration of dataset construction.
+A key difficulty for MLIPs is prediction of long-range electrostatics and charge transfer, suggesting the necessity of including electronic response in training datasets.
+Current large datasets sometimes include atomic partial charges but without responses, and electronic response information is provided only for system-level observables.
+
 <!-- General problem addressed -->
 <!-- Project concept in a sentence -->
-We propose adding diversity to the training data by perturbing atomic charge, and annotating atoms with corresponding energy derivatives.
-These additional atom-level labels are identical to electronegativity as defined in conceptual density functional theory.
+We propose a route to including electronic response information at the atomic level: include perturbed electron densities, and label atoms not only with charges, but with corresponding energy derivatives.
+These new atom-level labels are identical to atomic electronegativity as defined in conceptual density functional theory, making them natural training targets for learning charge redistribution.
 <!-- Summary of new results for specialists -->
 To demonstrate this proposal, we construct a training dataset of crystals with two-atom unit cells, controlling the charge transfer between the atoms by imposing an external potential.
 By matching the form of the potential to the charge partitioning scheme, we compute the electronegativity difference from the strength of the imposed potential, and observe a near-linear relationship with charge transfer.
 Fitting these electronegativity differences with linear regression yields the parameters of a charge equilibration model.
+
 <!-- Statement of impact to specialists -->
-Our results demonstrate a new way of training charge prediction models, and show how to diversify MLIP training datasets while simultaneously adding atom-level response properties that can be used as training targets.
+Electronegativity labeling supplies a missing atomic-level training signal for supervised learning of electronic response, analogous to the role of forces for learning geometry.
+Electronegativity is the generalized force conjugate to charge.
+In the long term, a larger set of atom-level density descriptors and their conjugate generalized forces may be the ideal balance of a rich but computationally manageable MLIP training dataset, providing both density and charge response information without requiring the full electron density or other high-dimensional DFT outputs.
